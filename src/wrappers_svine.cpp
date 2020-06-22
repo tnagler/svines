@@ -1,12 +1,12 @@
 #define BOOST_NO_AUTO_PTR 1
 
 #include "Rcpp.h"
-#include "svine.hpp"
+#include "svines.hpp"
 #include <vinecopulib-wrappers.hpp>
 
 using namespace vinecopulib;
 
-Svine
+SVinecop
 svinecop_wrap(const Rcpp::List& svinecop_r)
 {
   size_t p = svinecop_r["p"];
@@ -23,12 +23,12 @@ svinecop_wrap(const Rcpp::List& svinecop_r)
 
   std::vector<std::string> var_types = svinecop_r["var_types"];
 
-  return Svine(
+  return SVinecop(
     pair_copulas, cs_structure, p, in_vertices, out_vertices, var_types);
 }
 
 Rcpp::List
-svinecop_wrap(const Svine& svinecop_cpp, bool is_fitted)
+svinecop_wrap(const SVinecop& svinecop_cpp, bool is_fitted)
 {
   auto vine_structure =
     rvine_structure_wrap(svinecop_cpp.get_rvine_structure());
@@ -64,7 +64,7 @@ svinecop_wrap(const Svine& svinecop_cpp, bool is_fitted)
 Rcpp::List
 svinecop_create_cpp(const Rcpp::List& svine_r)
 {
-  Svine tv_cpp = svinecop_wrap(svine_r);
+  SVinecop tv_cpp = svinecop_wrap(svine_r);
   return svinecop_wrap(tv_cpp, false);
 }
 
@@ -97,10 +97,6 @@ svinecop_select_cpp(const Eigen::MatrixXd& data,
   for (unsigned int fam = 0; fam < fam_set.size(); ++fam) {
     fam_set[fam] = to_cpp_family(family_set[fam]);
   }
-  bool fit_joint = (par_method == "joint");
-  if (fit_joint) {
-    par_method = "mle";
-  }
 
   FitControlsVinecop fit_controls(fam_set,
                                   par_method,
@@ -118,19 +114,16 @@ svinecop_select_cpp(const Eigen::MatrixXd& data,
                                   show_trace,
                                   num_threads);
 
-  Svine svine(data.cols(), p, var_types);
+  SVinecop svine(data.cols(), p, var_types);
   if (is_structure_provided) {
-    svine = Svine(rvine_structure_wrap(structure, false),
-                  p,
-                  in_vertices,
-                  out_vertices,
-                  var_types);
+    svine = SVinecop(rvine_structure_wrap(structure, false),
+                     p,
+                     in_vertices,
+                     out_vertices,
+                     var_types);
     svine.select_families(data, fit_controls);
   } else {
     svine.select_all(data, fit_controls);
-  }
-  if (fit_joint) {
-    svine.fit_joint(data, fit_controls);
   }
 
   return svinecop_wrap(svine, TRUE);
