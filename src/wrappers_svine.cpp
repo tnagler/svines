@@ -6,7 +6,7 @@
 
 using namespace vinecopulib;
 
-SVine
+SVinecop
 svinecop_wrap(const Rcpp::List& svinecop_r)
 {
   size_t p = svinecop_r["p"];
@@ -23,12 +23,12 @@ svinecop_wrap(const Rcpp::List& svinecop_r)
 
   std::vector<std::string> var_types = svinecop_r["var_types"];
 
-  return SVine(
+  return SVinecop(
     pair_copulas, cs_structure, p, in_vertices, out_vertices, var_types);
 }
 
 Rcpp::List
-svinecop_wrap(const SVine& svinecop_cpp, bool is_fitted)
+svinecop_wrap(const SVinecop& svinecop_cpp, bool is_fitted)
 {
   auto vine_structure =
     rvine_structure_wrap(svinecop_cpp.get_rvine_structure());
@@ -64,7 +64,7 @@ svinecop_wrap(const SVine& svinecop_cpp, bool is_fitted)
 Rcpp::List
 svinecop_create_cpp(const Rcpp::List& svine_r)
 {
-  SVine tv_cpp = svinecop_wrap(svine_r);
+  SVinecop tv_cpp = svinecop_wrap(svine_r);
   return svinecop_wrap(tv_cpp, false);
 }
 
@@ -114,13 +114,13 @@ svinecop_select_cpp(const Eigen::MatrixXd& data,
                                   show_trace,
                                   num_threads);
 
-  SVine svine(data.cols(), p, var_types);
+  SVinecop svine(data.cols(), p, var_types);
   if (is_structure_provided) {
-    svine = SVine(rvine_structure_wrap(structure, false),
-                  p,
-                  in_vertices,
-                  out_vertices,
-                  var_types);
+    svine = SVinecop(rvine_structure_wrap(structure, false),
+                     p,
+                     in_vertices,
+                     out_vertices,
+                     var_types);
     svine.select_families(data, fit_controls);
   } else {
     svine.select_all(data, fit_controls);

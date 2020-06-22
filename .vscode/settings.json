@@ -65,6 +65,7 @@
     "cfenv": "cpp",
     "cinttypes": "cpp",
     "typeindex": "cpp",
-    "fft": "cpp"
+    "fft": "cpp",
+    "core": "cpp"
   }
 }

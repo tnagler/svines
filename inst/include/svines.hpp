@@ -1,4 +1,4 @@
 #pragma once
 
-#include<svines/svine.hpp>
+#include<svines/svinecop.hpp>
 #include<svines/svine_structure.hpp>
