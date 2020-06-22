@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tools_stl.hpp>
 #include <vinecopulib/misc/tools_optimization.hpp>
 #include <vinecopulib/misc/tools_stats.hpp>
 #include <vinecopulib/misc/tools_stl.hpp>
@@ -10,63 +11,6 @@
 // TODO: weights
 
 namespace vinecopulib {
-
-namespace tools_stl {
-
-template<class T>
-std::vector<T>
-span(std::vector<T> x, size_t start, size_t len)
-{
-  x.erase(x.begin(), x.begin() + std::min(x.size(), start));
-  x.resize(std::min(x.size(), len));
-  return x;
-}
-
-template<class T>
-std::vector<T>
-rev(std::vector<T> x)
-{
-  tools_stl::reverse(x);
-  return x;
-}
-
-template<class T>
-std::vector<T>
-rep(std::vector<T> x, size_t times)
-{
-  std::vector<T> y = x;
-  for (size_t t = 1; t < times; ++t)
-    y = cat(y, x);
-  return y;
-}
-
-template<typename T>
-T
-min_vec(std::vector<T>& x)
-{
-  auto i = std::min_element(x.begin(), x.end());
-  return x[std::distance(x.begin(), i)];
-}
-
-template<typename T>
-T
-max_vec(std::vector<T>& x)
-{
-  auto i = std::max_element(x.begin(), x.end());
-  return x[std::distance(x.begin(), i)];
-}
-
-template<typename T>
-std::string
-str(std::vector<T>& x)
-{
-  std::stringstream s;
-  for (auto xx : x)
-    s << xx << ", ";
-  return s.str();
-}
-
-}
 
 // ------------------------- S-vine STRUCTURE ---------------
 
