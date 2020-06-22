@@ -55,8 +55,7 @@ structure is provided.}
 
 \item{par_method}{the estimation method for parametric models, either \code{"mle"}
 for sequential maximum likelihood, \code{"itau"} for inversion of Kendall's tau
-(only available for one-parameter families and \code{"t"}, or \code{"joint"} for
-joint maximum-likelihood estimation.}
+(only available for one-parameter families and \code{"t"}.}
 
 \item{nonpar_method}{the estimation method for nonparametric models, either
 \code{"constant"} for the standard transformation estimator, or

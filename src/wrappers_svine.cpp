@@ -97,10 +97,6 @@ svinecop_select_cpp(const Eigen::MatrixXd& data,
   for (unsigned int fam = 0; fam < fam_set.size(); ++fam) {
     fam_set[fam] = to_cpp_family(family_set[fam]);
   }
-  bool fit_joint = (par_method == "joint");
-  if (fit_joint) {
-    par_method = "mle";
-  }
 
   FitControlsVinecop fit_controls(fam_set,
                                   par_method,
@@ -128,9 +124,6 @@ svinecop_select_cpp(const Eigen::MatrixXd& data,
     svine.select_families(data, fit_controls);
   } else {
     svine.select_all(data, fit_controls);
-  }
-  if (fit_joint) {
-    svine.fit_joint(data, fit_controls);
   }
 
   return svinecop_wrap(svine, TRUE);

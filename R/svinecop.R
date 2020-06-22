@@ -21,8 +21,7 @@
 #'   structure selection.
 #' @param par_method the estimation method for parametric models, either `"mle"`
 #'   for sequential maximum likelihood, `"itau"` for inversion of Kendall's tau
-#'   (only available for one-parameter families and `"t"`, or `"joint"` for
-#'   joint maximum-likelihood estimation.
+#'   (only available for one-parameter families and `"t"`.
 #' @param nonpar_method the estimation method for nonparametric models, either
 #'   `"constant"` for the standard transformation estimator, or
 #'   `"linear"`/`"quadratic"` for the local-likelihood approximations of order
