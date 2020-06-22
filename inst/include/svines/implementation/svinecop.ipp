@@ -6,7 +6,7 @@
 #include <vinecopulib/misc/tools_stl.hpp>
 #include <vinecopulib/vinecop/class.hpp>
 
-// TODO: weights, discrete ?
+// TODO: discrete ?
 
 namespace vinecopulib {
 
@@ -92,9 +92,8 @@ SVinecop::get_svine_structure() const
 }
 
 inline void
-SVinecop::select_families(
-  const Eigen::MatrixXd& data,
-  const FitControlsVinecop& controls)
+SVinecop::select_families(const Eigen::MatrixXd& data,
+                          const FitControlsVinecop& controls)
 {
   tools_eigen::check_if_in_unit_cube(data);
   check_data_dim(data);
@@ -141,6 +140,10 @@ SVinecop::simulate(const size_t n,
                    const bool qrng,
                    const std::vector<int>& seeds)
 {
+  // inverse_rosenblatt() only works for continous models
+  auto actual_types = var_types_;
+  set_continuous_var_types();
+
   auto U = tools_stats::simulate_uniform(n, cs_dim_, qrng, seeds);
 
   // initialize first p + 1 lags
@@ -160,19 +163,19 @@ SVinecop::simulate(const size_t n,
     Ui.rightCols(cs_dim_) = U.row(i);
     sim.row(i) = inverse_rosenblatt(Ui).rightCols(cs_dim_);
   }
-
+  set_var_types_internal(actual_types);
   return sim;
 }
 
 inline Eigen::MatrixXd
-SVinecop::simulate_conditional(
-  size_t n,
-  const Eigen::MatrixXd& data,
-  const bool qrng,
-  const size_t num_threads,
-  const std::vector<int>& seeds)
+SVinecop::simulate_conditional(size_t n,
+                               const Eigen::MatrixXd& data,
+                               const bool qrng,
+                               const size_t num_threads,
+                               const std::vector<int>& seeds)
 {
   check_cond_data(data);
+  check_data_dim(data);
 
   Eigen::MatrixXd U(n, d_);
   if (p_ > 0) {
@@ -190,6 +193,7 @@ SVinecop::simulate_ahead(size_t n_ahead,
                          const std::vector<int>& seeds)
 {
   check_cond_data(data);
+  check_data_dim(data);
 
   Eigen::MatrixXd U(n_ahead + p_, cs_dim_);
   U.bottomRows(n_ahead) =
@@ -216,8 +220,7 @@ SVinecop::pdf(const Eigen::MatrixXd&, const size_t) const
 inline double
 SVinecop::loglik(const Eigen::MatrixXd& u, const size_t num_threads)
 {
-  if (static_cast<size_t>(u.cols()) != cs_dim_)
-    throw std::runtime_error("dimension of data and model don't match.");
+  check_data_dim(u);
   size_t n = u.rows();
 
   // iid model, can return loglik directly
@@ -255,35 +258,34 @@ SVinecop::loglik(const Eigen::MatrixXd& u, const size_t num_threads)
   return ll;
 }
 
-inline Eigen::VectorXd
-SVinecop::cond_cdf(const Eigen::MatrixXd& u,
-                   size_t conditioned,
-                   const size_t num_threads) const
-{
-  if (static_cast<size_t>(u.cols()) != cs_dim_)
-    throw std::runtime_error("dimension of data and model don't match.");
-  if (static_cast<size_t>(u.rows()) <= p_)
-    throw std::runtime_error("insufficient number of time points.");
+// inline Eigen::VectorXd
+// SVinecop::cond_cdf(const Eigen::MatrixXd& u,
+//                    size_t conditioned,
+//                    const size_t num_threads) const
+// {
+//   check_data_dim(u);
+//   if (static_cast<size_t>(u.rows()) <= p_)
+//     throw std::runtime_error("insufficient number of time points.");
 
-  auto v = u;
-  for (size_t lag = 0; lag < p_; ++lag) {
-    v = spread_lag(v, cs_dim_);
-    conditioned += cs_dim_;
-  }
+//   auto v = u;
+//   for (size_t lag = 0; lag < p_; ++lag) {
+//     v = spread_lag(v, cs_dim_);
+//     conditioned += cs_dim_;
+//   }
 
-  size_t n = v.rows();
-  Eigen::VectorXd seq = Eigen::VectorXd::LinSpaced(100, 1e-10, 1 - 1e-10);
-  Eigen::MatrixXd vv;
-  Eigen::VectorXd out(n);
-  for (size_t i = 0; i < n; ++i) {
-    vv = v.row(i).replicate(100, 1);
-    vv.col(conditioned) = seq;
-    auto pdf = Vinecop::pdf(vv, num_threads);
-    out(i) = pdf.head(std::ceil(v(i, conditioned) * 100)).sum();
-    out(i) /= pdf.sum();
-  }
-  return out;
-}
+//   size_t n = v.rows();
+//   Eigen::VectorXd seq = Eigen::VectorXd::LinSpaced(100, 1e-10, 1 - 1e-10);
+//   Eigen::MatrixXd vv;
+//   Eigen::VectorXd out(n);
+//   for (size_t i = 0; i < n; ++i) {
+//     vv = v.row(i).replicate(100, 1);
+//     vv.col(conditioned) = seq;
+//     auto pdf = Vinecop::pdf(vv, num_threads);
+//     out(i) = pdf.head(std::ceil(v(i, conditioned) * 100)).sum();
+//     out(i) /= pdf.sum();
+//   }
+//   return out;
+// }
 
 inline Eigen::VectorXi
 SVinecop::get_num_pars()
@@ -364,11 +366,24 @@ SVinecop::finalize_fit(tools_select::SVineStructureSelector& selector)
 inline void
 SVinecop::check_data_dim(const Eigen::MatrixXd& data) const
 {
-  if (cs_dim_ != static_cast<size_t>(data.cols())) {
+  int n_disc = 0;
+  for (auto t : tools_stl::span(var_types_, 0, cs_dim_)) {
+    n_disc += (t == "d");
+  }
+  size_t d_data = data.cols();
+  size_t d_exp = cs_dim_ + n_disc;
+  if ((d_data != d_exp) & (d_data != 2 * cs_dim_)) {
     std::stringstream msg;
-    msg << "wrong number of columns." << std::endl
-        << "expected: " << cs_dim_ << std::endl
-        << "provided: " << data.cols() << std::endl;
+    msg << "data has wrong number of columns; "
+        << "expected: " << d_exp << " or " << 2 * d_ << ", actual: " << d_data
+        << " (model contains ";
+    if (n_disc == 0) {
+      msg << "no discrete variables)." << std::endl;
+    } else if (n_disc == 1) {
+      msg << "1 discrete variable)." << std::endl;
+    } else {
+      msg << get_n_discrete() << " discrete variables)." << std::endl;
+    }
     throw std::runtime_error(msg.str());
   }
 }

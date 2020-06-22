@@ -17,9 +17,11 @@ class SVineSelector
 public:
   SVineSelector(const Eigen::MatrixXd& data,
                 std::vector<size_t> in_vertices,
-                std::vector<size_t> out_vertices);
+                std::vector<size_t> out_vertices,
+                const std::vector<std::string>& var_types);
 
-  SVineSelector(const Eigen::MatrixXd& data);
+  SVineSelector(const Eigen::MatrixXd& data,
+                const std::vector<std::string>& var_types);
 
   std::vector<size_t> get_in_vertices() const;
 
@@ -74,7 +76,6 @@ public:
 protected:
   double compute_fit_id(const EdgeProperties& e) override;
 };
-
 
 //! @brief Selector class for copulas only.
 class SVineFamilySelector

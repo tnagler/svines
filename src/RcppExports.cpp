@@ -62,20 +62,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// svinecop_cond_cdf_cpp
-Eigen::VectorXd svinecop_cond_cdf_cpp(const Eigen::MatrixXd& u, size_t conditioned, const Rcpp::List& svinecop_r, size_t cores);
-RcppExport SEXP _svines_svinecop_cond_cdf_cpp(SEXP uSEXP, SEXP conditionedSEXP, SEXP svinecop_rSEXP, SEXP coresSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type u(uSEXP);
-    Rcpp::traits::input_parameter< size_t >::type conditioned(conditionedSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::List& >::type svinecop_r(svinecop_rSEXP);
-    Rcpp::traits::input_parameter< size_t >::type cores(coresSEXP);
-    rcpp_result_gen = Rcpp::wrap(svinecop_cond_cdf_cpp(u, conditioned, svinecop_r, cores));
-    return rcpp_result_gen;
-END_RCPP
-}
 // svinecop_sim_cpp
 Eigen::MatrixXd svinecop_sim_cpp(const Rcpp::List& svinecop_r, const size_t n, const bool qrng, std::vector<int> seeds);
 RcppExport SEXP _svines_svinecop_sim_cpp(SEXP svinecop_rSEXP, SEXP nSEXP, SEXP qrngSEXP, SEXP seedsSEXP) {
@@ -126,7 +112,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_svines_svinecop_create_cpp", (DL_FUNC) &_svines_svinecop_create_cpp, 1},
     {"_svines_svinecop_select_cpp", (DL_FUNC) &_svines_svinecop_select_cpp, 22},
     {"_svines_svinecop_loglik_cpp", (DL_FUNC) &_svines_svinecop_loglik_cpp, 3},
-    {"_svines_svinecop_cond_cdf_cpp", (DL_FUNC) &_svines_svinecop_cond_cdf_cpp, 4},
     {"_svines_svinecop_sim_cpp", (DL_FUNC) &_svines_svinecop_sim_cpp, 4},
     {"_svines_svinecop_sim_conditional_cpp", (DL_FUNC) &_svines_svinecop_sim_conditional_cpp, 6},
     {"_svines_svinecop_sim_ahead_cpp", (DL_FUNC) &_svines_svinecop_sim_ahead_cpp, 5},

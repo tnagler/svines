@@ -2,7 +2,6 @@
 
 S3method(print,svinecop_dist)
 export(svinecop)
-export(svinecop_cond_cdf)
 export(svinecop_dist)
 export(svinecop_loglik)
 export(svinecop_sim)

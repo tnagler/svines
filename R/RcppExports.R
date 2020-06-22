@@ -13,10 +13,6 @@ svinecop_loglik_cpp <- function(u, svinecop_r, cores) {
     .Call(`_svines_svinecop_loglik_cpp`, u, svinecop_r, cores)
 }
 
-svinecop_cond_cdf_cpp <- function(u, conditioned, svinecop_r, cores) {
-    .Call(`_svines_svinecop_cond_cdf_cpp`, u, conditioned, svinecop_r, cores)
-}
-
 svinecop_sim_cpp <- function(svinecop_r, n, qrng, seeds) {
     .Call(`_svines_svinecop_sim_cpp`, svinecop_r, n, qrng, seeds)
 }

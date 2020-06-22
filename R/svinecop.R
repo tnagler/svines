@@ -5,15 +5,15 @@
 #' @param data a matrix or data.frame (copula data should have approximately
 #'   uniform margins).
 #' @param p the Markov order.
-#' @param var_types variable types, a length d vector; e.g., `c("c", "c")` for
-#'   two continuous variables, or `c("c", "d")` for first variable continuous
-#'   and second discrete.
+#' @param var_types variable types; discrete variables not (yet) allowed.
 #' @param in_vertices the in-vertex; if `NA`, the in-vertex is selected
 #'   automatically if no structure is provided, and is equivalent to 1 if a
 #'   structure is provided.
 #' @param out_vertices the out-vertex; if `NA`, the out-vertex is selected
 #'   automatically if no structure is provided, and is equivalent to 1 if a
 #'   structure is provided.
+#' @param type type of stationary vine; `"S"` (default) for general S-vines,
+#'  `"D"` for Smith's long D-vine, `"M"` for Beare and Seo's M-vine.
 #' @param family_set a character vector of families; see [rvinecopulib::bicop()]
 #'   for additional options.
 #' @param cs_structure the cross-sectional vine structure (see
@@ -56,7 +56,7 @@
 svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
                      family_set = "all", cs_structure = NA,
                      in_vertices = NA, out_vertices = NA,
-                     type = "T",
+                     type = "S",
                      par_method = "mle", nonpar_method = "constant", mult = 1,
                      selcrit = "bic", weights = numeric(), psi0 = 0.9,
                      presel = TRUE, trunc_lvl = Inf, tree_crit = "tau",
@@ -83,8 +83,11 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
     is.numeric(in_vertices) || all(is.na(in_vertices)),
     is.numeric(out_vertices) || all(is.na(out_vertices))
   )
+  
+  if (any(var_types != "c"))
+    stop("discrete variables not yet implemented.")
 
-  if ((type != "T") & (NCOL(data) > 1)) {
+  if ((type != "S") & (NCOL(data) > 1)) {
     if (!is.na(cs_structure))
       warning("fixed cross-sectional structure; type argument is ignored.")
     if (type == "M") {
@@ -92,7 +95,7 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
     } else if (type == "D") {
       sel <- select_dvine(data)
     } else {
-      stop("'type' must be one of 'T', 'M', 'D'.")
+      stop("'type' must be one of 'S', 'M', 'D'.")
     }
     cs_structure <- sel$cs_structure
     in_vertices  <- sel$in_vertices
@@ -206,7 +209,9 @@ svinecop_dist <- function(pair_copulas, cs_structure, p,
     all(in_vertices <= dim(cs_structure)[1]),
     all(out_vertices <= dim(cs_structure)[1])
   )
-
+  if (any(var_types != "c"))
+    stop("discrete variables not yet implemented.")
+  
   d0 <- dim(cs_structure)[1]
   d <- d0 * (p + 1)
   if (p > 0) {
@@ -346,19 +351,18 @@ svinecop_sim_ahead <- function(n, data, svinecop, qrng = FALSE) {
 }
 
 #' @export
-svinecop_cond_cdf <- function(u, conditioned, svinecop, cores = 1) {
-  assert_that(
-    is.count(conditioned),
-    inherits(svinecop, "svinecop_dist"),
-    conditioned <= dim(svinecop$cs_structure)[1]
-  )
-  u <- rvinecopulib:::if_vec_to_matrix(u, dim(svinecop$cs_structure)[1] == 1)
-  svinecop_cond_cdf_cpp(u, conditioned - 1, svinecop, cores)
-}
-
-#' @export
 svinecop_loglik <- function(u, svinecop, cores = 1) {
   assert_that(inherits(svinecop, "svinecop_dist"))
   u <- rvinecopulib:::if_vec_to_matrix(u, dim(svinecop$cs_structure)[1] == 1)
   tryCatch(svinecop_loglik_cpp(u, svinecop, cores), error = function(e) browser())
 }
+
+# svinecop_cond_cdf <- function(u, conditioned, svinecop, cores = 1) {
+#   assert_that(
+#     is.count(conditioned),
+#     inherits(svinecop, "svinecop_dist"),
+#     conditioned <= dim(svinecop$cs_structure)[1]
+#   )
+#   u <- rvinecopulib:::if_vec_to_matrix(u, dim(svinecop$cs_structure)[1] == 1)
+#   svinecop_cond_cdf_cpp(u, conditioned - 1, svinecop, cores)
+# }

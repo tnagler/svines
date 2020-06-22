@@ -12,7 +12,7 @@ svinecop(
   cs_structure = NA,
   in_vertices = NA,
   out_vertices = NA,
-  type = "T",
+  type = "S",
   par_method = "mle",
   nonpar_method = "constant",
   mult = 1,
@@ -34,9 +34,7 @@ uniform margins).}
 
 \item{p}{the Markov order.}
 
-\item{var_types}{variable types, a length d vector; e.g., \code{c("c", "c")} for
-two continuous variables, or \code{c("c", "d")} for first variable continuous
-and second discrete.}
+\item{var_types}{variable types; discrete variables not (yet) allowed.}
 
 \item{family_set}{a character vector of families; see \code{\link[rvinecopulib:bicop]{rvinecopulib::bicop()}}
 for additional options.}
@@ -52,6 +50,9 @@ structure is provided.}
 \item{out_vertices}{the out-vertex; if \code{NA}, the out-vertex is selected
 automatically if no structure is provided, and is equivalent to 1 if a
 structure is provided.}
+
+\item{type}{type of stationary vine; \code{"S"} (default) for general S-vines,
+\code{"D"} for Smith's long D-vine, \code{"M"} for Beare and Seo's M-vine.}
 
 \item{par_method}{the estimation method for parametric models, either \code{"mle"}
 for sequential maximum likelihood, \code{"itau"} for inversion of Kendall's tau

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "svine_structure.hpp"
 #include "svine_selector.hpp"
+#include "svine_structure.hpp"
 #include <vinecopulib/vinecop/class.hpp>
 
 // TODO: weights, discrete ?
@@ -68,9 +68,9 @@ public:
 
   double loglik(const Eigen::MatrixXd& u, const size_t num_threads = 1);
 
-  Eigen::VectorXd cond_cdf(const Eigen::MatrixXd& u,
-                           size_t conditioned,
-                           const size_t num_threads = 1) const;
+  // Eigen::VectorXd cond_cdf(const Eigen::MatrixXd& u,
+  //                          size_t conditioned,
+  //                          const size_t num_threads = 1) const;
 
   Eigen::VectorXi get_num_pars();
 

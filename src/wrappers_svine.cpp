@@ -114,7 +114,7 @@ svinecop_select_cpp(const Eigen::MatrixXd& data,
                                   show_trace,
                                   num_threads);
 
-  SVinecop svine(data.cols(), p, var_types);
+  SVinecop svine(var_types.size(), p, var_types);
   if (is_structure_provided) {
     svine = SVinecop(rvine_structure_wrap(structure, false),
                      p,
@@ -138,15 +138,15 @@ svinecop_loglik_cpp(const Eigen::MatrixXd& u,
   return svinecop_wrap(svinecop_r).loglik(u, cores);
 }
 
-// [[Rcpp::export()]]
-Eigen::VectorXd
-svinecop_cond_cdf_cpp(const Eigen::MatrixXd& u,
-                      size_t conditioned,
-                      const Rcpp::List& svinecop_r,
-                      size_t cores)
-{
-  return svinecop_wrap(svinecop_r).cond_cdf(u, conditioned, cores);
-}
+// // [[Rcpp::export()]]
+// Eigen::VectorXd
+// svinecop_cond_cdf_cpp(const Eigen::MatrixXd& u,
+//                       size_t conditioned,
+//                       const Rcpp::List& svinecop_r,
+//                       size_t cores)
+// {
+//   return svinecop_wrap(svinecop_r).cond_cdf(u, conditioned, cores);
+// }
 
 // [[Rcpp::export()]]
 Eigen::MatrixXd

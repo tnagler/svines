@@ -29,13 +29,13 @@ spread_lag(const Eigen::MatrixXd& data, size_t cs_dim)
 
 namespace tools_select {
 
-
 // ------- SVineSelector
 
 SVineSelector::SVineSelector(const Eigen::MatrixXd& data,
                              std::vector<size_t> in_vertices,
-                             std::vector<size_t> out_vertices)
-  : cs_dim_(data.cols())
+                             std::vector<size_t> out_vertices,
+                             const std::vector<std::string>& var_types)
+  : cs_dim_(var_types.size())
   , lag_(0)
   , in_vertices_(in_vertices)
   , out_vertices_(out_vertices)
@@ -44,8 +44,9 @@ SVineSelector::SVineSelector(const Eigen::MatrixXd& data,
   check_in_out_vertices();
 }
 
-SVineSelector::SVineSelector(const Eigen::MatrixXd& data)
-  : cs_dim_(data.cols())
+SVineSelector::SVineSelector(const Eigen::MatrixXd& data,
+                             const std::vector<std::string>& var_types)
+  : cs_dim_(var_types.size())
   , lag_(0)
   , data_(data)
 {}
@@ -152,7 +153,7 @@ SVineStructureSelector::SVineStructureSelector(
   const FitControlsVinecop& controls,
   const std::vector<std::string>& var_types)
   : VinecopSelector(data, controls, var_types)
-  , SVineSelector(data)
+  , SVineSelector(data, var_types)
 {
   check_controls(controls);
   out_vertices_.resize(cs_dim_);
@@ -168,7 +169,7 @@ SVineStructureSelector::get_var_types() const
 void
 SVineStructureSelector::select_all_trees(const Eigen::MatrixXd& data)
 {
-  if (data.cols() > 1) {
+  if (cs_dim_ > 1) {
     VinecopSelector::select_all_trees(data);
   }
   trees_ = trees_opt_;
@@ -516,7 +517,7 @@ SVineFamilySelector::SVineFamilySelector(
   std::vector<size_t> out_vertices,
   const std::vector<std::string>& var_types)
   : VinecopSelector(data, cs_struct, controls, var_types)
-  , SVineSelector(data, in_vertices, out_vertices)
+  , SVineSelector(data, in_vertices, out_vertices, var_types)
 {
   check_controls(controls);
   cs_struct_ = SVineStructure(cs_struct, 0, in_vertices, out_vertices);
@@ -583,8 +584,7 @@ SVineFamilySelector::data()
   return data_;
 }
 
-inline void 
-SVineFamilySelector::finalize(size_t)
+inline void SVineFamilySelector::finalize(size_t)
 {
   pair_copulas_ = make_pair_copula_store(d_, d_);
   std::vector<size_t> order = vine_struct_.get_order();
