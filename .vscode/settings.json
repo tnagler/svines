@@ -64,6 +64,7 @@
     "thread": "cpp",
     "cfenv": "cpp",
     "cinttypes": "cpp",
-    "typeindex": "cpp"
+    "typeindex": "cpp",
+    "fft": "cpp"
   }
 }
