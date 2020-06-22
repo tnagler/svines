@@ -1,6 +1,7 @@
 #pragma once
 
-#include <tools_stl.hpp>
+#include "svine_structure.hpp"
+#include "tools_stl.hpp"
 #include <vinecopulib/misc/tools_optimization.hpp>
 #include <vinecopulib/misc/tools_stats.hpp>
 #include <vinecopulib/misc/tools_stl.hpp>
@@ -11,239 +12,6 @@
 // TODO: weights
 
 namespace vinecopulib {
-
-// ------------------------- S-vine STRUCTURE ---------------
-
-class SvineStructure : public RVineStructure
-{
-public:
-  SvineStructure()
-    : RVineStructure()
-  {}
-
-  SvineStructure(size_t cs_dim, size_t p)
-    : SvineStructure(RVineStructure(tools_stl::seq_int(1, cs_dim)),
-                     p,
-                     tools_stl::seq_int(1, cs_dim),
-                     tools_stl::seq_int(1, cs_dim))
-  {}
-
-  SvineStructure(const RVineStructure& cs_struct,
-                 size_t p,
-                 std::vector<size_t> in_vertices,
-                 std::vector<size_t> out_vertices)
-    : p_(p)
-    , in_vertices_(in_vertices)
-    , out_vertices_(out_vertices)
-  {
-    check_in_out_vertices(cs_struct, in_vertices, out_vertices);
-    cs_struct_ = reorder_structure(cs_struct, in_vertices);
-    order_ = expand_order(cs_struct_.get_order(), p);
-    struct_array_ =
-      build_s_vine_array(cs_struct_, p, in_vertices, out_vertices);
-
-    RVineStructure new_struct;
-    try {
-      new_struct = RVineStructure(order_, struct_array_);
-    } catch (const std::exception& e) {
-      throw std::runtime_error(
-        "out_vertices are not compatible with cross-sectional structure.");
-    }
-    d_ = new_struct.get_dim();
-    trunc_lvl_ = new_struct.get_trunc_lvl();
-    struct_array_ = new_struct.get_struct_array(true);
-    min_array_ = new_struct.get_min_array();
-    needed_hfunc1_ = new_struct.get_needed_hfunc1();
-    needed_hfunc2_ = new_struct.get_needed_hfunc2();
-  }
-
-  size_t get_p() const { return p_; }
-
-  size_t get_cs_dim() const { return cs_struct_.get_dim(); }
-
-  std::vector<size_t> get_in_vertices() const { return in_vertices_; }
-
-  std::vector<size_t> get_out_vertices() const { return out_vertices_; }
-
-  RVineStructure get_cs_structure() const { return cs_struct_; }
-
-private:
-  void check_in_out_vertices(const RVineStructure& cs_struct,
-                             std::vector<size_t> in_vertices,
-                             std::vector<size_t> out_vertices) const
-  {
-    auto d = cs_struct.get_dim();
-    if (!tools_stl::is_same_set(in_vertices, tools_stl::seq_int(1, d)))
-      throw std::runtime_error(
-        "in_vertices must contain numbers 1, ..., cs_dim.");
-    if (!tools_stl::is_same_set(out_vertices, tools_stl::seq_int(1, d)))
-      throw std::runtime_error(
-        "out_vertices must contain numbers 1, ..., cs_dim.");
-  }
-
-  std::vector<size_t> expand_order(const std::vector<size_t>& order,
-                                   size_t p) const
-  {
-    size_t cs_dim = order.size();
-    size_t d = cs_dim * (p + 1);
-    std::vector<size_t> new_order(d);
-    for (size_t i = 0; i < d; i++) {
-      new_order[i] = order[i % cs_dim] + ((d - 1 - i) / cs_dim) * cs_dim;
-    }
-
-    return new_order;
-  }
-
-  std::vector<size_t> sup_diag(const std::vector<size_t>& diag,
-                               const TriangularArray<size_t>& struct_array,
-                               size_t index,
-                               size_t column) const
-  {
-    size_t d = diag.size();
-    std::vector<size_t> x(d - 1);
-
-    size_t i = 0;
-    while (diag[i] != index) {
-      x[i] = diag[i];
-      i++;
-    }
-
-    size_t pivot_col = i;
-    while (i < d - 1) {
-      x[i] = struct_array(d - 2 - i, pivot_col);
-      i++;
-    }
-
-    return tools_stl::span(tools_stl::rev(x), 0, d - 1 - column);
-  }
-
-  RVineStructure reorder_structure(const RVineStructure& structure,
-                                   std::vector<size_t> in_vertices) const
-  {
-    using namespace tools_stl;
-    size_t d = structure.get_dim();
-    if (structure.get_trunc_lvl() < d - 1) {
-      throw std::runtime_error("S-vines cannot be truncated.");
-    }
-
-    auto old_struct = structure.get_struct_array();
-    auto new_struct = old_struct;
-
-    // prepare objects
-    auto old_order = structure.get_order();
-    auto new_order = rev(in_vertices);
-
-    // loop through all columns
-    for (size_t i = 0; i < d - 1; i++) {
-      auto new_column = sup_diag(old_order, old_struct, new_order[i], i);
-      auto diag_until = span(new_order, 0, i);
-      auto diag_after = span(new_order, i, d - i);
-      auto max_col = d - 1; // find_position(new_order[i], old_order);
-      for (size_t t = 0; t < new_column.size(); t++) {
-        // Check whether an element in this column is already contained in
-        // the diagonal to the left. If so, we need to find another node
-        // that is connected to the diagonal entry of column i. We search
-        // for such an edge in the old structure, but only to the left of
-        // the column, where the element appeared on the diagonal.
-        if (is_member(new_column[t], diag_until)) {
-          bool found_node = false;
-          for (size_t j = 0; j <= max_col; j++) {
-            if (new_order[i] == old_struct(t, j)) {
-              if (is_member(old_order[j], diag_after)) {
-                new_column[t] = old_order[j];
-                found_node = true;
-              }
-            } else if (new_order[i] == old_order[j]) {
-              if (is_member(old_struct(t, j), diag_after)) {
-                new_column[t] = old_struct(t, j);
-                found_node = true;
-              }
-            }
-            for (size_t k = 0; k < new_column.size(); ++k)
-              new_struct(k, i) = new_column[k];
-            if (found_node) {
-              // The new entry may already be contained in this
-              // column. We need to check the next rows for that
-              // as well.
-              diag_until = cat(new_column[t], diag_until);
-              break;
-            }
-          }
-        }
-      }
-      for (size_t k = 0; k < new_column.size(); ++k)
-        new_struct(k, i) = new_column[k];
-    }
-
-    // this must always hold beacuse the first in vertex comes last on the
-    // diagonal:
-    if (d > 1)
-      new_struct(0, d - 2) = new_order[d - 1];
-
-    RVineStructure new_rvine;
-    try {
-      new_rvine = RVineStructure(new_order, new_struct);
-    } catch (const std::exception& e) {
-      throw std::runtime_error(
-        "in_vertices are not compatible with cross-sectional structure.");
-    }
-
-    return new_rvine;
-  }
-
-  TriangularArray<size_t> build_s_vine_array(
-    const RVineStructure& cs_struct,
-    size_t p,
-    std::vector<size_t> in_vertices,
-    std::vector<size_t> out_vertices) const
-  {
-    size_t cs_dim = cs_struct.get_dim();
-    size_t d = cs_dim * (p + 1);
-    auto diag = cs_struct.get_order();
-
-    RVineStructure new_struct = cs_struct;
-    if (diag[cs_dim - 1] != in_vertices[0]) {
-      new_struct = reorder_structure(new_struct, in_vertices);
-    }
-
-    auto struct_array = cs_struct.get_struct_array();
-
-    TriangularArray<size_t> strct(d);
-    // copy cross-sectional structure
-    for (size_t i = 0; i < cs_dim - 1; i++) {
-      for (size_t j = 0; j < cs_dim - 1 - i; j++) {
-        strct(i, j) = struct_array(i, j) + cs_dim * p;
-      }
-    }
-
-    // fill parallelograms
-    std::vector<size_t> par = out_vertices;
-    for (size_t lag = 1; lag <= p; lag++) {
-      for (size_t i = 0; i < cs_dim; i++) {
-        for (size_t j = 0; j < cs_dim; j++) {
-          strct(i + cs_dim * lag - j - 1, j) = par[i] + cs_dim * (p - lag);
-        }
-      }
-    }
-
-    // copy to other lags
-    for (size_t lag = 1; lag <= p; lag++) {
-      for (size_t j = 0; j < cs_dim; j++) {
-        for (size_t i = 0; i < d - 1 - (j + cs_dim * lag); i++) {
-          strct(i, j + cs_dim * lag) = strct(i, j) - cs_dim * lag;
-        }
-      }
-    }
-
-    return strct;
-  }
-
-private:
-  size_t p_;
-  std::vector<size_t> in_vertices_;
-  std::vector<size_t> out_vertices_;
-  RVineStructure cs_struct_;
-};
 
 // ------------------------- SELECTOR ------------------------
 
@@ -264,10 +32,10 @@ spread_lag(const Eigen::MatrixXd& data, size_t cs_dim)
 
 namespace tools_select {
 
-class SvineSelector
+class SVineSelector
 {
 public:
-  SvineSelector(const Eigen::MatrixXd& data,
+  SVineSelector(const Eigen::MatrixXd& data,
                 std::vector<size_t> in_vertices,
                 std::vector<size_t> out_vertices)
     : cs_dim_(data.cols())
@@ -279,7 +47,7 @@ public:
     check_in_out_vertices();
   }
 
-  SvineSelector(const Eigen::MatrixXd& data)
+  SVineSelector(const Eigen::MatrixXd& data)
     : cs_dim_(data.cols())
     , lag_(0)
     , data_(data)
@@ -374,23 +142,23 @@ protected:
   RVineStructure cs_struct_;
 };
 
-class SvineStructureSelector
+class SVineStructureSelector
   : public VinecopSelector
-  , public SvineSelector
+  , public SVineSelector
 {
 public:
-  SvineStructureSelector(const Eigen::MatrixXd& data,
+  SVineStructureSelector(const Eigen::MatrixXd& data,
                          const FitControlsVinecop& controls,
                          const std::vector<std::string>& var_types)
     : VinecopSelector(data, controls, var_types)
-    , SvineSelector(data)
+    , SVineSelector(data)
   {
     check_controls(controls);
     out_vertices_.resize(cs_dim_);
     in_vertices_.resize(cs_dim_);
   }
 
-  ~SvineStructureSelector() = default;
+  ~SVineStructureSelector() = default;
 
   std::vector<std::string> get_var_types() const { return var_types_; }
 
@@ -728,25 +496,25 @@ protected:
   }
 };
 
-class SvineFamilySelector
+class SVineFamilySelector
   : public VinecopSelector
-  , public SvineSelector
+  , public SVineSelector
 {
 public:
-  SvineFamilySelector(const Eigen::MatrixXd& data,
+  SVineFamilySelector(const Eigen::MatrixXd& data,
                       const RVineStructure& cs_struct,
                       const FitControlsVinecop& controls,
                       std::vector<size_t> in_vertices,
                       std::vector<size_t> out_vertices,
                       const std::vector<std::string>& var_types)
     : VinecopSelector(data, cs_struct, controls, var_types)
-    , SvineSelector(data, in_vertices, out_vertices)
+    , SVineSelector(data, in_vertices, out_vertices)
   {
     check_controls(controls);
-    cs_struct_ = SvineStructure(cs_struct, 0, in_vertices, out_vertices);
+    cs_struct_ = SVineStructure(cs_struct, 0, in_vertices, out_vertices);
   }
 
-  ~SvineFamilySelector() = default;
+  ~SVineFamilySelector() = default;
 
   std::vector<std::string> get_var_types() const { return var_types_; }
 
@@ -793,7 +561,7 @@ public:
     trees_opt_ = trees_;
     trees_ = std::vector<VineTree>(1);
     vine_struct_ =
-      SvineStructure(cs_struct_, lag_, in_vertices_, out_vertices_);
+      SVineStructure(cs_struct_, lag_, in_vertices_, out_vertices_);
     data_ = spread_lag(data_, cs_dim_);
     controls_.set_trunc_lvl(std::numeric_limits<size_t>::max());
   }
@@ -860,18 +628,18 @@ protected:
 
 // --------------------- S-vine ----------------------------------
 
-class Svine : public Vinecop
+class SVine : public Vinecop
 {
 public:
-  Svine(size_t cs_dim, size_t p, const std::vector<std::string>& var_types = {})
-    : Svine(RVineStructure(tools_stl::seq_int(1, cs_dim)),
+  SVine(size_t cs_dim, size_t p, const std::vector<std::string>& var_types = {})
+    : SVine(RVineStructure(tools_stl::seq_int(1, cs_dim)),
             p,
             tools_stl::rev(tools_stl::seq_int(1, cs_dim)),
             tools_stl::rev(tools_stl::seq_int(1, cs_dim)),
             var_types)
   {}
 
-  Svine(const RVineStructure& cs_struct,
+  SVine(const RVineStructure& cs_struct,
         size_t p,
         std::vector<size_t> in_vertices,
         std::vector<size_t> out_vertices,
@@ -880,7 +648,7 @@ public:
     , p_(p)
     , in_vertices_(in_vertices)
     , out_vertices_(out_vertices)
-    , svine_struct_(SvineStructure(cs_struct, p, in_vertices, out_vertices))
+    , svine_struct_(SVineStructure(cs_struct, p, in_vertices, out_vertices))
   {
     if (var_types.size() == 0) {
       var_types_ = std::vector<std::string>(svine_struct_.get_dim(), "c");
@@ -895,13 +663,13 @@ public:
     pair_copulas_ = make_pair_copula_store(d_);
   }
 
-  Svine(const std::vector<std::vector<Bicop>>& pair_copulas,
+  SVine(const std::vector<std::vector<Bicop>>& pair_copulas,
         const RVineStructure& cs_struct,
         size_t p,
         std::vector<size_t> in_vertices,
         std::vector<size_t> out_vertices,
         const std::vector<std::string>& var_types = {})
-    : Svine(cs_struct, p, in_vertices, out_vertices, var_types)
+    : SVine(cs_struct, p, in_vertices, out_vertices, var_types)
   {
     pair_copulas_ = pair_copulas;
   }
@@ -919,7 +687,7 @@ public:
     return svine_struct_.get_cs_structure();
   }
 
-  SvineStructure get_svine_structure() const { return svine_struct_; }
+  SVineStructure get_svine_structure() const { return svine_struct_; }
 
   void select_families(
     const Eigen::MatrixXd& data,
@@ -930,7 +698,7 @@ public:
 
     if (rvine_structure_.get_trunc_lvl() > 0) {
       auto vt0 = tools_stl::span(var_types_, 0, cs_dim_);
-      tools_select::SvineFamilySelector selector(
+      tools_select::SVineFamilySelector selector(
         data,
         svine_struct_.get_cs_structure(),
         controls,
@@ -956,7 +724,7 @@ public:
     check_data_dim(data);
 
     auto vt0 = tools_stl::span(var_types_, 0, cs_dim_);
-    tools_select::SvineStructureSelector selector(data, controls, vt0);
+    tools_select::SVineStructureSelector selector(data, controls, vt0);
     selector.select_all_trees(data);
     for (size_t lag = 1; lag <= p_; lag++) {
       selector.add_lag();
@@ -1055,7 +823,7 @@ public:
     // first compute substraction component (otherwise some contributions
     // are counted twice)
     size_t p_tmp = std::min(n, p_) - 1;
-    rvine_structure_ = SvineStructure(
+    rvine_structure_ = SVineStructure(
       svine_struct_.get_cs_structure(), p_tmp, in_vertices_, out_vertices_);
     d_ = cs_dim_ * (1 + p_tmp);
     auto u_spr = u;
@@ -1074,7 +842,7 @@ public:
 
     // add loglik *as if* it was iid with cs_dim * (1 + p) vars
     u_spr = spread_lag(u_spr, cs_dim_);
-    rvine_structure_ = SvineStructure(
+    rvine_structure_ = SVineStructure(
       svine_struct_.get_cs_structure(), p_, in_vertices_, out_vertices_);
     d_ = cs_dim_ * (1 + p_);
     ll += Vinecop::loglik(u_spr, num_threads);
@@ -1146,7 +914,7 @@ protected:
 
       // construct sub-model for last p_ lags
       d_ -= cs_dim_;
-      rvine_structure_ = SvineStructure(
+      rvine_structure_ = SVineStructure(
         svine_struct_.get_cs_structure(), p_ - 1, in_vertices_, out_vertices_);
 
       // initialize Ui with rosenblatt of past observations
@@ -1160,25 +928,25 @@ protected:
     return cpits;
   }
 
-  void finalize_fit(const tools_select::SvineFamilySelector& selector)
+  void finalize_fit(const tools_select::SVineFamilySelector& selector)
   {
     in_vertices_ = selector.get_in_vertices();
     out_vertices_ = selector.get_out_vertices();
-    svine_struct_ = SvineStructure(
+    svine_struct_ = SVineStructure(
       selector.get_cs_structure(), p_, in_vertices_, out_vertices_);
     rvine_structure_ = svine_struct_;
     Vinecop::finalize_fit(selector);
     var_types_ = selector.get_var_types();
   }
 
-  void finalize_fit(tools_select::SvineStructureSelector& selector)
+  void finalize_fit(tools_select::SVineStructureSelector& selector)
   {
     selector.finalize(std::numeric_limits<size_t>::max());
 
     in_vertices_ = selector.get_in_vertices();
     out_vertices_ = selector.get_out_vertices();
     Vinecop::finalize_fit(selector);
-    svine_struct_ = SvineStructure(
+    svine_struct_ = SVineStructure(
       selector.get_cs_structure(), p_, in_vertices_, out_vertices_);
     rvine_structure_ = svine_struct_;
     var_types_ = selector.get_var_types();
@@ -1211,6 +979,6 @@ protected:
   size_t p_;
   std::vector<size_t> in_vertices_;
   std::vector<size_t> out_vertices_;
-  SvineStructure svine_struct_;
+  SVineStructure svine_struct_;
 };
 }
