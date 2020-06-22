@@ -1,0 +1,32 @@
+Package: svines
+Title: Stationary Vine Copula Models
+Version: 0.0.1.9000
+Authors@R: 
+    person(given = "Thomas",
+           family = "Nagler",
+           role = c("aut", "cre"),
+           email = "mail@tnagler.com")
+Description: Provides functionality to fit and simulate from stationary vine 
+  copula models for time series.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+URL: https://github.com/tnagler/svines
+BugReports: https://github.com/tnagler/ssvines/issues
+Depends:
+  rvinecopulib (>= 0.5.0.1.0)
+Imports: 
+  Rcpp,
+  assertthat,
+  TSP
+LinkingTo: 
+  rvinecopulib,
+  RcppEigen,
+  Rcpp,
+  RcppThread,
+  BH,
+  wdm
+Suggests:
+  testthat
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.0
