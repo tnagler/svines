@@ -4,6 +4,7 @@ find_hamilton_path <- function(u) {
   w <- 1 - abs(cor(cbind(u[-1, ], u[-nrow(u), ]), method = "kendall"))
   tsp <- TSP(w[1:d0, 1:d0])
   hamilton <- insert_dummy(tsp, label = "cut")
+  set.seed(5)  # otherwise not reproducible
   sol <- solve_TSP(hamilton, method = "repetitive_nn")
   as.numeric(cut_tour(sol, "cut"))
 }
