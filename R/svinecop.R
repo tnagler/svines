@@ -58,7 +58,7 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
                      out_vertices = NA, in_vertices = NA,
                      type = "S",
                      par_method = "mle", nonpar_method = "constant", mult = 1,
-                     selcrit = "bic", weights = numeric(), psi0 = 0.9,
+                     selcrit = "aic", weights = numeric(), psi0 = 0.9,
                      presel = TRUE, trunc_lvl = Inf, tree_crit = "tau",
                      threshold = 0, keep_data = FALSE, show_trace = FALSE,
                      cores = 1) {
