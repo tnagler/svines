@@ -32,16 +32,16 @@ namespace tools_select {
 // ------- SVineSelector
 
 SVineSelector::SVineSelector(const Eigen::MatrixXd& data,
-                             std::vector<size_t> in_vertices,
                              std::vector<size_t> out_vertices,
+                             std::vector<size_t> in_vertices,
                              const std::vector<std::string>& var_types)
   : cs_dim_(var_types.size())
   , lag_(0)
-  , in_vertices_(in_vertices)
   , out_vertices_(out_vertices)
+  , in_vertices_(in_vertices)
   , data_(data)
 {
-  check_in_out_vertices();
+  check_out_in_vertices();
 }
 
 SVineSelector::SVineSelector(const Eigen::MatrixXd& data,
@@ -51,16 +51,17 @@ SVineSelector::SVineSelector(const Eigen::MatrixXd& data,
   , data_(data)
 {}
 
-inline std::vector<size_t>
-SVineSelector::get_in_vertices() const
-{
-  return in_vertices_;
-}
 
 inline std::vector<size_t>
 SVineSelector::get_out_vertices() const
 {
   return out_vertices_;
+}
+
+inline std::vector<size_t>
+SVineSelector::get_in_vertices() const
+{
+  return in_vertices_;
 }
 
 inline RVineStructure
@@ -124,7 +125,7 @@ SVineSelector::duplicate_edge(EdgeIterator e, VineTree& tree)
 }
 
 inline void
-SVineSelector::check_in_out_vertices() const
+SVineSelector::check_out_in_vertices() const
 {
   auto d = cs_dim_;
   if (!tools_stl::is_same_set(in_vertices_, tools_stl::seq_int(1, d)))
@@ -513,14 +514,14 @@ SVineFamilySelector::SVineFamilySelector(
   const Eigen::MatrixXd& data,
   const RVineStructure& cs_struct,
   const FitControlsVinecop& controls,
-  std::vector<size_t> in_vertices,
   std::vector<size_t> out_vertices,
+  std::vector<size_t> in_vertices,
   const std::vector<std::string>& var_types)
   : VinecopSelector(data, cs_struct, controls, var_types)
-  , SVineSelector(data, in_vertices, out_vertices, var_types)
+  , SVineSelector(data, out_vertices, in_vertices, var_types)
 {
   check_controls(controls);
-  cs_struct_ = SVineStructure(cs_struct, 0, in_vertices, out_vertices);
+  cs_struct_ = SVineStructure(cs_struct, 0, out_vertices, in_vertices);
 }
 
 inline std::vector<std::string>
@@ -573,7 +574,7 @@ SVineFamilySelector::add_lag()
   // update trees and structure
   trees_opt_ = trees_;
   trees_ = std::vector<VineTree>(1);
-  vine_struct_ = SVineStructure(cs_struct_, lag_, in_vertices_, out_vertices_);
+  vine_struct_ = SVineStructure(cs_struct_, lag_, out_vertices_, in_vertices_);
   data_ = spread_lag(data_, cs_dim_);
   controls_.set_trunc_lvl(std::numeric_limits<size_t>::max());
 }

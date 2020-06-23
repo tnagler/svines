@@ -6,10 +6,10 @@
 #'   uniform margins).
 #' @param p the Markov order.
 #' @param var_types variable types; discrete variables not (yet) allowed.
-#' @param in_vertices the in-vertex; if `NA`, the in-vertex is selected
+#' @param out_vertices the out-vertex; if `NA`, the out-vertex is selected
 #'   automatically if no structure is provided, and is equivalent to 1 if a
 #'   structure is provided.
-#' @param out_vertices the out-vertex; if `NA`, the out-vertex is selected
+#' @param in_vertices the in-vertex; if `NA`, the in-vertex is selected
 #'   automatically if no structure is provided, and is equivalent to 1 if a
 #'   structure is provided.
 #' @param type type of stationary vine; `"S"` (default) for general S-vines,
@@ -55,7 +55,7 @@
 #' @export
 svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
                      family_set = "all", cs_structure = NA,
-                     in_vertices = NA, out_vertices = NA,
+                     out_vertices = NA, in_vertices = NA,
                      type = "S",
                      par_method = "mle", nonpar_method = "constant", mult = 1,
                      selcrit = "bic", weights = numeric(), psi0 = 0.9,
@@ -98,8 +98,8 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
       stop("'type' must be one of 'S', 'M', 'D'.")
     }
     cs_structure <- sel$cs_structure
-    in_vertices  <- sel$in_vertices
     out_vertices <- sel$out_vertices
+    in_vertices  <- sel$in_vertices
   }
 
 
@@ -118,8 +118,8 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
     data = as.matrix(data),
     p = p,
     var_types = var_types,
-    in_vertices = in_vertices,
     out_vertices = out_vertices,
+    in_vertices = in_vertices,
     is_structure_provided = is_structure_provided,
     structure = cs_structure,
     family_set = family_set,
@@ -188,10 +188,10 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
 #' @param cs_structure The cross-strectional structure. Either a matrix, or an
 #'    `rvine_structure` object; see `rvinecopulib::rvine_structure()`
 #' @param p the Markov order.
-#' @param in_vertices the in-vertex; if `NA`, the in-vertex is selected
+#' @param out_vertices the out-vertex; if `NA`, the out-vertex is selected
 #'   automatically if no structure is provided, and is equivalent to 1 if a
 #'    structure is provided.
-#' @param out_vertices the out-vertex; if `NA`, the out-vertex is selected
+#' @param in_vertices the in-vertex; if `NA`, the in-vertex is selected
 #'   automatically if no structure is provided, and is equivalent to 1 if a
 #'    structure is provided.
 #'
@@ -199,7 +199,7 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
 #' @importFrom assertthat is.count
 #' @importFrom rvinecopulib is.rvine_structure
 svinecop_dist <- function(pair_copulas, cs_structure, p,
-                          in_vertices, out_vertices,
+                          out_vertices, in_vertices,
                           var_types = rep("c", dim(cs_structure)[1])) {
   assert_that(
     is.list(pair_copulas),
@@ -232,8 +232,8 @@ svinecop_dist <- function(pair_copulas, cs_structure, p,
     pair_copulas = pair_copulas,
     cs_structure = as_rvine_structure(cs_structure),
     p = p,
-    in_vertices = in_vertices,
     out_vertices = out_vertices,
+    in_vertices = in_vertices,
     var_types = var_types
   )
 
@@ -354,7 +354,7 @@ svinecop_sim_ahead <- function(n, data, svinecop, qrng = FALSE) {
 svinecop_loglik <- function(u, svinecop, cores = 1) {
   assert_that(inherits(svinecop, "svinecop_dist"))
   u <- rvinecopulib:::if_vec_to_matrix(u, dim(svinecop$cs_structure)[1] == 1)
-  tryCatch(svinecop_loglik_cpp(u, svinecop, cores), error = function(e) browser())
+  svinecop_loglik_cpp(u, svinecop, cores)
 }
 
 # svinecop_cond_cdf <- function(u, conditioned, svinecop, cores = 1) {

@@ -1,7 +1,7 @@
 #' @importFrom TSP TSP insert_dummy solve_TSP cut_tour
 find_hamilton_path <- function(u) {
   d0 <- ncol(u)
-  w <- 1 - abs(cor(cbind(u[-1, ], u[-nrow(u), ]), method = "kendall"))
+  w <- 1 - abs(wdm::wdm(cbind(u[-1, ], u[-nrow(u), ]), method = "kendall"))
   tsp <- TSP(w[1:d0, 1:d0])
   hamilton <- insert_dummy(tsp, label = "cut")
   set.seed(5)  # otherwise not reproducible
@@ -13,27 +13,32 @@ find_hamilton_path <- function(u) {
 select_mvine <- function(u) {
   d0 <- ncol(u)
   css <- dvine_structure(find_hamilton_path(u))
-  w <- 1 - abs(cor(cbind(u[-1, ], u[-nrow(u), ]), method = "kendall"))
-
-  if (w[css$order[d0], d0 + css$order[d0]] < w[css$order[1], d0 + css$order[1]])
+  tau <- wdm::wdm(u[-nrow(u), css$order[c(1, d0)]],  # t
+                  u[-1, css$order[c(1, d0)]],        # t + 1
+                  method = "kendall")
+  
+  if (abs(tau[1, 1]) < abs(tau[2, 2]))
     css$order <- rev(css$order)
   list(
     cs_structure = css,
-    in_vertices = css$order,
-    out_vertices = css$order
+    out_vertices = css$order,
+    in_vertices = css$order
   )
 }
 
 select_dvine <- function(u) {
   d0 <- ncol(u)
   css <- dvine_structure(find_hamilton_path(u))
-  w <- 1 - abs(cor(cbind(u[-1, ], u[-nrow(u), ]), method = "kendall"))
-  if (w[css$order[1], d0 + css$order[d0]] < w[css$order[d0], d0 + css$order[1]])
+  tau <- wdm::wdm(u[-nrow(u), css$order[c(1, d0)]],  # t
+                  u[-1, css$order[c(1, d0)]],        # t + 1
+                  method = "kendall")
+
+  if (abs(tau[1, 2]) > abs(tau[2, 1]))
     css$order <- rev(css$order)
   list(
     cs_structure = css,
-    in_vertices = css$order,
-    out_vertices = rev(css$order)
+    out_vertices = rev(css$order),
+    in_vertices = css$order
   )
 }
 

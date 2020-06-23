@@ -8,8 +8,8 @@ svinecop_dist(
   pair_copulas,
   cs_structure,
   p,
-  in_vertices,
   out_vertices,
+  in_vertices,
   var_types = rep("c", dim(cs_structure)[1])
 )
 }
@@ -23,11 +23,11 @@ svinecop_dist(
 
 \item{p}{the Markov order.}
 
-\item{in_vertices}{the in-vertex; if \code{NA}, the in-vertex is selected
+\item{out_vertices}{the out-vertex; if \code{NA}, the out-vertex is selected
 automatically if no structure is provided, and is equivalent to 1 if a
 structure is provided.}
 
-\item{out_vertices}{the out-vertex; if \code{NA}, the out-vertex is selected
+\item{in_vertices}{the in-vertex; if \code{NA}, the in-vertex is selected
 automatically if no structure is provided, and is equivalent to 1 if a
 structure is provided.}
 }

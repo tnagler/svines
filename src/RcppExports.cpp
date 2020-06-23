@@ -18,16 +18,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // svinecop_select_cpp
-Rcpp::List svinecop_select_cpp(const Eigen::MatrixXd& data, size_t p, const std::vector<std::string>& var_types, std::vector<size_t> in_vertices, std::vector<size_t> out_vertices, bool is_structure_provided, Rcpp::List& structure, std::vector<std::string> family_set, std::string par_method, std::string nonpar_method, double mult, int truncation_level, std::string tree_criterion, double threshold, std::string selection_criterion, const Eigen::VectorXd& weights, double psi0, bool select_truncation_level, bool select_threshold, bool preselect_families, bool show_trace, size_t num_threads);
-RcppExport SEXP _svines_svinecop_select_cpp(SEXP dataSEXP, SEXP pSEXP, SEXP var_typesSEXP, SEXP in_verticesSEXP, SEXP out_verticesSEXP, SEXP is_structure_providedSEXP, SEXP structureSEXP, SEXP family_setSEXP, SEXP par_methodSEXP, SEXP nonpar_methodSEXP, SEXP multSEXP, SEXP truncation_levelSEXP, SEXP tree_criterionSEXP, SEXP thresholdSEXP, SEXP selection_criterionSEXP, SEXP weightsSEXP, SEXP psi0SEXP, SEXP select_truncation_levelSEXP, SEXP select_thresholdSEXP, SEXP preselect_familiesSEXP, SEXP show_traceSEXP, SEXP num_threadsSEXP) {
+Rcpp::List svinecop_select_cpp(const Eigen::MatrixXd& data, size_t p, const std::vector<std::string>& var_types, std::vector<size_t> out_vertices, std::vector<size_t> in_vertices, bool is_structure_provided, Rcpp::List& structure, std::vector<std::string> family_set, std::string par_method, std::string nonpar_method, double mult, int truncation_level, std::string tree_criterion, double threshold, std::string selection_criterion, const Eigen::VectorXd& weights, double psi0, bool select_truncation_level, bool select_threshold, bool preselect_families, bool show_trace, size_t num_threads);
+RcppExport SEXP _svines_svinecop_select_cpp(SEXP dataSEXP, SEXP pSEXP, SEXP var_typesSEXP, SEXP out_verticesSEXP, SEXP in_verticesSEXP, SEXP is_structure_providedSEXP, SEXP structureSEXP, SEXP family_setSEXP, SEXP par_methodSEXP, SEXP nonpar_methodSEXP, SEXP multSEXP, SEXP truncation_levelSEXP, SEXP tree_criterionSEXP, SEXP thresholdSEXP, SEXP selection_criterionSEXP, SEXP weightsSEXP, SEXP psi0SEXP, SEXP select_truncation_levelSEXP, SEXP select_thresholdSEXP, SEXP preselect_familiesSEXP, SEXP show_traceSEXP, SEXP num_threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type data(dataSEXP);
     Rcpp::traits::input_parameter< size_t >::type p(pSEXP);
     Rcpp::traits::input_parameter< const std::vector<std::string>& >::type var_types(var_typesSEXP);
-    Rcpp::traits::input_parameter< std::vector<size_t> >::type in_vertices(in_verticesSEXP);
     Rcpp::traits::input_parameter< std::vector<size_t> >::type out_vertices(out_verticesSEXP);
+    Rcpp::traits::input_parameter< std::vector<size_t> >::type in_vertices(in_verticesSEXP);
     Rcpp::traits::input_parameter< bool >::type is_structure_provided(is_structure_providedSEXP);
     Rcpp::traits::input_parameter< Rcpp::List& >::type structure(structureSEXP);
     Rcpp::traits::input_parameter< std::vector<std::string> >::type family_set(family_setSEXP);
@@ -45,7 +45,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type preselect_families(preselect_familiesSEXP);
     Rcpp::traits::input_parameter< bool >::type show_trace(show_traceSEXP);
     Rcpp::traits::input_parameter< size_t >::type num_threads(num_threadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(svinecop_select_cpp(data, p, var_types, in_vertices, out_vertices, is_structure_provided, structure, family_set, par_method, nonpar_method, mult, truncation_level, tree_criterion, threshold, selection_criterion, weights, psi0, select_truncation_level, select_threshold, preselect_families, show_trace, num_threads));
+    rcpp_result_gen = Rcpp::wrap(svinecop_select_cpp(data, p, var_types, out_vertices, in_vertices, is_structure_provided, structure, family_set, par_method, nonpar_method, mult, truncation_level, tree_criterion, threshold, selection_criterion, weights, psi0, select_truncation_level, select_threshold, preselect_families, show_trace, num_threads));
     return rcpp_result_gen;
 END_RCPP
 }

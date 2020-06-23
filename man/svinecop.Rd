@@ -10,8 +10,8 @@ svinecop(
   var_types = rep("c", NCOL(data)),
   family_set = "all",
   cs_structure = NA,
-  in_vertices = NA,
   out_vertices = NA,
+  in_vertices = NA,
   type = "S",
   par_method = "mle",
   nonpar_method = "constant",
@@ -43,11 +43,11 @@ for additional options.}
 \code{\link[rvinecopulib:rvine_structure]{rvinecopulib::rvine_structure()}}; \code{cs_structure = NA} performs automatic
 structure selection.}
 
-\item{in_vertices}{the in-vertex; if \code{NA}, the in-vertex is selected
+\item{out_vertices}{the out-vertex; if \code{NA}, the out-vertex is selected
 automatically if no structure is provided, and is equivalent to 1 if a
 structure is provided.}
 
-\item{out_vertices}{the out-vertex; if \code{NA}, the out-vertex is selected
+\item{in_vertices}{the in-vertex; if \code{NA}, the in-vertex is selected
 automatically if no structure is provided, and is equivalent to 1 if a
 structure is provided.}
 

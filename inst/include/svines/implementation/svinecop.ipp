@@ -22,14 +22,14 @@ SVinecop::SVinecop(size_t cs_dim,
 
 SVinecop::SVinecop(const RVineStructure& cs_struct,
                    size_t p,
-                   std::vector<size_t> in_vertices,
                    std::vector<size_t> out_vertices,
+                   std::vector<size_t> in_vertices,
                    const std::vector<std::string>& var_types)
   : cs_dim_(cs_struct.get_dim())
   , p_(p)
-  , in_vertices_(in_vertices)
   , out_vertices_(out_vertices)
-  , svine_struct_(SVineStructure(cs_struct, p, in_vertices, out_vertices))
+  , in_vertices_(in_vertices)
+  , svine_struct_(SVineStructure(cs_struct, p, out_vertices, in_vertices))
 {
   if (var_types.size() == 0) {
     var_types_ = std::vector<std::string>(svine_struct_.get_dim(), "c");
@@ -47,10 +47,10 @@ SVinecop::SVinecop(const RVineStructure& cs_struct,
 SVinecop::SVinecop(const std::vector<std::vector<Bicop>>& pair_copulas,
                    const RVineStructure& cs_struct,
                    size_t p,
-                   std::vector<size_t> in_vertices,
                    std::vector<size_t> out_vertices,
+                   std::vector<size_t> in_vertices,
                    const std::vector<std::string>& var_types)
-  : SVinecop(cs_struct, p, in_vertices, out_vertices, var_types)
+  : SVinecop(cs_struct, p, out_vertices, in_vertices, var_types)
 {
   pair_copulas_ = pair_copulas;
 }
@@ -68,15 +68,15 @@ SVinecop::get_cs_dim() const
 }
 
 inline std::vector<size_t>
-SVinecop::get_in_vertices() const
-{
-  return in_vertices_;
-}
-
-inline std::vector<size_t>
 SVinecop::get_out_vertices() const
 {
   return out_vertices_;
+}
+
+inline std::vector<size_t>
+SVinecop::get_in_vertices() const
+{
+  return in_vertices_;
 }
 
 inline RVineStructure
@@ -103,8 +103,8 @@ SVinecop::select_families(const Eigen::MatrixXd& data,
     tools_select::SVineFamilySelector selector(data,
                                                svine_struct_.get_cs_structure(),
                                                controls,
-                                               in_vertices_,
                                                out_vertices_,
+                                               in_vertices_,
                                                vt0);
 
     selector.select_all_trees(data);
@@ -233,7 +233,7 @@ SVinecop::loglik(const Eigen::MatrixXd& u, const size_t num_threads)
   // are counted twice)
   size_t p_tmp = std::min(n, p_) - 1;
   rvine_structure_ = SVineStructure(
-    svine_struct_.get_cs_structure(), p_tmp, in_vertices_, out_vertices_);
+    svine_struct_.get_cs_structure(), p_tmp, out_vertices_, in_vertices_);
   d_ = cs_dim_ * (1 + p_tmp);
   auto u_spr = u;
   for (size_t lag = 0; lag < p_tmp; ++lag) {
@@ -251,7 +251,7 @@ SVinecop::loglik(const Eigen::MatrixXd& u, const size_t num_threads)
   // add loglik *as if* it was iid with cs_dim * (1 + p) vars
   u_spr = spread_lag(u_spr, cs_dim_);
   rvine_structure_ = SVineStructure(
-    svine_struct_.get_cs_structure(), p_, in_vertices_, out_vertices_);
+    svine_struct_.get_cs_structure(), p_, out_vertices_, in_vertices_);
   d_ = cs_dim_ * (1 + p_);
   ll += Vinecop::loglik(u_spr, num_threads);
 
@@ -324,7 +324,7 @@ SVinecop::get_last_cpits(const Eigen::MatrixXd& data)
     // construct sub-model for last p_ lags
     d_ -= cs_dim_;
     rvine_structure_ = SVineStructure(
-      svine_struct_.get_cs_structure(), p_ - 1, in_vertices_, out_vertices_);
+      svine_struct_.get_cs_structure(), p_ - 1, out_vertices_, in_vertices_);
 
     // initialize Ui with rosenblatt of past observations
     cpits = rosenblatt(cond_vals);
@@ -343,7 +343,7 @@ SVinecop::finalize_fit(const tools_select::SVineFamilySelector& selector)
   in_vertices_ = selector.get_in_vertices();
   out_vertices_ = selector.get_out_vertices();
   svine_struct_ = SVineStructure(
-    selector.get_cs_structure(), p_, in_vertices_, out_vertices_);
+    selector.get_cs_structure(), p_, out_vertices_, in_vertices_);
   rvine_structure_ = svine_struct_;
   Vinecop::finalize_fit(selector);
   var_types_ = selector.get_var_types();
@@ -358,7 +358,7 @@ SVinecop::finalize_fit(tools_select::SVineStructureSelector& selector)
   out_vertices_ = selector.get_out_vertices();
   Vinecop::finalize_fit(selector);
   svine_struct_ = SVineStructure(
-    selector.get_cs_structure(), p_, in_vertices_, out_vertices_);
+    selector.get_cs_structure(), p_, out_vertices_, in_vertices_);
   rvine_structure_ = svine_struct_;
   var_types_ = selector.get_var_types();
 }

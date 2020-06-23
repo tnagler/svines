@@ -26,20 +26,20 @@ SVineStructure::SVineStructure(size_t cs_dim, size_t p)
 //!
 //! @param cs_struct cross-sectional structure.
 //! @param p Markov order.
-//! @param in_vertices in-vertices.
 //! @param out_vertices out-vertices.
+//! @param in_vertices in-vertices.
 SVineStructure::SVineStructure(const RVineStructure& cs_struct,
                                size_t p,
-                               std::vector<size_t> in_vertices,
-                               std::vector<size_t> out_vertices)
+                               std::vector<size_t> out_vertices,
+                               std::vector<size_t> in_vertices)
   : p_(p)
-  , in_vertices_(in_vertices)
   , out_vertices_(out_vertices)
+  , in_vertices_(in_vertices)
 {
-  check_in_out_vertices(cs_struct, in_vertices, out_vertices);
+  check_out_in_vertices(cs_struct, out_vertices, in_vertices);
   cs_struct_ = reorder_structure(cs_struct, in_vertices);
   order_ = expand_order(cs_struct_.get_order(), p);
-  struct_array_ = build_s_vine_array(cs_struct_, p, in_vertices, out_vertices);
+  struct_array_ = build_s_vine_array(cs_struct_, p, out_vertices, in_vertices);
 
   RVineStructure new_struct;
   try {
@@ -70,18 +70,19 @@ SVineStructure::get_cs_dim() const
   return cs_struct_.get_dim();
 }
 
-//! @brief Gets the in-vertices.
-inline std::vector<size_t>
-SVineStructure::get_in_vertices() const
-{
-  return in_vertices_;
-}
 
 //! @brief Gets the out-vertices.
 inline std::vector<size_t>
 SVineStructure::get_out_vertices() const
 {
   return out_vertices_;
+}
+
+//! @brief Gets the in-vertices.
+inline std::vector<size_t>
+SVineStructure::get_in_vertices() const
+{
+  return in_vertices_;
 }
 
 //! @brief Gets the cross-sectional structure
@@ -97,9 +98,9 @@ SVineStructure::get_cs_structure() const
 //! @param in_vertices in-vertices.
 //! @param out_vertices out-vertices.
 inline void
-SVineStructure::check_in_out_vertices(const RVineStructure& cs_struct,
-                                      std::vector<size_t> in_vertices,
-                                      std::vector<size_t> out_vertices) const
+SVineStructure::check_out_in_vertices(const RVineStructure& cs_struct,
+                                      std::vector<size_t> out_vertices,
+                                      std::vector<size_t> in_vertices) const
 {
   auto d = cs_struct.get_dim();
   if (!tools_stl::is_same_set(in_vertices, tools_stl::seq_int(1, d)))
@@ -248,8 +249,8 @@ SVineStructure::reorder_structure(const RVineStructure& structure,
 inline TriangularArray<size_t>
 SVineStructure::build_s_vine_array(const RVineStructure& cs_struct,
                                    size_t p,
-                                   std::vector<size_t> in_vertices,
-                                   std::vector<size_t> out_vertices) const
+                                   std::vector<size_t> out_vertices,
+                                   std::vector<size_t> in_vertices) const
 {
   size_t cs_dim = cs_struct.get_dim();
   size_t d = cs_dim * (p + 1);

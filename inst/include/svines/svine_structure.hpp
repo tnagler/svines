@@ -14,23 +14,23 @@ public:
 
   SVineStructure(const RVineStructure& cs_struct,
                  size_t p,
-                 std::vector<size_t> in_vertices,
-                 std::vector<size_t> out_vertices);
+                 std::vector<size_t> out_vertices,
+                 std::vector<size_t> in_vertices);
 
   size_t get_p() const;
 
   size_t get_cs_dim() const;
 
-  std::vector<size_t> get_in_vertices() const;
-
   std::vector<size_t> get_out_vertices() const;
+
+  std::vector<size_t> get_in_vertices() const;
 
   RVineStructure get_cs_structure() const;
 
 private:
-  void check_in_out_vertices(const RVineStructure& cs_struct,
-                             std::vector<size_t> in_vertices,
-                             std::vector<size_t> out_vertices) const;
+  void check_out_in_vertices(const RVineStructure& cs_struct,
+                             std::vector<size_t> out_vertices,
+                             std::vector<size_t> in_vertices) const;
 
   std::vector<size_t> expand_order(const std::vector<size_t>& order,
                                    size_t p) const;
@@ -43,17 +43,17 @@ private:
     RVineStructure reorder_structure(const RVineStructure& structure,
                                      std::vector<size_t> in_vertices) const;
 
-  TriangularArray<size_t> build_s_vine_array(
-    const RVineStructure& cs_struct,
-    size_t p,
-    std::vector<size_t> in_vertices,
-    std::vector<size_t> out_vertices) const;
+    TriangularArray<size_t> build_s_vine_array(
+      const RVineStructure& cs_struct,
+      size_t p,
+      std::vector<size_t> out_vertices,
+      std::vector<size_t> in_vertices) const;
 
-private:
-  size_t p_;
-  std::vector<size_t> in_vertices_;
-  std::vector<size_t> out_vertices_;
-  RVineStructure cs_struct_;
+  private:
+    size_t p_;
+    std::vector<size_t> out_vertices_;
+    std::vector<size_t> in_vertices_;
+    RVineStructure cs_struct_;
 };
 
 }

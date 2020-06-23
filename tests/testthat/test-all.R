@@ -5,8 +5,8 @@ test_that("creating custom models (1d)", {
     list(),
     rvine_structure(1),
     p = 0,
-    in_vertices = 1,
-    out_vertices = 1
+    out_vertices = 1,
+    in_vertices = 1
   )
   expect_equal(unname(dim(tv)), c(1, 0))
 
@@ -14,8 +14,8 @@ test_that("creating custom models (1d)", {
     list(list(bc)),
     rvine_structure(1),
     p = 1,
-    in_vertices = 1,
-    out_vertices = 1
+    out_vertices = 1,
+    in_vertices = 1
   )
   expect_equal(unname(dim(tv)), c(2, 1))
 
@@ -23,8 +23,8 @@ test_that("creating custom models (1d)", {
     lapply(1:3, function(j) replicate(4 - j, bc, simplify = FALSE)),
     rvine_structure(1),
     p = 3,
-    in_vertices = 1,
-    out_vertices = 1
+    out_vertices = 1,
+    in_vertices = 1
   )
   expect_equal(unname(dim(tv)), c(4, 3))
 })
@@ -35,8 +35,8 @@ test_that("creating custom models (multivariate)", {
     lapply(1:3, function(j) replicate(4 - j, bc, simplify = FALSE)),
     dvine_structure(1:4),
     p = 0,
-    in_vertices = 1:4,
-    out_vertices = 4:1
+    out_vertices = 4:1,
+    in_vertices = 1:4
   )
   expect_equal(unname(dim(tv)), c(4, 3))
 
@@ -44,8 +44,8 @@ test_that("creating custom models (multivariate)", {
     lapply(1:11, function(j) replicate(12 - j, bc, simplify = FALSE)),
     dvine_structure(1:4),
     p = 2,
-    in_vertices = 1:4,
-    out_vertices = 1:4
+    out_vertices = 1:4,
+    in_vertices = 1:4
   )
   expect_equal(unname(dim(tv)), c(12, 11))
 
@@ -81,8 +81,8 @@ test_that("fitting models (multivariate)", {
 
   tv2 <- svinecop(u, p = 3,
                   cs_structure = tv$cs_structure,
-                  in_vertices = tv$in_vertices,
-                  out_vertices = tv$out_vertices)
+                  out_vertices = tv$out_vertices,
+                  in_vertices = tv$in_vertices)
   expect_equal(tv, tv2)
 
   expect_silent(svinecop(u, p = 1, type = "D"))

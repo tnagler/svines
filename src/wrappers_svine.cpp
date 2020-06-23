@@ -11,8 +11,8 @@ svinecop_wrap(const Rcpp::List& svinecop_r)
 {
   size_t p = svinecop_r["p"];
 
-  std::vector<size_t> in_vertices = svinecop_r["in_vertices"];
   std::vector<size_t> out_vertices = svinecop_r["out_vertices"];
+  std::vector<size_t> in_vertices = svinecop_r["in_vertices"];
 
   // omit R-vine matrix check, already done in R
   auto cs_structure = rvine_structure_wrap(svinecop_r["cs_structure"], false);
@@ -33,8 +33,8 @@ svinecop_wrap(const SVinecop& svinecop_cpp, bool is_fitted)
   auto vine_structure =
     rvine_structure_wrap(svinecop_cpp.get_rvine_structure());
   auto cs_structure = rvine_structure_wrap(svinecop_cpp.get_cs_structure());
-  std::vector<size_t> in_vertices = svinecop_cpp.get_in_vertices();
   std::vector<size_t> out_vertices = svinecop_cpp.get_out_vertices();
+  std::vector<size_t> in_vertices = svinecop_cpp.get_in_vertices();
   size_t p = svinecop_cpp.get_p();
 
   auto pair_copulas = pair_copulas_wrap(
@@ -54,9 +54,9 @@ svinecop_wrap(const SVinecop& svinecop_cpp, bool is_fitted)
                             Rcpp::Named("npars") = npars,
                             Rcpp::Named("loglik") = loglik,
                             Rcpp::Named("threshold") = threshold,
-                            Rcpp::Named("in_vertices") = in_vertices,
                             Rcpp::Named("p") = p,
                             Rcpp::Named("out_vertices") = out_vertices,
+                            Rcpp::Named("in_vertices") = in_vertices,
                             Rcpp::Named("cs_structure") = cs_structure);
 }
 
@@ -73,8 +73,8 @@ Rcpp::List
 svinecop_select_cpp(const Eigen::MatrixXd& data,
                     size_t p,
                     const std::vector<std::string>& var_types,
-                    std::vector<size_t> in_vertices,
                     std::vector<size_t> out_vertices,
+                    std::vector<size_t> in_vertices,
                     bool is_structure_provided,
                     Rcpp::List& structure,
                     std::vector<std::string> family_set,
@@ -118,8 +118,8 @@ svinecop_select_cpp(const Eigen::MatrixXd& data,
   if (is_structure_provided) {
     svine = SVinecop(rvine_structure_wrap(structure, false),
                      p,
-                     in_vertices,
                      out_vertices,
+                     in_vertices,
                      var_types);
     svine.select_families(data, fit_controls);
   } else {

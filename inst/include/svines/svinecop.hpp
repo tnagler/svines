@@ -17,24 +17,24 @@ public:
 
   SVinecop(const RVineStructure& cs_struct,
            size_t p,
-           std::vector<size_t> in_vertices,
            std::vector<size_t> out_vertices,
+           std::vector<size_t> in_vertices,
            const std::vector<std::string>& var_types = {});
 
   SVinecop(const std::vector<std::vector<Bicop>>& pair_copulas,
            const RVineStructure& cs_struct,
            size_t p,
-           std::vector<size_t> in_vertices,
            std::vector<size_t> out_vertices,
+           std::vector<size_t> in_vertices,
            const std::vector<std::string>& var_types = {});
 
   size_t get_p() const;
 
   size_t get_cs_dim() const;
 
-  std::vector<size_t> get_in_vertices() const;
-
   std::vector<size_t> get_out_vertices() const;
+
+  std::vector<size_t> get_in_vertices() const;
 
   RVineStructure get_cs_structure() const;
 

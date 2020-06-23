@@ -16,16 +16,16 @@ class SVineSelector
 {
 public:
   SVineSelector(const Eigen::MatrixXd& data,
-                std::vector<size_t> in_vertices,
                 std::vector<size_t> out_vertices,
+                std::vector<size_t> in_vertices,
                 const std::vector<std::string>& var_types);
 
   SVineSelector(const Eigen::MatrixXd& data,
                 const std::vector<std::string>& var_types);
 
-  std::vector<size_t> get_in_vertices() const;
-
   std::vector<size_t> get_out_vertices() const;
+
+  std::vector<size_t> get_in_vertices() const;
 
   RVineStructure get_cs_structure() const;
 
@@ -34,13 +34,13 @@ protected:
 
   void duplicate_edge(EdgeIterator e, VineTree& tree);
 
-  void check_in_out_vertices() const;
+  void check_out_in_vertices() const;
   void check_controls(const FitControlsVinecop& controls);
 
   size_t cs_dim_;
   size_t lag_;
-  std::vector<size_t> in_vertices_;
   std::vector<size_t> out_vertices_;
+  std::vector<size_t> in_vertices_;
   Eigen::MatrixXd data_;
   RVineStructure cs_struct_;
 };
@@ -86,8 +86,8 @@ public:
   SVineFamilySelector(const Eigen::MatrixXd& data,
                       const RVineStructure& cs_struct,
                       const FitControlsVinecop& controls,
-                      std::vector<size_t> in_vertices,
                       std::vector<size_t> out_vertices,
+                      std::vector<size_t> in_vertices,
                       const std::vector<std::string>& var_types);
 
   ~SVineFamilySelector() = default;
