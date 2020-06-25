@@ -24,7 +24,7 @@ svinecop_wrap(const Rcpp::List& svinecop_r)
   std::vector<std::string> var_types = svinecop_r["var_types"];
 
   return SVinecop(
-    pair_copulas, cs_structure, p, in_vertices, out_vertices, var_types);
+    pair_copulas, cs_structure, p, out_vertices, in_vertices, var_types);
 }
 
 Rcpp::List
