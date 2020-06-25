@@ -183,6 +183,8 @@ SVineStructureSelector::add_lag()
   lag_++;
   d_ += cs_dim_;
   data_ = spread_lag(data_, cs_dim_);
+  if (controls_.get_weights().size())
+    controls_.set_weights(controls_.get_weights().head(data_.rows()));
   auto vt0 = var_types_;
   vt0.resize(cs_dim_);
   var_types_ = tools_stl::cat(var_types_, vt0);
@@ -576,6 +578,8 @@ SVineFamilySelector::add_lag()
   trees_ = std::vector<VineTree>(1);
   vine_struct_ = SVineStructure(cs_struct_, lag_, out_vertices_, in_vertices_);
   data_ = spread_lag(data_, cs_dim_);
+  if (controls_.get_weights().size())
+    controls_.set_weights(controls_.get_weights().head(data_.rows()));
   controls_.set_trunc_lvl(std::numeric_limits<size_t>::max());
 }
 

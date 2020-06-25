@@ -256,7 +256,7 @@ svinecop_dist <- function(pair_copulas, cs_structure, p,
 print.svinecop_dist <- function(x, ...) {
   cat(dim(x$cs_structure)[1],
     "-dimensional S-vine copula model of order p = ", x$p,
-    " ('svinecop_dist')",
+    " ('svinecop_dist')\n",
     sep = ""
   )
   invisible(x)
