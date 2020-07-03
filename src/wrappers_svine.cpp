@@ -40,7 +40,7 @@ svinecop_wrap(const SVinecop& svinecop_cpp, bool is_fitted)
   auto pair_copulas = pair_copulas_wrap(
     svinecop_cpp.get_all_pair_copulas(), svinecop_cpp.get_dim(), false);
 
-  double npars = svinecop_cpp.get_npars();
+  double npars = svinecop_cpp.get_num_pars().sum();
   double threshold = svinecop_cpp.get_threshold();
   double loglik = NAN;
   auto var_types = svinecop_cpp.get_var_types();
