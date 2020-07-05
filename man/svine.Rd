@@ -4,7 +4,7 @@
 \alias{svine}
 \title{Stationary vine distribution models}
 \usage{
-svine(data, p, margin_families = "norm", selcrit = "aic", ...)
+svine(data, p, margin_families = NA, selcrit = "aic", ...)
 }
 \arguments{
 \item{data}{a matrix or data.frame of data.}
@@ -13,6 +13,9 @@ svine(data, p, margin_families = "norm", selcrit = "aic", ...)
 
 \item{margin_families}{either a vector of \link{univariateML} families to select
 from (used for every margin) or a list with one entry for every variable.}
+
+\item{selcrit}{criterion for family selection, either \code{"loglik"}, \code{"aic"},
+\code{"bic"}, \code{"mbicv"}.}
 
 \item{...}{arguments passed to \code{svinecop()}.}
 }

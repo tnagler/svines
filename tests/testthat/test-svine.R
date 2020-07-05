@@ -91,7 +91,7 @@ test_that("fitting models (multivariate)", {
                 cs_structure = fit$copula$cs_structure,
                 out_vertices = fit$copula$out_vertices,
                 in_vertices = fit$copula$in_vertices)
-  expect_equal(fit, fit2)
+  expect_equal(fit, fit2, tolerance = 0.01)
   
   expect_silent(svine(x, p = 1, type = "D"))
   expect_silent(svine(x, p = 2, type = "M"))

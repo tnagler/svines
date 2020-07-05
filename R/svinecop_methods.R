@@ -1,6 +1,4 @@
-
-
-#' Simulate from a S-vine model
+#' Simulate from a S-vine copula model
 #'
 #' [svinecop_sim()] simulates a time series of length `n`;
 #' [svinecop_sim_conditional()] simulates `n` observations for the next time
@@ -11,7 +9,7 @@
 #' @aliases svinecop_sim svinecop_sim_conditional svinecop_sim_ahead
 #'
 #' @param n number of observations.
-#' @param svinecop a S-vine model object.
+#' @param model a S-vine copula model object (inheriting from [svinecop_dist]).
 #' @param qrng if `TRUE`, generates quasi-random numbers using the multivariate
 #' Generalized Halton sequence up to dimension 300 and the Generalized Sobol
 #' sequence in higher dimensions (default `qrng = FALSE`).
@@ -20,23 +18,23 @@
 #'
 #' @export
 #'
-svinecop_sim <- function(n, svinecop, qrng = FALSE) {
+svinecop_sim <- function(n, model, qrng = FALSE) {
   assert_that(
     is.number(n),
-    inherits(svinecop, "svinecop_dist"),
+    inherits(model, "svinecop_dist"),
     is.flag(qrng)
   )
   
-  U <- svinecop_sim_cpp(svinecop, n, qrng, rvinecopulib:::get_seeds())
-  if (!is.null(svinecop$names)) {
-    colnames(U) <- simplify_names(svinecop)
+  U <- svinecop_sim_cpp(model, n, qrng, rvinecopulib:::get_seeds())
+  if (!is.null(model$names)) {
+    colnames(U) <- simplify_names(model)
   }
   
   U
 }
 
-simplify_names <- function(svinecop) {
-  nms <- svinecop$names[seq_along(svinecop$in_vertices)]
+simplify_names <- function(model) {
+  nms <- model$names[seq_along(model$in_vertices)]
   nms <- strsplit(nms, "-")
   sapply(nms, function(n) paste(n[-length(n)], collapse = ""))
 }
@@ -45,22 +43,19 @@ simplify_names <- function(svinecop) {
 #' @param data time series of past observations (more recent observations are
 #'    at the bottom of the matrix.)
 #' @export
-svinecop_sim_conditional <- function(n, data, svinecop, qrng = FALSE, cores = 1) {
+svinecop_sim_conditional <- function(n, data, model, qrng = FALSE, cores = 1) {
   assert_that(
     is.number(n),
-    inherits(svinecop, "svinecop_dist"),
+    inherits(model, "svinecop_dist"),
     is.flag(qrng),
     is.number(cores)
   )
-  data <- rvinecopulib:::if_vec_to_matrix(data,
-                                          dim(svinecop$cs_structure)[1] == 1)
+  data <- rvinecopulib:::if_vec_to_matrix(data, dim(model$cs_structure)[1] == 1)
   
-  U <- svinecop_sim_conditional_cpp(
-    svinecop, n, data, qrng, cores,
-    rvinecopulib:::get_seeds()
-  )
-  if (!is.null(svinecop$names)) {
-    colnames(U) <- simplify_names(svinecop)
+  U <- svinecop_sim_conditional_cpp(model, n, data, qrng, cores,
+                                    rvinecopulib:::get_seeds())
+  if (!is.null(model$names)) {
+    colnames(U) <- simplify_names(model)
   }
   
   U
@@ -68,30 +63,33 @@ svinecop_sim_conditional <- function(n, data, svinecop, qrng = FALSE, cores = 1)
 
 #' @rdname svinecop_sim
 #' @export
-svinecop_sim_ahead <- function(n, data, svinecop, qrng = FALSE) {
+svinecop_sim_ahead <- function(n, data, model, qrng = FALSE) {
   assert_that(
     is.number(n),
-    inherits(svinecop, "svinecop_dist"),
+    inherits(model, "svinecop_dist"),
     is.flag(qrng)
   )
-  data <- rvinecopulib:::if_vec_to_matrix(data, dim(svinecop$cs_structure)[1] == 1)
+  data <- rvinecopulib:::if_vec_to_matrix(data, dim(model$cs_structure)[1] == 1)
   
-  U <- svinecop_sim_ahead_cpp(
-    svinecop, n, data, qrng,
-    rvinecopulib:::get_seeds()
-  )
-  if (!is.null(svinecop$names)) {
-    colnames(U) <- simplify_names(svinecop)
+  U <- svinecop_sim_ahead_cpp(model, n, data, qrng, rvinecopulib:::get_seeds())
+  if (!is.null(model$names)) {
+    colnames(U) <- simplify_names(model)
   }
   
   U
 }
 
+#' Log-likelihood for S-vine models
+#' 
+#' @param u the data; should have approximately uniform margins..
+#' @param model model inherting from class [svinecop_dist].
+#' @param cores number of cores to use; if larger than one, computations are
+#'   done in parallel on `cores` batches .
 #' @export
-svinecop_loglik <- function(u, svinecop, cores = 1) {
-  assert_that(inherits(svinecop, "svinecop_dist"))
-  u <- rvinecopulib:::if_vec_to_matrix(u, dim(svinecop$cs_structure)[1] == 1)
-  svinecop_loglik_cpp(u, svinecop, cores)
+svinecop_loglik <- function(u, model, cores = 1) {
+  assert_that(inherits(model, "svinecop_dist"))
+  u <- rvinecopulib:::if_vec_to_matrix(u, dim(model$cs_structure)[1] == 1)
+  svinecop_loglik_cpp(u, model, cores)
 }
 
 # #' @export

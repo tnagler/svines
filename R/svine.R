@@ -6,6 +6,8 @@
 #' @param p the Markov order.
 #' @param margin_families either a vector of [univariateML] families to select 
 #'   from (used for every margin) or a list with one entry for every variable.
+#' @param selcrit criterion for family selection, either `"loglik"`, `"aic"`,
+#'   `"bic"`, `"mbicv"`.
 #' @param ... arguments passed to `svinecop()`.
 #'
 #' @importFrom assertthat assert_that is.scalar is.string is.number is.flag
@@ -50,7 +52,7 @@ svine <- function(data, p, margin_families = NA, selcrit = "aic", ...) {
   
   u <- to_unif(data, margins)
   copula <- svinecop(u, p = p, selcrit = selcrit, ...)
-  loglik <- sum(sapply(margins, logLik)) + logLik(copula)
+  loglik <- sum(sapply(margins, stats::logLik)) + stats::logLik(copula)
   npars  <- sum(sapply(margins, length)) + copula$npars
   
   structure(
@@ -120,15 +122,21 @@ get_svine_dist_margin_summary <- function(margins) {
     parameters = NA,
     loglik = sapply(margins, function(x) attr(x, "logLik"))
   )
-  for (m in seq_along(margins)) 
-    df$parameters[m] <- list(coef(margins[[m]]))
+  for (m in seq_along(margins)) {
+    df$parameters[m] <- list(
+      stats::setNames(as.numeric(margins[[m]]), names(margins[[m]]))
+    )
+  }
   class(df) <- c("summary_df", class(df))
   df
 }
 
 
 to_quantiles <- function(u, margins) {
-  x <- sapply(seq_len(ncol(u)), function(j) univariateML::qml(u[, j], margins[[j]]))
+  x <- sapply(
+    seq_len(ncol(u)),
+    function(j) univariateML::qml(u[, j], margins[[j]])
+  )
   var_names <- names(margins)
   if (!is.null(var_names))
     colnames(x) <- var_names
@@ -136,7 +144,10 @@ to_quantiles <- function(u, margins) {
 }
 
 to_unif <- function(x, margins) {
-  u <- sapply(seq_len(ncol(x)), function(j) univariateML::pml(x[, j], margins[[j]]))
+  u <- sapply(
+    seq_len(ncol(x)), 
+    function(j) univariateML::pml(x[, j], margins[[j]])
+  )
   var_names <- names(margins)
   if (!is.null(var_names))
     colnames(u) <- var_names

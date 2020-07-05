@@ -30,6 +30,8 @@ structure is provided.}
 \item{in_vertices}{the in-vertex; if \code{NA}, the in-vertex is selected
 automatically if no structure is provided, and is equivalent to 1 if a
 structure is provided.}
+
+\item{var_types}{variable types; discrete variables not (yet) allowed.}
 }
 \description{
 Custom S-vine models

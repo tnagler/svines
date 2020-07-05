@@ -2,23 +2,20 @@
 % Please edit documentation in R/svine_methods.R
 \name{svine_sim}
 \alias{svine_sim}
-\alias{svinecop_sim}
-\alias{svinecop_sim_conditional}
-\alias{svinecop_sim_ahead}
 \alias{svine_sim_conditional}
 \alias{svine_sim_ahead}
 \title{Simulate from a S-vine model}
 \usage{
-svine_sim(n, svine, qrng = FALSE)
+svine_sim(n, model, qrng = FALSE)
 
-svine_sim_conditional(n, data, svine, qrng = FALSE, cores = 1)
+svine_sim_conditional(n, data, model, qrng = FALSE, cores = 1)
 
-svine_sim_ahead(n, data, svine, qrng = FALSE)
+svine_sim_ahead(n, data, model, qrng = FALSE)
 }
 \arguments{
 \item{n}{number of observations.}
 
-\item{svine}{a S-vine model.}
+\item{model}{a S-vine model (inheriting from \link{svine_dist}).}
 
 \item{qrng}{if \code{TRUE}, generates quasi-random numbers using the multivariate
 Generalized Halton sequence up to dimension 300 and the Generalized Sobol

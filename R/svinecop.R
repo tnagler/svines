@@ -210,6 +210,7 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
 #' @param in_vertices the in-vertex; if `NA`, the in-vertex is selected
 #'   automatically if no structure is provided, and is equivalent to 1 if a
 #'    structure is provided.
+#' @param var_types variable types; discrete variables not (yet) allowed.
 #'
 #' @export
 #' @importFrom assertthat is.count

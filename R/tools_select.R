@@ -13,7 +13,7 @@ find_hamilton_path <- function(u) {
 
 select_mvine <- function(u) {
   d0 <- ncol(u)
-  css <- dvine_structure(find_hamilton_path(u))
+  css <- rvinecopulib::dvine_structure(find_hamilton_path(u))
   tau <- wdm::wdm(u[-nrow(u), css$order[c(1, d0)]],  # t
                   u[-1, css$order[c(1, d0)]],        # t + 1
                   method = "kendall")
@@ -29,7 +29,7 @@ select_mvine <- function(u) {
 
 select_dvine <- function(u) {
   d0 <- ncol(u)
-  css <- dvine_structure(find_hamilton_path(u))
+  css <- rvinecopulib::dvine_structure(find_hamilton_path(u))
   tau <- wdm::wdm(u[-nrow(u), css$order[c(1, d0)]],  # t
                   u[-1, css$order[c(1, d0)]],        # t + 1
                   method = "kendall")

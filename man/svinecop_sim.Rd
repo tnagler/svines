@@ -4,18 +4,18 @@
 \alias{svinecop_sim}
 \alias{svinecop_sim_conditional}
 \alias{svinecop_sim_ahead}
-\title{Simulate from a S-vine model}
+\title{Simulate from a S-vine copula model}
 \usage{
-svinecop_sim(n, svinecop, qrng = FALSE)
+svinecop_sim(n, model, qrng = FALSE)
 
-svinecop_sim_conditional(n, data, svinecop, qrng = FALSE, cores = 1)
+svinecop_sim_conditional(n, data, model, qrng = FALSE, cores = 1)
 
-svinecop_sim_ahead(n, data, svinecop, qrng = FALSE)
+svinecop_sim_ahead(n, data, model, qrng = FALSE)
 }
 \arguments{
 \item{n}{number of observations.}
 
-\item{svinecop}{a S-vine model object.}
+\item{model}{a S-vine copula model object (inheriting from \link{svinecop_dist}).}
 
 \item{qrng}{if \code{TRUE}, generates quasi-random numbers using the multivariate
 Generalized Halton sequence up to dimension 300 and the Generalized Sobol

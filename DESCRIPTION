@@ -12,15 +12,17 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 URL: https://github.com/tnagler/svines
-BugReports: https://github.com/tnagler/ssvines/issues
+BugReports: https://github.com/tnagler/svines/issues
 Depends:
-    rvinecopulib (>= 0.5.2.1.0),
-    R (>= 2.10)
+  rvinecopulib (>= 0.5.2.1.0),
+  R (>= 2.10)
 Imports: 
   Rcpp,
   assertthat,
   TSP,
-  univariateML
+  univariateML,
+  R.utils,
+  wdm
 LinkingTo: 
   rvinecopulib,
   RcppEigen,
@@ -29,6 +31,7 @@ LinkingTo:
   BH,
   wdm
 Suggests:
-  testthat
+  testthat,
+  ggraph
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0
