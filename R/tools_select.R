@@ -52,7 +52,10 @@ get_allowed_margin_families <- function() {
 allowed_margin_families <- get_allowed_margin_families()
 
 select_margin <- function(x, families, criterion, na.rm = FALSE) {
-  mlf <- sapply(paste0("ml", families), function(x) eval(parse(text = x)))
+  mlf <- sapply(
+    paste0("univariateML::ml", families), 
+    function(x) eval(parse(text = x))
+  )
   fits <- lapply(mlf, function(f) try(f(x, na.rm = na.rm), silent = TRUE))
   
   ## catch out-of-bounds errors (and similar)
@@ -64,12 +67,13 @@ select_margin <- function(x, families, criterion, na.rm = FALSE) {
   }
   
   ## select best model
+  fits <- fits[!error_inds]
   crits <- switch(
     criterion,
-    "loglik" = -sapply(fits, logLik),
-    "aic"    = sapply(fits, AIC),
-    "bic"    = sapply(fits, BIC),
-    "mbicv"  = sapply(fits, BIC)
+    "loglik" = -sapply(fits, stats::logLik),
+    "aic"    = sapply(fits, stats::AIC),
+    "bic"    = sapply(fits, stats::BIC),
+    "mbicv"  = sapply(fits, stats::BIC)
   )
   fits[[which.min(crits)]]
 }
