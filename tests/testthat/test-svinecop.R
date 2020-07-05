@@ -83,7 +83,7 @@ test_that("fitting models (multivariate)", {
                   cs_structure = tv$cs_structure,
                   out_vertices = tv$out_vertices,
                   in_vertices = tv$in_vertices)
-  expect_equal(tv, tv2)
+  expect_equal(tv, tv2, tolerance = 0.01)
 
   expect_silent(svinecop(u, p = 1, type = "D"))
   expect_silent(svinecop(u, p = 2, type = "M"))
