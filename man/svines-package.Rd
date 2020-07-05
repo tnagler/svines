@@ -13,7 +13,7 @@ Provides functionality to fit and simulate from stationary vine
 Useful links:
 \itemize{
   \item \url{https://github.com/tnagler/svines}
-  \item Report bugs at \url{https://github.com/tnagler/ssvines/issues}
+  \item Report bugs at \url{https://github.com/tnagler/svines/issues}
 }
 
 }

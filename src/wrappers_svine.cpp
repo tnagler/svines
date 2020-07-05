@@ -40,7 +40,7 @@ svinecop_wrap(const SVinecop& svinecop_cpp, bool is_fitted)
   auto pair_copulas = pair_copulas_wrap(
     svinecop_cpp.get_all_pair_copulas(), svinecop_cpp.get_dim(), false);
 
-  double npars = svinecop_cpp.get_num_pars().sum();
+  double npars = svinecop_cpp.get_npars();
   double threshold = svinecop_cpp.get_threshold();
   double loglik = NAN;
   auto var_types = svinecop_cpp.get_var_types();
@@ -180,4 +180,22 @@ svinecop_sim_ahead_cpp(const Rcpp::List& svinecop_r,
                        const std::vector<int>& seeds)
 {
   return svinecop_wrap(svinecop_r).simulate_ahead(n_ahead, data, qrng, seeds);
+}
+
+// [[Rcpp::export()]]
+Eigen::MatrixXd
+svinecop_scores_cpp(const Eigen::MatrixXd& u,
+                    const Rcpp::List& svinecop_r,
+                    const size_t num_threads)
+{
+  return svinecop_wrap(svinecop_r).scores(u, true, num_threads);
+}
+
+// [[Rcpp::export()]]
+Eigen::MatrixXd
+svinecop_hessian_cpp(const Eigen::MatrixXd& u,
+                     const Rcpp::List& svinecop_r,
+                     const size_t num_threads)
+{
+  return svinecop_wrap(svinecop_r).hessian_exp(u, true, num_threads);
 }

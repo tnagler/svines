@@ -25,3 +25,11 @@ svinecop_sim_ahead_cpp <- function(svinecop_r, n_ahead, data, qrng, seeds) {
     .Call(`_svines_svinecop_sim_ahead_cpp`, svinecop_r, n_ahead, data, qrng, seeds)
 }
 
+svinecop_scores_cpp <- function(u, svinecop_r, num_threads) {
+    .Call(`_svines_svinecop_scores_cpp`, u, svinecop_r, num_threads)
+}
+
+svinecop_hessian_cpp <- function(u, svinecop_r, num_threads) {
+    .Call(`_svines_svinecop_hessian_cpp`, u, svinecop_r, num_threads)
+}
+
