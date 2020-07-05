@@ -107,6 +107,32 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// svinecop_scores_cpp
+Eigen::MatrixXd svinecop_scores_cpp(const Eigen::MatrixXd& u, const Rcpp::List& svinecop_r, const size_t num_threads);
+RcppExport SEXP _svines_svinecop_scores_cpp(SEXP uSEXP, SEXP svinecop_rSEXP, SEXP num_threadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type u(uSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type svinecop_r(svinecop_rSEXP);
+    Rcpp::traits::input_parameter< const size_t >::type num_threads(num_threadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(svinecop_scores_cpp(u, svinecop_r, num_threads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// svinecop_hessian_cpp
+Eigen::MatrixXd svinecop_hessian_cpp(const Eigen::MatrixXd& u, const Rcpp::List& svinecop_r, const size_t num_threads);
+RcppExport SEXP _svines_svinecop_hessian_cpp(SEXP uSEXP, SEXP svinecop_rSEXP, SEXP num_threadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type u(uSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type svinecop_r(svinecop_rSEXP);
+    Rcpp::traits::input_parameter< const size_t >::type num_threads(num_threadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(svinecop_hessian_cpp(u, svinecop_r, num_threads));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_svines_svinecop_create_cpp", (DL_FUNC) &_svines_svinecop_create_cpp, 1},
@@ -115,6 +141,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_svines_svinecop_sim_cpp", (DL_FUNC) &_svines_svinecop_sim_cpp, 4},
     {"_svines_svinecop_sim_conditional_cpp", (DL_FUNC) &_svines_svinecop_sim_conditional_cpp, 6},
     {"_svines_svinecop_sim_ahead_cpp", (DL_FUNC) &_svines_svinecop_sim_ahead_cpp, 5},
+    {"_svines_svinecop_scores_cpp", (DL_FUNC) &_svines_svinecop_scores_cpp, 3},
+    {"_svines_svinecop_hessian_cpp", (DL_FUNC) &_svines_svinecop_hessian_cpp, 3},
     {NULL, NULL, 0}
 };
 

@@ -258,6 +258,186 @@ SVinecop::loglik(const Eigen::MatrixXd& u, const size_t num_threads)
   return ll;
 }
 
+inline Eigen::MatrixXd
+SVinecop::scores(Eigen::MatrixXd u, bool step_wise, const size_t num_threads)
+{
+  disallow_nonparametric();
+
+  // this is not efficient yet, same h-functions are computed multiple times
+  check_data_dim(u);
+  for (size_t lag = 0; lag < p_; lag++) {
+    u = spread_lag(u, cs_dim_);
+  }
+
+  // info about the vine structure (reverse rows (!) for more natural indexing)
+  auto order = svine_struct_.get_order();
+  auto disc_cols = tools_select::get_disc_cols(var_types_);
+
+  Eigen::MatrixXd scores(u.rows(), static_cast<size_t>(get_npars()));
+  scores.setZero();
+
+  auto do_batch = [&](const tools_batch::Batch& b) {
+    // temporary storage objects (all data must be in (0, 1))
+    Eigen::MatrixXd hfunc1, hfunc2, u_e, hfunc1_sub, hfunc2_sub, u_e_sub;
+    hfunc1 = Eigen::MatrixXd::Zero(b.size, d_);
+    hfunc2 = Eigen::MatrixXd::Zero(b.size, d_);
+    if (get_n_discrete() > 0) {
+      hfunc1_sub = hfunc1;
+      hfunc2_sub = hfunc2;
+    }
+
+    // fill first row of hfunc2 matrix with evaluation points;
+    // points have to be reordered to correspond to natural order
+    for (size_t j = 0; j < d_; ++j) {
+      hfunc2.col(j) = u.col(order[j] - 1).segment(b.begin, b.size);
+      if (var_types_[order[j] - 1] == "d") {
+        hfunc2_sub.col(j) =
+          u.col(d_ + disc_cols[order[j] - 1]).segment(b.begin, b.size);
+      }
+    }
+
+    size_t ipar = 0;
+    for (size_t tree = 0; tree < d_ - 1; ++tree) {
+      tools_interface::check_user_interrupt(
+        static_cast<double>(u.rows()) * static_cast<double>(d_) > 1e3);
+      for (size_t edge = 0; edge < d_ - tree - 1; ++edge) {
+        tools_interface::check_user_interrupt(edge % 100 == 0);
+        // extract evaluation point from hfunction matrices (have been
+        // computed in previous tree level)
+        Bicop edge_copula = get_pair_copula(tree, edge);
+        auto var_types = edge_copula.get_var_types();
+        size_t m = rvine_structure_.min_array(tree, edge);
+
+        u_e = Eigen::MatrixXd(b.size, 2);
+        u_e.col(0) = hfunc2.col(edge);
+        if (m == rvine_structure_.struct_array(tree, edge, true)) {
+          u_e.col(1) = hfunc2.col(m - 1);
+        } else {
+          u_e.col(1) = hfunc1.col(m - 1);
+        }
+
+        if ((var_types[0] == "d") | (var_types[1] == "d")) {
+          u_e.conservativeResize(b.size, 4);
+          u_e.col(2) = hfunc2_sub.col(edge);
+          if (m == rvine_structure_.struct_array(tree, edge, true)) {
+            u_e.col(3) = hfunc2_sub.col(m - 1);
+          } else {
+            u_e.col(3) = hfunc1_sub.col(m - 1);
+          }
+        }
+
+        if (edge < cs_dim_) {
+          auto pars = edge_copula.get_parameters();
+          auto dpars = get_diff_pars(edge_copula);
+          for (size_t p = 0; p < pars.size(); p++) {
+            auto pars_tmp = pars;
+
+            pars_tmp(p) = dpars(0, p);
+            edge_copula.set_parameters(pars_tmp);
+            Eigen::VectorXd f1 = edge_copula.pdf(u_e).array().max(1e-20).log();
+
+            pars_tmp(p) = dpars(1, p);
+            edge_copula.set_parameters(pars_tmp);
+            Eigen::VectorXd f2 = edge_copula.pdf(u_e).array().max(1e-20).log();
+
+            double eps = dpars(1, p) - dpars(0, p);
+            scores.col(ipar++).segment(b.begin, b.size) = (f1 - f2) / eps;
+            edge_copula.set_parameters(pars);
+          }
+        }
+
+        // h-functions are only evaluated if needed in next step
+        if (rvine_structure_.needed_hfunc1(tree, edge)) {
+          hfunc1.col(edge) = edge_copula.hfunc1(u_e);
+          if (var_types[1] == "d") {
+            u_e_sub = u_e;
+            u_e_sub.col(1) = u_e.col(3);
+            hfunc1_sub.col(edge) = edge_copula.hfunc1(u_e_sub);
+          }
+        }
+        if (rvine_structure_.needed_hfunc2(tree, edge)) {
+          hfunc2.col(edge) = edge_copula.hfunc2(u_e);
+          if (var_types[0] == "d") {
+            u_e_sub = u_e;
+            u_e_sub.col(0) = u_e.col(2);
+            hfunc2_sub.col(edge) = edge_copula.hfunc2(u_e_sub);
+          }
+        }
+      }
+    }
+  };
+
+  tools_thread::ThreadPool pool((num_threads == 1) ? 0 : num_threads);
+  pool.map(do_batch, tools_batch::create_batches(u.rows(), num_threads));
+  pool.join();
+
+  return scores;
+}
+
+inline TriangularArray<std::vector<Eigen::MatrixXd>>
+SVinecop::hessian(Eigen::MatrixXd u, bool step_wise, const size_t num_threads)
+{
+  check_data_dim(u);
+  size_t trunc_lvl = rvine_structure_.get_trunc_lvl();
+  TriangularArray<std::vector<Eigen::MatrixXd>> hess(d_);
+  for (size_t t = 0; t < trunc_lvl; t++) {
+    for (size_t e = 0; e < std::min(cs_dim_, d_ - 1 - t); e++) {
+      auto pars = pair_copulas_[t][e].get_parameters();
+      auto dpars = get_diff_pars(pair_copulas_[t][e]);
+      hess(t, e).resize(pars.size());
+      for (size_t p = 0; p < pars.size(); p++) {
+        auto pars_tmp = pars;
+
+        pars_tmp(p) = dpars(0, p);
+        pair_copulas_[t][e].set_parameters(pars_tmp);
+        Eigen::MatrixXd f1 = this->scores(u, step_wise, num_threads);
+
+        pars_tmp(p) = dpars(1, p);
+        pair_copulas_[t][e].set_parameters(pars_tmp);
+        Eigen::MatrixXd f2 = this->scores(u, step_wise, num_threads);
+
+        double eps = dpars(1, p) - dpars(0, p);
+        hess(t, e)[p] = (f1 - f2) / eps;
+        pair_copulas_[t][e].set_parameters(pars);
+      }
+    }
+  }
+
+  return hess;
+}
+
+inline Eigen::MatrixXd
+SVinecop::hessian_exp(const Eigen::MatrixXd& u,
+                      bool step_wise,
+                      const size_t num_threads)
+{
+  auto hess = this->hessian(u, step_wise, num_threads);
+  size_t npars = this->get_npars();
+  Eigen::MatrixXd H(npars, npars);
+
+  size_t trunc_lvl = rvine_structure_.get_trunc_lvl();
+  size_t ipar = 0;
+  for (size_t t = 0; t < trunc_lvl; t++) {
+    for (size_t e = 0; e < std::min(cs_dim_, d_ - 1 - t); e++) {
+      for (size_t p = 0; p < pair_copulas_[t][e].get_parameters().size(); p++) {
+        H.row(ipar++) = hess(t, e)[p].colwise().mean();
+      }
+    }
+  }
+
+  return H;
+}
+
+inline Eigen::MatrixXd
+SVinecop::scores_cov(const Eigen::MatrixXd& u,
+                     bool step_wise,
+                     const size_t num_threads)
+{
+  auto s = this->scores(u, step_wise, num_threads);
+  auto sc = s.rowwise() - s.colwise().mean();
+  return (sc.adjoint() * sc) / static_cast<double>(s.rows());
+}
+
 // inline Eigen::VectorXd
 // SVinecop::cond_cdf(const Eigen::MatrixXd& u,
 //                    size_t conditioned,
@@ -274,10 +454,9 @@ SVinecop::loglik(const Eigen::MatrixXd& u, const size_t num_threads)
 //   }
 
 //   size_t n = v.rows();
-//   Eigen::VectorXd seq = Eigen::VectorXd::LinSpaced(100, 1e-10, 1 - 1e-10);
-//   Eigen::MatrixXd vv;
-//   Eigen::VectorXd out(n);
-//   for (size_t i = 0; i < n; ++i) {
+//   Eigen::VectorXd seq = Eigen::VectorXd::LinSpaced(100, 1e-10, 1 -
+//   1e-10); Eigen::MatrixXd vv; Eigen::VectorXd out(n); for (size_t i = 0;
+//   i < n; ++i) {
 //     vv = v.row(i).replicate(100, 1);
 //     vv.col(conditioned) = seq;
 //     auto pdf = Vinecop::pdf(vv, num_threads);
@@ -288,11 +467,11 @@ SVinecop::loglik(const Eigen::MatrixXd& u, const size_t num_threads)
 // }
 
 inline Eigen::VectorXi
-SVinecop::get_num_pars()
+SVinecop::get_num_pars() const
 {
   Eigen::VectorXi nums(cs_dim_ * cs_dim_ * p_ + cs_dim_ * (cs_dim_ - 1) / 2);
   size_t i = 0;
-  for (size_t t = 0; t < cs_dim_ * (1 + p_) - 1; ++t) {
+  for (size_t t = 0; t < d_ - 1; ++t) {
     for (size_t e = 0; e < cs_dim_; ++e) {
       if (e < pair_copulas_[t].size()) {
         if (pair_copulas_[t][e].get_family() == BicopFamily::tll) {
@@ -305,6 +484,12 @@ SVinecop::get_num_pars()
   }
 
   return nums;
+}
+
+inline double
+SVinecop::get_npars() const
+{
+  return this->get_num_pars().sum();
 }
 
 inline Eigen::MatrixXd
@@ -401,4 +586,28 @@ SVinecop::check_cond_data(const Eigen::MatrixXd& data) const
   }
 }
 
+inline void
+SVinecop::disallow_nonparametric() const
+{
+  for (size_t tree = 0; tree < pair_copulas_.size(); ++tree) {
+    for (size_t edge = 0; edge < std::min(cs_dim_, d_ - tree - 1); ++edge) {
+      if (pair_copulas_[tree][edge].get_family() == BicopFamily::tll) {
+        throw std::runtime_error(
+          "method not available for nonparametric models");
+      }
+    }
+  }
+}
+
+inline Eigen::MatrixXd
+SVinecop::get_diff_pars(const Bicop& bicop) const
+{
+  Eigen::VectorXd pars = bicop.get_parameters();
+  Eigen::MatrixXd dpars(2, pars.size());
+  dpars.row(0) =
+    (pars.array() - 1e-3).cwiseMax(bicop.get_parameters_lower_bounds().array());
+  dpars.row(1) =
+    (pars.array() + 1e-3).cwiseMin(bicop.get_parameters_upper_bounds().array());
+  return dpars;
+}
 }

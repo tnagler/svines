@@ -92,19 +92,19 @@ svinecop_loglik <- function(u, model, cores = 1) {
   svinecop_loglik_cpp(u, model, cores)
 }
 
-# #' @export
-# svinecop_scores <- function(u, svinecop, cores = 1) {
-#   assert_that(inherits(svinecop, "svinecop_dist"))
-#   u <- rvinecopulib:::if_vec_to_matrix(u, dim(svinecop$cs_structure)[1] == 1)
-#   svinecop_scores_cpp(u, svinecop, cores)
-# }
+#' @export
+svinecop_scores <- function(u, model, cores = 1) {
+  assert_that(inherits(model, "svinecop_dist"))
+  u <- rvinecopulib:::if_vec_to_matrix(u, dim(model$cs_structure)[1] == 1)
+  svinecop_scores_cpp(u, model, cores)
+}
 
-# #' @export
-# svinecop_hessian <- function(u, svinecop, cores = 1) {
-#   assert_that(inherits(svinecop, "svinecop_dist"))
-#   u <- rvinecopulib:::if_vec_to_matrix(u, dim(svinecop$cs_structure)[1] == 1)
-#   svinecop_hessian_cpp(u, svinecop, cores)
-# }
+#' @export
+svinecop_hessian <- function(u, model, cores = 1) {
+  assert_that(inherits(model, "svinecop_dist"))
+  u <- rvinecopulib:::if_vec_to_matrix(u, dim(model$cs_structure)[1] == 1)
+  svinecop_hessian_cpp(u, model, cores)
+}
 
 # svinecop_cond_cdf <- function(u, conditioned, svinecop, cores = 1) {
 #   assert_that(

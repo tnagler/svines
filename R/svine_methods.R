@@ -84,24 +84,9 @@ svine_loglik <- function(x, model, cores = 1) {
   )
   u <- to_unif(x, model$margins)
   ll_cop <- svinecop_loglik_cpp(u, model$copula, cores)
-  ll_marg + ll_cop
+  sum(ll_marg) + ll_cop
 }
 
-# #' @export
-# svine_scores <- function(x, model, cores = 1) {
-#   assert_that(inherits(model, "svine_dist"))
-#   x <- rvinecopulib:::if_vec_to_matrix(x, length(model$margins) == 1)
-#   u <- to_unif(x, model$margins)
-#   svinecop_scores_cpp(u, model$copula, cores)
-# }
-
-# #' @export
-# svine_hessian <- function(x, model, cores = 1) {
-#   assert_that(inherits(model, "svine_dist"))
-#   x <- rvinecopulib:::if_vec_to_matrix(x, length(model$margins) == 1)
-#   u <- to_unif(x, model$margins)
-#   svinecop_hessian_cpp(u, model$copula, cores)
-# }
 
 # svinecop_cond_cdf <- function(u, conditioned, model, cores = 1) {
 #   assert_that(

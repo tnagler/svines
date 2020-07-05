@@ -79,6 +79,7 @@ test_that("fitting models (multivariate)", {
   expect_equal(dim(svine_sim(10, fit)), c(10, 2))
   expect_equal(dim(svine_sim_ahead(10, x, fit)), c(10, 2))
   expect_equal(dim(svine_sim_conditional(10, x, fit)), c(10, 2))
+  expect_length(svine_loglik(x, fit), 1)
   
   fit <- svine(x, p = 3)
   AIC(fit)
@@ -96,5 +97,5 @@ test_that("fitting models (multivariate)", {
   expect_silent(svine(x, p = 1, type = "D"))
   expect_silent(svine(x, p = 2, type = "M"))
   expect_error(svine(x, p = 1, type = "R"))
-  
+  expect_equal(dim(svine_avar(x, fit2)), c(fit2$npars, fit2$npars))
 })

@@ -72,7 +72,24 @@ public:
   //                          size_t conditioned,
   //                          const size_t num_threads = 1) const;
 
-  Eigen::VectorXi get_num_pars();
+  Eigen::VectorXi get_num_pars() const;
+  double get_npars() const;
+
+  Eigen::MatrixXd scores(Eigen::MatrixXd u,
+                         bool step_wise = true,
+                         const size_t num_threads = 1);
+
+  TriangularArray<std::vector<Eigen::MatrixXd>> hessian(
+    Eigen::MatrixXd u,
+    bool step_wise = true,
+    const size_t num_threads = 1);
+
+  Eigen::MatrixXd hessian_exp(const Eigen::MatrixXd& u,
+                              bool step_wise = true,
+                              const size_t num_threads = 1);
+  Eigen::MatrixXd scores_cov(const Eigen::MatrixXd& u,
+                             bool step_wise = true,
+                             const size_t num_threads = 1);
 
 protected:
   Eigen::MatrixXd get_last_cpits(const Eigen::MatrixXd& data);
@@ -84,6 +101,10 @@ protected:
   void check_data_dim(const Eigen::MatrixXd& data) const;
 
   void check_cond_data(const Eigen::MatrixXd& data) const;
+
+  void disallow_nonparametric() const;
+
+  Eigen::MatrixXd get_diff_pars(const Bicop& bicop) const;
 
   size_t cs_dim_;
   size_t p_;

@@ -28,7 +28,6 @@
 #' plot(fit)
 #' contour(fit)
 #' logLik(fit)
-
 svine <- function(data, p, margin_families = NA, selcrit = "aic", ...) {
   if (is.list(data)) {
     if (any(sapply(data, is.factor)))
@@ -59,6 +58,7 @@ svine <- function(data, p, margin_families = NA, selcrit = "aic", ...) {
     list(
       margins = margins, 
       copula = copula,
+      data = data,
       d = d,
       loglik = loglik,
       npars = npars
