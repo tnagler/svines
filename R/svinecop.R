@@ -53,6 +53,22 @@
 #' @importFrom assertthat assert_that is.scalar is.string is.number is.flag
 #' @importFrom rvinecopulib as_rvine_structure
 #' @export
+#' 
+#' @examples
+#' # load data set
+#' data(returns)  
+#'
+#' # convert to pseudo observations with empirical cdf for marginal distributions
+#' u <- pseudo_obs(returns[1:100, 1:3]) 
+#'
+#' # fit parametric S-vine copula model with Markov order 1
+#' fit <- svinecop(u, p = 1, family_set = "parametric")
+#' fit 
+#' summary(fit)
+#' plot(fit)
+#' contour(fit)
+#' logLik(fit)
+
 svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
                      family_set = "all", cs_structure = NA,
                      out_vertices = NA, in_vertices = NA,
@@ -355,6 +371,20 @@ svinecop_loglik <- function(u, svinecop, cores = 1) {
   assert_that(inherits(svinecop, "svinecop_dist"))
   u <- rvinecopulib:::if_vec_to_matrix(u, dim(svinecop$cs_structure)[1] == 1)
   svinecop_loglik_cpp(u, svinecop, cores)
+}
+
+#' @export
+svinecop_scores <- function(u, svinecop, cores = 1) {
+  assert_that(inherits(svinecop, "svinecop_dist"))
+  u <- rvinecopulib:::if_vec_to_matrix(u, dim(svinecop$cs_structure)[1] == 1)
+  svinecop_scores_cpp(u, svinecop, cores)
+}
+
+#' @export
+svinecop_hessian <- function(u, svinecop, cores = 1) {
+  assert_that(inherits(svinecop, "svinecop_dist"))
+  u <- rvinecopulib:::if_vec_to_matrix(u, dim(svinecop$cs_structure)[1] == 1)
+  svinecop_hessian_cpp(u, svinecop, cores)
 }
 
 # svinecop_cond_cdf <- function(u, conditioned, svinecop, cores = 1) {
