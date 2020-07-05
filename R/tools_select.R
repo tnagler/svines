@@ -43,3 +43,34 @@ select_dvine <- function(u) {
   )
 }
 
+get_allowed_margin_families <- function() {
+  uml_funs <- univariateML:::densities
+  uml_funs <- uml_funs[grepl("^ml", uml_funs)]
+  substring(uml_funs, first = 3)
+}
+
+allowed_margin_families <- get_allowed_margin_families()
+
+select_margin <- function(x, families, criterion, na.rm = FALSE) {
+  mlf <- sapply(paste0("ml", families), function(x) eval(parse(text = x)))
+  fits <- lapply(mlf, function(f) try(f(x, na.rm = na.rm), silent = TRUE))
+  
+  ## catch out-of-bounds errors (and similar)
+  error_inds <- sapply(fits, function(fit) inherits(fit, "try-error"))
+  error_msgs <- sapply(fits[error_inds], as.character)
+  if (all(error_inds)) {
+    details <- paste0("(", names(error_msgs), ") ",  error_msgs)
+    stop("couldn't fit any model.\n", details)
+  }
+  
+  ## select best model
+  crits <- switch(
+    criterion,
+    "loglik" = -sapply(fits, logLik),
+    "aic"    = sapply(fits, AIC),
+    "bic"    = sapply(fits, BIC),
+    "mbicv"  = sapply(fits, BIC)
+  )
+  fits[[which.min(crits)]]
+}
+

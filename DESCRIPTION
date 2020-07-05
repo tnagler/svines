@@ -14,11 +14,13 @@ LazyData: true
 URL: https://github.com/tnagler/svines
 BugReports: https://github.com/tnagler/ssvines/issues
 Depends:
-  rvinecopulib (>= 0.5.0.1.0)
+    rvinecopulib (>= 0.5.2.1.0),
+    R (>= 2.10)
 Imports: 
   Rcpp,
   assertthat,
-  TSP
+  TSP,
+  univariateML
 LinkingTo: 
   rvinecopulib,
   RcppEigen,
