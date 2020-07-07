@@ -133,6 +133,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// with_parameters_cop_cpp
+Rcpp::List with_parameters_cop_cpp(const Rcpp::List& svinecop_r, const Eigen::VectorXd parameters);
+RcppExport SEXP _svines_with_parameters_cop_cpp(SEXP svinecop_rSEXP, SEXP parametersSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type svinecop_r(svinecop_rSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd >::type parameters(parametersSEXP);
+    rcpp_result_gen = Rcpp::wrap(with_parameters_cop_cpp(svinecop_r, parameters));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_svines_svinecop_create_cpp", (DL_FUNC) &_svines_svinecop_create_cpp, 1},
@@ -143,6 +155,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_svines_svinecop_sim_ahead_cpp", (DL_FUNC) &_svines_svinecop_sim_ahead_cpp, 5},
     {"_svines_svinecop_scores_cpp", (DL_FUNC) &_svines_svinecop_scores_cpp, 3},
     {"_svines_svinecop_hessian_cpp", (DL_FUNC) &_svines_svinecop_hessian_cpp, 3},
+    {"_svines_with_parameters_cop_cpp", (DL_FUNC) &_svines_with_parameters_cop_cpp, 2},
     {NULL, NULL, 0}
 };
 

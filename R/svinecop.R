@@ -237,10 +237,7 @@ svinecop_dist <- function(pair_copulas, cs_structure, p,
       pair_copulas[[t]] <- pair_copulas[[t]][seq_len(min(d0, d - t))]
 
       # replicate pair copulas for other lags
-      pair_copulas[[t]] <- c(pair_copulas[[t]], rep(pair_copulas[[t]], p))
-
-      # remove superfluous pcs
-      pair_copulas[[t]] <- pair_copulas[[t]][seq_len(d - t)]
+      pair_copulas[[t]] <- rep(pair_copulas[[t]], p + 1)[seq_len(d - t)]
     }
   }
 

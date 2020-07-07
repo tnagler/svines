@@ -22,7 +22,8 @@ Imports:
   TSP,
   univariateML,
   R.utils,
-  wdm
+  wdm,
+  MASS
 LinkingTo: 
   rvinecopulib,
   RcppEigen,

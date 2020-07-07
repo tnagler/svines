@@ -8,6 +8,8 @@
 #'   model. Parameters are ordered as follows: 
 #'   marginal parameters, copula parameters of first tree, copula parameters of 
 #'   second tree, etc. Duplicated parameters in the copula model are omitted.
+#'   
+#'   
 #' @export
 #' @examples
 #' # load data set
@@ -24,14 +26,37 @@
 #' sqrt(diag(avar))
 svine_avar <- function(x, model, cores = 1) {
   assert_that(inherits(model, "svine_dist"))
-
+  
   I <- cov(svine_scores(x, model, cores))
   H <- svine_hessian(x, model, cores)
   Hi <- solve(H)
   Hi %*% I %*% t(Hi) / nrow(x)
 }
 
-#' @rdname svine_avar
+#' Score function of S-vine distribution models
+#'
+#' @param x the data.
+#' @param model S-vine model (inheriting from [svine_dist]).
+#' @param cores number of cores to use.
+#'
+#' @return A returns a `n`-by-`k` matrix, where `n = NROW(x)` and `k` is the 
+#'   total number of parameters in the 
+#'   model. Parameters are ordered as follows: 
+#'   marginal parameters, copula parameters of first tree, copula parameters of 
+#'   second tree, etc. Duplicated parameters in the copula model are omitted.
+#'  
+#' @examples
+#' data(returns)  
+#' dat <- returns[1:100, 1:2]
+#' 
+#' # fit parametric S-vine model with Markov order 1
+#' model <- svine(x, p = 1, family_set = "parametric")
+#' 
+#' # Implementation of asymptotic variances
+#' I <- cov(svine_scores(x, model, cores))
+#' H <- svine_hessian(x, model, cores)
+#' Hi <- solve(H)
+#' Hi %*% I %*% t(Hi) / nrow(x)
 #' @export
 svine_scores <- function(x, model, cores = 1) {
   assert_that(inherits(model, "svine_dist"))
@@ -40,11 +65,34 @@ svine_scores <- function(x, model, cores = 1) {
   
   S_mrg <- scores_mrg(x, model)
   S_cop <- svinecop_scores(u, model$copula, cores = cores)
-
+  
   cbind(S_mrg[-seq_len(model$copula$p), ], S_cop)
 }
 
-#' @rdname svine_avar
+#' Expected hessian of an S-vine distribution models
+#'
+#' @param x the data.
+#' @param model S-vine model (inheriting from [svine_dist]).
+#' @param cores number of cores to use.
+#'
+#' @return A returns a `k`-by-`k` matrix, where `k` is the 
+#'   total number of parameters in the 
+#'   model. Parameters are ordered as follows: 
+#'   marginal parameters, copula parameters of first tree, copula parameters of 
+#'   second tree, etc. Duplicated parameters in the copula model are omitted.
+#'
+#' @examples
+#' data(returns)  
+#' dat <- returns[1:100, 1:2]
+#' 
+#' # fit parametric S-vine model with Markov order 1
+#' model <- svine(x, p = 1, family_set = "parametric")
+#' 
+#' # Implementation of asymptotic variances
+#' I <- cov(svine_scores(x, model, cores))
+#' H <- svine_hessian(x, model, cores)
+#' Hi <- solve(H)
+#' Hi %*% I %*% t(Hi) / nrow(x)
 #' @export
 svine_hessian <- function(x, model, cores = 1) {
   assert_that(inherits(model, "svine_dist"))
@@ -58,6 +106,90 @@ svine_hessian <- function(x, model, cores = 1) {
     cbind(H_mrg, H_mxd), 
     cbind(matrix(0, ncol(H_mxd), nrow(H_mxd)), H_cop)
   )
+}
+
+#' Simulate models from the asymptotic distribution
+#' 
+#' Simulates `n` \emph{iid} models, where each model 
+#' has parameters drawn from the asymptotic distribution.
+#' @param n number of models to simulate.
+#' 
+#' @examples #' data(returns)  
+#' dat <- returns[1:100, 1:2]
+#' 
+#' # fit parametric S-vine model with Markov order 1
+#' fit <- svine(x, p = 1, family_set = "parametric")
+#' 
+#' # simulate new models where parameters are drawn from asymptotic distribution
+#' 
+#' @examples
+#' #' data(returns)  
+#' dat <- returns[1:100, 1:2]
+#' 
+#' # fit parametric S-vine model with Markov order 0
+#' fit <- svine(x, p = 0, family_set = "parametric")
+#' 
+#' new <- svine_sim_se_models(2, fit)
+#' summary(new[[1]])
+#' summary(new[[2]])
+#' @export
+svine_sim_se_models <- function(n, model, cores = 1) {
+  assert_that(inherits(model, "svine_dist"))
+  V <- svine_avar(model$data, model, cores = cores)
+  
+  par <- svine_get_pars(model)
+  replicate(
+    n, 
+    svine_set_pars(model, MASS::mvrnorm(1, par, V)),
+    simplify = FALSE
+  )
+}
+
+svine_get_pars <- function(model) {
+  assert_that(inherits(model, "svine_dist"))
+  
+  pars_mrg <- lapply(model$margins, as.numeric)
+  pars_cop <- lapply(
+    model$copula$pair_copulas,
+    function(tree) lapply(
+      seq_len(min(length(model$margins), length(tree))),
+      function(j) tree[[j]]$parameters
+    )
+  )
+  
+  unname(c(unlist(pars_mrg), unlist(pars_cop)))
+}
+
+svine_set_pars <- function(model, parameters) {
+  assert_that(
+    inherits(model, "svine_dist"),
+    length(parameters) == model$npars
+  )
+  
+  margins <- with_parameters_mrg(model$margins, parameters)
+  parameters <- parameters[-seq_len(sum(sapply(model$margins, length)))]
+  copula <- with_parameters_cop_cpp(model$copula, parameters)
+  copula <- svinecop_dist(
+    pair_copulas = copula$pair_copulas, 
+    p = copula$p,
+    cs_structure = copula$cs_structure, 
+    out_vertices = copula$out_vertices, 
+    in_vertices  = copula$in_vertices
+  )
+  
+  svine_dist(margins, copula)
+}
+
+with_parameters_mrg <- function(margins, parameters) {
+  npars_mrg <- sapply(margins, length)
+  ixs <- c(0, cumsum(npars_mrg))
+  for (m in seq_along(margins)) {
+    a <-  attributes(margins[[m]])
+    margins[[m]] <- parameters[(ixs[m] + 1):ixs[m + 1]]
+    attributes(margins[[m]]) <- a
+    attr(margins[[m]], "logLik") <- NA
+  }
+  margins
 }
 
 scores_mrg_1 <- function(x, model) {

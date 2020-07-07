@@ -199,3 +199,41 @@ svinecop_hessian_cpp(const Eigen::MatrixXd& u,
 {
   return svinecop_wrap(svinecop_r).hessian_exp(u, true, num_threads);
 }
+
+// [[Rcpp::export()]]
+Rcpp::List
+with_parameters_cop_cpp(const Rcpp::List& svinecop_r,
+                        const Eigen::VectorXd parameters)
+{
+  auto svc = svinecop_wrap(svinecop_r);
+  auto d0 = svc.get_cs_dim();
+  auto d = svc.get_dim();
+  auto p = svc.get_p();
+  auto pcs = svc.get_all_pair_copulas();
+
+  size_t i = 0;
+  for (size_t t = 0; t < d - 1; t++) {
+    for (size_t e = 0; e < std::min(d0, d - t - 1); e++) {
+      if (pcs[t][e].get_family() == BicopFamily::indep)
+        continue;
+      auto lb = pcs[t][e].get_parameters_lower_bounds();
+      auto ub = pcs[t][e].get_parameters_upper_bounds();
+      auto new_pars =
+        parameters.segment(i, lb.size()).cwiseMax(lb).cwiseMin(ub);
+      pcs[t][e].set_parameters(new_pars);
+      for (size_t lag = 1; lag <= p; lag++) {
+        if (e + d0 * lag < d - t - 1) {
+          pcs[t][e + d0 * lag] = pcs[t][e];
+        }
+      }
+      i += lb.size();
+    }
+  }
+
+  svc = SVinecop(pcs,
+                 svc.get_cs_structure(),
+                 p,
+                 svc.get_out_vertices(),
+                 svc.get_in_vertices());
+  return svinecop_wrap(svc, false);
+}
