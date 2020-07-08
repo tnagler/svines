@@ -334,11 +334,11 @@ SVinecop::scores(Eigen::MatrixXd u, bool step_wise, const size_t num_threads)
 
             pars_tmp(p) = dpars(0, p);
             edge_copula.set_parameters(pars_tmp);
-            Eigen::VectorXd f1 = edge_copula.pdf(u_e).array().max(1e-20).log();
+            Eigen::VectorXd f1 = edge_copula.pdf(u_e).array().max(1e-300).log();
 
             pars_tmp(p) = dpars(1, p);
             edge_copula.set_parameters(pars_tmp);
-            Eigen::VectorXd f2 = edge_copula.pdf(u_e).array().max(1e-20).log();
+            Eigen::VectorXd f2 = edge_copula.pdf(u_e).array().max(1e-300).log();
 
             double eps = dpars(1, p) - dpars(0, p);
             scores.col(ipar++).segment(b.begin, b.size) = (f1 - f2) / eps;
@@ -420,7 +420,7 @@ SVinecop::hessian_exp(const Eigen::MatrixXd& u,
   for (size_t t = 0; t < trunc_lvl; t++) {
     for (size_t e = 0; e < std::min(cs_dim_, d_ - 1 - t); e++) {
       for (size_t p = 0; p < pair_copulas_[t][e].get_parameters().size(); p++) {
-        H.row(ipar++) = hess(t, e)[p].colwise().mean();
+        H.col(ipar++) = hess(t, e)[p].colwise().mean();
       }
     }
   }

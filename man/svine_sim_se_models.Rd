@@ -4,10 +4,18 @@
 \alias{svine_sim_se_models}
 \title{Simulate models from the asymptotic distribution}
 \usage{
-svine_sim_se_models(n, model, cores = 1)
+svine_sim_se_models(n, model, n_lags = floor(sqrt(NROW(x))), cores = 1)
 }
 \arguments{
 \item{n}{number of models to simulate.}
+
+\item{model}{S-vine model (inheriting from \link{svine_dist}).}
+
+\item{n_lags}{the number of lags to use when computing the Fisher information
+matrix.}
+
+\item{cores}{the number of cores used for computation of the asymptotic
+variance.}
 }
 \description{
 Simulates \code{n} \emph{iid} models, where each model

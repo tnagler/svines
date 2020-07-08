@@ -2,7 +2,9 @@
 #'
 #' @param x the data.
 #' @param model S-vine model (inheriting from [svine_dist]).
-#' @param cores number of cores to use.
+#' @param n_lags the number of lags to use when computing the Fisher information
+#'   matrix.
+#' @param cores the number of cores to use.
 #'
 #' @return A k-by-k matrix, where k is the total number of parameters in the 
 #'   model. Parameters are ordered as follows: 
@@ -24,13 +26,34 @@
 #' 
 #' # standard errors 
 #' sqrt(diag(avar))
-svine_avar <- function(x, model, cores = 1) {
+svine_avar <- function(x, model, n_lags = floor(sqrt(NROW(x))), cores = 1) {
   assert_that(inherits(model, "svine_dist"))
   
-  I <- cov(svine_scores(x, model, cores))
+  scores <- svine_scores(x, model, cores)
+  I <- cov(scores)
+  if (n_lags > 0) {
+    lagged_covs <- lapply(
+      seq_len(n_lags) - 1,
+      function(l) {
+        sig <- cov(scores[-seq_len(l + 1), ], 
+                   scores[-((nrow(scores) - l):nrow(scores)), ])
+        sig + t(sig)
+      }
+    )
+    I <- I + Reduce("+", lagged_covs)
+  }
   H <- svine_hessian(x, model, cores)
   Hi <- solve(H)
-  Hi %*% I %*% t(Hi) / nrow(x)
+  avar <- Hi %*% I %*% t(Hi) / nrow(x)
+  
+  # make sure it's positive definite (rounding errors!)
+  eig <- eigen(avar)
+  if (any(eig$values <= 0)) {
+    eig$values <- abs(eig$values)
+    avar <- eig$vectors %*% diag(eig$values) %*% t(eig$vectors)
+  }
+  
+  avar
 }
 
 #' Score function of S-vine distribution models
@@ -113,6 +136,11 @@ svine_hessian <- function(x, model, cores = 1) {
 #' Simulates `n` \emph{iid} models, where each model 
 #' has parameters drawn from the asymptotic distribution.
 #' @param n number of models to simulate.
+#' @param model S-vine model (inheriting from [svine_dist]).
+#' @param n_lags the number of lags to use when computing the Fisher information
+#'   matrix.
+#' @param cores the number of cores used for computation of the asymptotic 
+#'   variance.
 #' 
 #' @examples #' data(returns)  
 #' dat <- returns[1:100, 1:2]
@@ -133,9 +161,13 @@ svine_hessian <- function(x, model, cores = 1) {
 #' summary(new[[1]])
 #' summary(new[[2]])
 #' @export
-svine_sim_se_models <- function(n, model, cores = 1) {
+svine_sim_se_models <- function(n, model, n_lags = floor(sqrt(NROW(x))), cores = 1) {
   assert_that(inherits(model, "svine_dist"))
   V <- svine_avar(model$data, model, cores = cores)
+  
+  # make sure it's positive definite before simualting
+  eig <- eigen(V)
+  V <- V + diag(diag(V)) * 0.1
   
   par <- svine_get_pars(model)
   replicate(
@@ -221,13 +253,13 @@ hessian_mrg_1 <- function(x, model) {
   for (p in seq_len(npars)) {
     tmp_model <- model
     
-    tmp_model[p] <- model[p] - 1e-2
+    tmp_model[p] <- model[p] - 1e-3
     s_lwr <- scores_mrg_1(x, tmp_model)
     
-    tmp_model[p] <- model[p] + 1e-2
+    tmp_model[p] <- model[p] + 1e-3
     s_upr <- scores_mrg_1(x, tmp_model)
     
-    hessian[p, ] <- colMeans(s_upr - s_lwr) / 2e-2
+    hessian[p, ] <- colMeans(s_upr - s_lwr) / 2e-3
   }
   hessian
 }

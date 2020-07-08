@@ -4,14 +4,17 @@
 \alias{svine_avar}
 \title{Asymptotic variance of parameter estimates of an S-vine model}
 \usage{
-svine_avar(x, model, cores = 1)
+svine_avar(x, model, n_lags = floor(sqrt(NROW(x))), cores = 1)
 }
 \arguments{
 \item{x}{the data.}
 
 \item{model}{S-vine model (inheriting from \link{svine_dist}).}
 
-\item{cores}{number of cores to use.}
+\item{n_lags}{the number of lags to use when computing the Fisher information
+matrix.}
+
+\item{cores}{the number of cores to use.}
 }
 \value{
 A k-by-k matrix, where k is the total number of parameters in the
