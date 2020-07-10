@@ -19,9 +19,7 @@ Depends:
 Imports: 
   Rcpp,
   assertthat,
-  TSP,
   univariateML,
-  R.utils,
   wdm,
   MASS
 LinkingTo: 
