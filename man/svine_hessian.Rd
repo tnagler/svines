@@ -28,11 +28,11 @@ data(returns)
 dat <- returns[1:100, 1:2]
 
 # fit parametric S-vine model with Markov order 1
-model <- svine(x, p = 1, family_set = "parametric")
+model <- svine(dat, p = 1, family_set = "parametric")
 
 # Implementation of asymptotic variances
-I <- cov(svine_scores(x, model, cores))
-H <- svine_hessian(x, model, cores)
+I <- cov(svine_scores(dat, model))
+H <- svine_hessian(dat, model)
 Hi <- solve(H)
-Hi \%*\% I \%*\% t(Hi) / nrow(x)
+Hi \%*\% I \%*\% t(Hi) / nrow(dat)
 }

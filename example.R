@@ -4,14 +4,27 @@ library(fGarch)
 
 # load data set
 data(returns)  
-dat <- returns[1:500, 1:2]
+dat <- returns[1:500, 1:3]
 
 # fit parametric S-vine model with Markov order 1
-fit <- svine(dat, p = 1, family_set = "parametric")
+model <- svine(dat, p = 1, margin_families = "norm", family_set = "gauss")
 
-V <- svine_avar(dat, fit)
 
-par <- svine_get_pars(fit)
+# Implementation of asymptotic variances
+I <- cov(svine_scores(x, model, cores))
+H <- svine_hessian(x, model, cores)
+Hi <- solve(H)
+Hi %*% I %*% t(Hi) / nrow(x)
 
-par_new <- MASS::mvrnorm(1, par, V)
-summary(svine_set_pars(fit, par_new))
+
+V <- svine_avar(dat, fit, n_lags = 30)
+
+data(returns)  
+dat <- returns[1:100, 1:2]
+
+# fit parametric S-vine model with Markov order 0
+fit <- svine(dat, p = 0, family_set = "parametric")
+
+new <- svine_sim_se_models(2, fit)
+summary(new[[1]])
+summary(new[[2]])

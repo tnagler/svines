@@ -79,7 +79,7 @@ svinecop_sim_ahead <- function(n, data, model, qrng = FALSE) {
   U
 }
 
-#' Log-likelihood for S-vine models
+#' Log-likelihood for S-vine copula models
 #' 
 #' @param u the data; should have approximately uniform margins..
 #' @param model model inherting from class [svinecop_dist].
@@ -92,6 +92,12 @@ svinecop_loglik <- function(u, model, cores = 1) {
   svinecop_loglik_cpp(u, model, cores)
 }
 
+#' Log-likelihood scores for S-vine copula models
+#' 
+#' @param u the data; should have approximately uniform margins..
+#' @param model model inherting from class [svinecop_dist].
+#' @param cores number of cores to use; if larger than one, computations are
+#'   done in parallel on `cores` batches .
 #' @export
 svinecop_scores <- function(u, model, cores = 1) {
   assert_that(inherits(model, "svinecop_dist"))
@@ -99,6 +105,12 @@ svinecop_scores <- function(u, model, cores = 1) {
   svinecop_scores_cpp(u, model, cores)
 }
 
+#' Expected hessian for S-vine copula models
+#' 
+#' @param u the data; should have approximately uniform margins..
+#' @param model model inherting from class [svinecop_dist].
+#' @param cores number of cores to use; if larger than one, computations are
+#'   done in parallel on `cores` batches .
 #' @export
 svinecop_hessian <- function(u, model, cores = 1) {
   assert_that(inherits(model, "svinecop_dist"))

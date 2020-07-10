@@ -31,10 +31,10 @@ data(returns)
 dat <- returns[1:100, 1:2]
 
 # fit parametric S-vine model with Markov order 1
-fit <- svine(x, p = 1, family_set = "parametric")
+fit <- svine(dat, p = 1, family_set = "parametric")
 
 # asymptotic variance matrix
-avar <- svine_avar(u, fit)
+avar <- svine_avar(dat, fit)
 
 # standard errors 
 sqrt(diag(avar))

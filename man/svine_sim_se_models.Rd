@@ -4,37 +4,28 @@
 \alias{svine_sim_se_models}
 \title{Simulate models from the asymptotic distribution}
 \usage{
-svine_sim_se_models(n, model, n_lags = floor(sqrt(NROW(x))), cores = 1)
+svine_sim_se_models(n, model, cores = 1, ...)
 }
 \arguments{
 \item{n}{number of models to simulate.}
 
 \item{model}{S-vine model (inheriting from \link{svine_dist}).}
 
-\item{n_lags}{the number of lags to use when computing the Fisher information
-matrix.}
-
 \item{cores}{the number of cores used for computation of the asymptotic
 variance.}
+
+\item{...}{passed to \code{\link[=svine_avar]{svine_avar()}}.}
 }
 \description{
 Simulates \code{n} \emph{iid} models, where each model
 has parameters drawn from the asymptotic distribution.
 }
 \examples{
-#' data(returns)  
-dat <- returns[1:100, 1:2]
-
-# fit parametric S-vine model with Markov order 1
-fit <- svine(x, p = 1, family_set = "parametric")
-
-# simulate new models where parameters are drawn from asymptotic distribution
-
-#' data(returns)  
+data(returns)  
 dat <- returns[1:100, 1:2]
 
 # fit parametric S-vine model with Markov order 0
-fit <- svine(x, p = 0, family_set = "parametric")
+fit <- svine(dat, p = 0, family_set = "parametric")
 
 new <- svine_sim_se_models(2, fit)
 summary(new[[1]])

@@ -19,24 +19,23 @@
 #' dat <- returns[1:100, 1:2]
 #' 
 #' # fit parametric S-vine model with Markov order 1
-#' fit <- svine(x, p = 1, family_set = "parametric")
+#' fit <- svine(dat, p = 1, family_set = "parametric")
 #' 
 #' # asymptotic variance matrix
-#' avar <- svine_avar(u, fit)
+#' avar <- svine_avar(dat, fit)
 #' 
 #' # standard errors 
 #' sqrt(diag(avar))
 svine_avar <- function(x, model, n_lags = floor(sqrt(NROW(x))), cores = 1) {
   assert_that(inherits(model, "svine_dist"))
-  
   scores <- svine_scores(x, model, cores)
-  I <- cov(scores)
+  I <- stats::cov(scores)
   if (n_lags > 0) {
     lagged_covs <- lapply(
       seq_len(n_lags) - 1,
       function(l) {
-        sig <- cov(scores[-seq_len(l + 1), ], 
-                   scores[-((nrow(scores) - l):nrow(scores)), ])
+        sig <- stats::cov(scores[-seq_len(l + 1), ], 
+                          scores[-((NROW(scores) - l):NROW(scores)), ])
         sig + t(sig)
       }
     )
@@ -44,7 +43,7 @@ svine_avar <- function(x, model, n_lags = floor(sqrt(NROW(x))), cores = 1) {
   }
   H <- svine_hessian(x, model, cores)
   Hi <- solve(H)
-  avar <- Hi %*% I %*% t(Hi) / nrow(x)
+  avar <- Hi %*% I %*% t(Hi) / NROW(x)
   
   # make sure it's positive definite (rounding errors!)
   eig <- eigen(avar)
@@ -73,13 +72,13 @@ svine_avar <- function(x, model, n_lags = floor(sqrt(NROW(x))), cores = 1) {
 #' dat <- returns[1:100, 1:2]
 #' 
 #' # fit parametric S-vine model with Markov order 1
-#' model <- svine(x, p = 1, family_set = "parametric")
+#' model <- svine(dat, p = 1, family_set = "parametric")
 #' 
 #' # Implementation of asymptotic variances
-#' I <- cov(svine_scores(x, model, cores))
-#' H <- svine_hessian(x, model, cores)
+#' I <- cov(svine_scores(dat, model))
+#' H <- svine_hessian(dat, model)
 #' Hi <- solve(H)
-#' Hi %*% I %*% t(Hi) / nrow(x)
+#' Hi %*% I %*% t(Hi) / nrow(dat)
 #' @export
 svine_scores <- function(x, model, cores = 1) {
   assert_that(inherits(model, "svine_dist"))
@@ -88,8 +87,9 @@ svine_scores <- function(x, model, cores = 1) {
   
   S_mrg <- scores_mrg(x, model)
   S_cop <- svinecop_scores(u, model$copula, cores = cores)
-  
-  cbind(S_mrg[-seq_len(model$copula$p), ], S_cop)
+  if (model$copula$p > 0)
+    S_mrg <- S_mrg[-seq_len(model$copula$p), ]
+  cbind(S_mrg, S_cop)
 }
 
 #' Expected hessian of an S-vine distribution models
@@ -109,13 +109,13 @@ svine_scores <- function(x, model, cores = 1) {
 #' dat <- returns[1:100, 1:2]
 #' 
 #' # fit parametric S-vine model with Markov order 1
-#' model <- svine(x, p = 1, family_set = "parametric")
+#' model <- svine(dat, p = 1, family_set = "parametric")
 #' 
 #' # Implementation of asymptotic variances
-#' I <- cov(svine_scores(x, model, cores))
-#' H <- svine_hessian(x, model, cores)
+#' I <- cov(svine_scores(dat, model))
+#' H <- svine_hessian(dat, model)
 #' Hi <- solve(H)
-#' Hi %*% I %*% t(Hi) / nrow(x)
+#' Hi %*% I %*% t(Hi) / nrow(dat)
 #' @export
 svine_hessian <- function(x, model, cores = 1) {
   assert_that(inherits(model, "svine_dist"))
@@ -137,33 +137,24 @@ svine_hessian <- function(x, model, cores = 1) {
 #' has parameters drawn from the asymptotic distribution.
 #' @param n number of models to simulate.
 #' @param model S-vine model (inheriting from [svine_dist]).
-#' @param n_lags the number of lags to use when computing the Fisher information
-#'   matrix.
 #' @param cores the number of cores used for computation of the asymptotic 
 #'   variance.
-#' 
-#' @examples #' data(returns)  
-#' dat <- returns[1:100, 1:2]
-#' 
-#' # fit parametric S-vine model with Markov order 1
-#' fit <- svine(x, p = 1, family_set = "parametric")
-#' 
-#' # simulate new models where parameters are drawn from asymptotic distribution
-#' 
+#' @param ... passed to [`svine_avar()`].
+
 #' @examples
-#' #' data(returns)  
+#' data(returns)  
 #' dat <- returns[1:100, 1:2]
 #' 
 #' # fit parametric S-vine model with Markov order 0
-#' fit <- svine(x, p = 0, family_set = "parametric")
+#' fit <- svine(dat, p = 0, family_set = "parametric")
 #' 
 #' new <- svine_sim_se_models(2, fit)
 #' summary(new[[1]])
 #' summary(new[[2]])
 #' @export
-svine_sim_se_models <- function(n, model, n_lags = floor(sqrt(NROW(x))), cores = 1) {
+svine_sim_se_models <- function(n, model, cores = 1, ...) {
   assert_that(inherits(model, "svine_dist"))
-  V <- svine_avar(model$data, model, cores = cores)
+  V <- svine_avar(model$data, model = model, cores = cores, ...)
   
   # make sure it's positive definite before simualting
   eig <- eigen(V)
