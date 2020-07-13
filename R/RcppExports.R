@@ -13,16 +13,8 @@ svinecop_loglik_cpp <- function(u, svinecop_r, cores) {
     .Call(`_svines_svinecop_loglik_cpp`, u, svinecop_r, cores)
 }
 
-svinecop_sim_cpp <- function(svinecop_r, n, qrng, seeds) {
-    .Call(`_svines_svinecop_sim_cpp`, svinecop_r, n, qrng, seeds)
-}
-
-svinecop_sim_conditional_cpp <- function(svinecop_r, n, data, qrng, cores, seeds) {
-    .Call(`_svines_svinecop_sim_conditional_cpp`, svinecop_r, n, data, qrng, cores, seeds)
-}
-
-svinecop_sim_ahead_cpp <- function(svinecop_r, n_ahead, data, qrng, seeds) {
-    .Call(`_svines_svinecop_sim_ahead_cpp`, svinecop_r, n_ahead, data, qrng, seeds)
+svinecop_sim_cpp <- function(svinecop_r, n, rep, data, qrng, cores, seeds) {
+    .Call(`_svines_svinecop_sim_cpp`, svinecop_r, n, rep, data, qrng, cores, seeds)
 }
 
 svinecop_scores_cpp <- function(u, svinecop_r, num_threads) {

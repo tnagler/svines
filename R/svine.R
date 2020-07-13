@@ -18,16 +18,15 @@
 #' # load data set
 #' data(returns)  
 #'
-#' # convert to pseudo observations with empirical cdf for marginal distributions
-#' u <- pseudo_obs(returns[, 1:3]) 
-#'
-#' # fit parametric S-vine copula model with Markov order 1
-#' fit <- svinecop(u, p = 1, family_set = "parametric")
+#' # fit parametric S-vine model with Markov order 1
+#' fit <- svine(returns[1:100, 1:3], p = 1, family_set = "parametric")
 #' fit 
 #' summary(fit)
 #' plot(fit)
 #' contour(fit)
 #' logLik(fit)
+#' 
+#' pairs(svine_sim(500, fit))
 svine <- function(data, p, margin_families = NA, selcrit = "aic", ...) {
   if (is.list(data)) {
     if (any(sapply(data, is.factor)))
@@ -133,13 +132,19 @@ get_svine_dist_margin_summary <- function(margins) {
 
 
 to_quantiles <- function(u, margins) {
-  x <- sapply(
-    seq_len(ncol(u)),
-    function(j) univariateML::qml(u[, j], margins[[j]])
-  )
+  x <- u
+  for (j in seq_len(ncol(u))) {
+    if (is.matrix(u)) {
+      x[, j] <- univariateML::qml(u[, j], margins[[j]])
+    } else {
+      x[, j, ] <- univariateML::qml(u[, j, ], margins[[j]])
+    }
+  }
+
   var_names <- names(margins)
   if (!is.null(var_names))
     colnames(x) <- var_names
+  
   x
 }
 

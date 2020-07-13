@@ -63,47 +63,19 @@ BEGIN_RCPP
 END_RCPP
 }
 // svinecop_sim_cpp
-Eigen::MatrixXd svinecop_sim_cpp(const Rcpp::List& svinecop_r, const size_t n, const bool qrng, std::vector<int> seeds);
-RcppExport SEXP _svines_svinecop_sim_cpp(SEXP svinecop_rSEXP, SEXP nSEXP, SEXP qrngSEXP, SEXP seedsSEXP) {
+Eigen::MatrixXd svinecop_sim_cpp(const Rcpp::List& svinecop_r, const size_t n, const size_t rep, const Eigen::MatrixXd& data, const bool qrng, const size_t cores, const std::vector<int>& seeds);
+RcppExport SEXP _svines_svinecop_sim_cpp(SEXP svinecop_rSEXP, SEXP nSEXP, SEXP repSEXP, SEXP dataSEXP, SEXP qrngSEXP, SEXP coresSEXP, SEXP seedsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Rcpp::List& >::type svinecop_r(svinecop_rSEXP);
     Rcpp::traits::input_parameter< const size_t >::type n(nSEXP);
-    Rcpp::traits::input_parameter< const bool >::type qrng(qrngSEXP);
-    Rcpp::traits::input_parameter< std::vector<int> >::type seeds(seedsSEXP);
-    rcpp_result_gen = Rcpp::wrap(svinecop_sim_cpp(svinecop_r, n, qrng, seeds));
-    return rcpp_result_gen;
-END_RCPP
-}
-// svinecop_sim_conditional_cpp
-Eigen::MatrixXd svinecop_sim_conditional_cpp(const Rcpp::List& svinecop_r, const size_t n, const Eigen::MatrixXd& data, const bool qrng, size_t cores, const std::vector<int>& seeds);
-RcppExport SEXP _svines_svinecop_sim_conditional_cpp(SEXP svinecop_rSEXP, SEXP nSEXP, SEXP dataSEXP, SEXP qrngSEXP, SEXP coresSEXP, SEXP seedsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::List& >::type svinecop_r(svinecop_rSEXP);
-    Rcpp::traits::input_parameter< const size_t >::type n(nSEXP);
+    Rcpp::traits::input_parameter< const size_t >::type rep(repSEXP);
     Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type data(dataSEXP);
     Rcpp::traits::input_parameter< const bool >::type qrng(qrngSEXP);
-    Rcpp::traits::input_parameter< size_t >::type cores(coresSEXP);
+    Rcpp::traits::input_parameter< const size_t >::type cores(coresSEXP);
     Rcpp::traits::input_parameter< const std::vector<int>& >::type seeds(seedsSEXP);
-    rcpp_result_gen = Rcpp::wrap(svinecop_sim_conditional_cpp(svinecop_r, n, data, qrng, cores, seeds));
-    return rcpp_result_gen;
-END_RCPP
-}
-// svinecop_sim_ahead_cpp
-Eigen::MatrixXd svinecop_sim_ahead_cpp(const Rcpp::List& svinecop_r, const size_t n_ahead, const Eigen::MatrixXd& data, const bool qrng, const std::vector<int>& seeds);
-RcppExport SEXP _svines_svinecop_sim_ahead_cpp(SEXP svinecop_rSEXP, SEXP n_aheadSEXP, SEXP dataSEXP, SEXP qrngSEXP, SEXP seedsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::List& >::type svinecop_r(svinecop_rSEXP);
-    Rcpp::traits::input_parameter< const size_t >::type n_ahead(n_aheadSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< const bool >::type qrng(qrngSEXP);
-    Rcpp::traits::input_parameter< const std::vector<int>& >::type seeds(seedsSEXP);
-    rcpp_result_gen = Rcpp::wrap(svinecop_sim_ahead_cpp(svinecop_r, n_ahead, data, qrng, seeds));
+    rcpp_result_gen = Rcpp::wrap(svinecop_sim_cpp(svinecop_r, n, rep, data, qrng, cores, seeds));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -150,9 +122,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_svines_svinecop_create_cpp", (DL_FUNC) &_svines_svinecop_create_cpp, 1},
     {"_svines_svinecop_select_cpp", (DL_FUNC) &_svines_svinecop_select_cpp, 22},
     {"_svines_svinecop_loglik_cpp", (DL_FUNC) &_svines_svinecop_loglik_cpp, 3},
-    {"_svines_svinecop_sim_cpp", (DL_FUNC) &_svines_svinecop_sim_cpp, 4},
-    {"_svines_svinecop_sim_conditional_cpp", (DL_FUNC) &_svines_svinecop_sim_conditional_cpp, 6},
-    {"_svines_svinecop_sim_ahead_cpp", (DL_FUNC) &_svines_svinecop_sim_ahead_cpp, 5},
+    {"_svines_svinecop_sim_cpp", (DL_FUNC) &_svines_svinecop_sim_cpp, 7},
     {"_svines_svinecop_scores_cpp", (DL_FUNC) &_svines_svinecop_scores_cpp, 3},
     {"_svines_svinecop_hessian_cpp", (DL_FUNC) &_svines_svinecop_hessian_cpp, 3},
     {"_svines_with_parameters_cop_cpp", (DL_FUNC) &_svines_with_parameters_cop_cpp, 2},

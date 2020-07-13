@@ -60,14 +60,14 @@ test_that("creating custom models (multivariate)", {
 test_that("fitting models (1d)", {
   x <- rnorm(100)
   fit <- svine(x, p = 0)
-  expect_length(svine_sim(10, fit), 10)
-  expect_length(svine_sim_ahead(10, x, fit), 10)
-  expect_length(svine_sim_conditional(10, x, fit), 10)
+  expect_equal(unname(dim(svine_sim(10, fit))), c(10, 1))
+  expect_equal(unname(dim(svine_sim(10, fit, x))), c(10, 1))
+  expect_equal(unname(dim(svine_sim(10, fit, x, 3))), c(10, 1, 3))
   
   fit <- svine(x, p = 3)
-  expect_length(svine_sim(10, fit), 10)
-  expect_length(svine_sim_ahead(10, x, fit), 10)
-  expect_length(svine_sim_conditional(10, x, fit), 10)
+  expect_equal(unname(dim(svine_sim(10, fit))), c(10, 1))
+  expect_equal(unname(dim(svine_sim(10, fit, x))), c(10, 1))
+  expect_equal(unname(dim(svine_sim(10, fit, x, 3))), c(10, 1, 3))
 })
 
 
@@ -76,16 +76,16 @@ test_that("fitting models (multivariate)", {
   x <- qexp(u)
   fit <- svine(x, p = 0)
   AIC(fit)
-  expect_equal(dim(svine_sim(10, fit)), c(10, 2))
-  expect_equal(dim(svine_sim_ahead(10, x, fit)), c(10, 2))
-  expect_equal(dim(svine_sim_conditional(10, x, fit)), c(10, 2))
+  expect_equal(unname(dim(svine_sim(10, fit))), c(10, 2))
+  expect_equal(unname(dim(svine_sim(10, fit, x))), c(10, 2))
+  expect_equal(unname(dim(svine_sim(10, fit, x, 3))), c(10, 2, 3))
   expect_length(svine_loglik(x, fit), 1)
   
   fit <- svine(x, p = 3)
   AIC(fit)
   expect_gt(min(svine_sim(10, fit)), 0)
-  expect_gt(min(svine_sim_ahead(10, x, fit)), 0)
-  expect_gt(min(svine_sim_conditional(10, x, fit)), 0)
+  expect_gt(min(svine_sim(10, fit, x)), 0)
+  expect_gt(min(svine_sim(10, fit, x, 5)), 0)
   
   fit2 <- svine(x,
                 p = 3,

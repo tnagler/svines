@@ -54,14 +54,14 @@ test_that("creating custom models (multivariate)", {
 test_that("fitting models (1d)", {
   u <- runif(100)
   sv <- svinecop(u, p = 0)
-  expect_length(svinecop_sim(10, sv), 10)
-  expect_length(svinecop_sim_ahead(10, u, sv), 10)
-  expect_length(svinecop_sim_conditional(10, u, sv), 10)
-
+  expect_equal(unname(dim(svinecop_sim(10, sv))), c(10, 1))
+  expect_equal(unname(dim(svinecop_sim(10, sv, u))), c(10, 1))
+  expect_equal(unname(dim(svinecop_sim(10, sv, u, 3))), c(10, 1, 3))
+  
   sv <- svinecop(u, p = 3)
-  expect_length(svinecop_sim(10, sv), 10)
-  expect_length(svinecop_sim_ahead(10, u, sv), 10)
-  expect_length(svinecop_sim_conditional(10, u, sv), 10)
+  expect_equal(unname(dim(svinecop_sim(10, sv))), c(10, 1))
+  expect_equal(unname(dim(svinecop_sim(10, sv, u))), c(10, 1))
+  expect_equal(unname(dim(svinecop_sim(10, sv, u, 3))), c(10, 1, 3))
 })
 
 
@@ -69,16 +69,16 @@ test_that("fitting models (multivariate)", {
   u <- rbicop(50, bc)
   sv <- svinecop(u, p = 0)
   AIC(sv)
-  expect_equal(dim(svinecop_sim(10, sv)), c(10, 2))
-  expect_equal(dim(svinecop_sim_ahead(10, u, sv)), c(10, 2))
-  expect_equal(dim(svinecop_sim_conditional(10, u, sv)), c(10, 2))
-
+  expect_equal(unname(dim(svinecop_sim(10, sv))), c(10, 2))
+  expect_equal(unname(dim(svinecop_sim(10, sv, u))), c(10, 2))
+  expect_equal(unname(dim(svinecop_sim(10, sv, u, 3))), c(10, 2, 3))
+  
   sv <- svinecop(u, p = 3)
   AIC(sv)
-  expect_equal(dim(svinecop_sim(10, sv)), c(10, 2))
-  expect_equal(dim(svinecop_sim_ahead(10, u, sv)), c(10, 2))
-  expect_equal(dim(svinecop_sim_conditional(10, u, sv)), c(10, 2))
-
+  expect_equal(unname(dim(svinecop_sim(10, sv))), c(10, 2))
+  expect_equal(unname(dim(svinecop_sim(10, sv, u))), c(10, 2))
+  expect_equal(unname(dim(svinecop_sim(10, sv, u, 3))), c(10, 2, 3))
+  
   sv2 <- svinecop(u, p = 3,
                   cs_structure = sv$cs_structure,
                   out_vertices = sv$out_vertices,

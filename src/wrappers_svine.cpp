@@ -138,48 +138,48 @@ svinecop_loglik_cpp(const Eigen::MatrixXd& u,
   return svinecop_wrap(svinecop_r).loglik(u, cores);
 }
 
-// // [[Rcpp::export()]]
-// Eigen::VectorXd
-// svinecop_cond_cdf_cpp(const Eigen::MatrixXd& u,
-//                       size_t conditioned,
-//                       const Rcpp::List& svinecop_r,
-//                       size_t cores)
-// {
-//   return svinecop_wrap(svinecop_r).cond_cdf(u, conditioned, cores);
-// }
 
 // [[Rcpp::export()]]
 Eigen::MatrixXd
 svinecop_sim_cpp(const Rcpp::List& svinecop_r,
                  const size_t n,
+                 const size_t rep,
+                 const Eigen::MatrixXd& data,
                  const bool qrng,
-                 std::vector<int> seeds)
+                 const size_t cores,
+                 const std::vector<int>& seeds)
 {
-  return svinecop_wrap(svinecop_r).simulate(n, qrng, seeds);
-}
+  auto sv_cpp = svinecop_wrap(svinecop_r);
 
-// [[Rcpp::export()]]
-Eigen::MatrixXd
-svinecop_sim_conditional_cpp(const Rcpp::List& svinecop_r,
-                             const size_t n,
-                             const Eigen::MatrixXd& data,
-                             const bool qrng,
-                             size_t cores,
-                             const std::vector<int>& seeds)
-{
-  return svinecop_wrap(svinecop_r)
-    .simulate_conditional(n, data, qrng, cores, seeds);
-}
+  // make sure everything is random, but reproducible
+  std::vector<std::vector<int>> new_seeds(rep);
+  {
+    auto tmp_seeds = tools_stats::simulate_uniform(rep, 10, false, seeds);
+    for (size_t i = 0; i < rep; i++) {
+      new_seeds[i].resize(10);
+      for (int k = 0; k < 10; k++)
+        new_seeds[i][k] = std::floor(tmp_seeds(i, k) * 1e10);
+    }
+  }
 
-// [[Rcpp::export()]]
-Eigen::MatrixXd
-svinecop_sim_ahead_cpp(const Rcpp::List& svinecop_r,
-                       const size_t n_ahead,
-                       const Eigen::MatrixXd& data,
-                       const bool qrng,
-                       const std::vector<int>& seeds)
-{
-  return svinecop_wrap(svinecop_r).simulate_ahead(n_ahead, data, qrng, seeds);
+  auto cs_dim = sv_cpp.get_cs_dim();
+
+  Eigen::MatrixXd sim(n, cs_dim * rep);
+  RcppThread::parallelFor(
+    0,
+    rep,
+    [&](size_t r) {
+      if (data.size() == 0) {
+        sim.block(0, cs_dim * r, n, cs_dim) =
+          sv_cpp.simulate(n, qrng, new_seeds[r]);
+      } else {
+        sim.block(0, cs_dim * r, n, cs_dim) =
+          sv_cpp.simulate_ahead(n, data, qrng, new_seeds[r]);
+      }
+    },
+    cores);
+
+  return sim;
 }
 
 // [[Rcpp::export()]]

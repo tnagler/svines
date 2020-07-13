@@ -8,27 +8,42 @@
 #'
 #' @aliases svinecop_sim svinecop_sim_conditional svinecop_sim_ahead
 #'
-#' @param n number of observations.
+#' @param n how many steps of the time series to simulate.
 #' @param model a S-vine copula model object (inheriting from [svinecop_dist]).
+#' @param past (optional) matrix of past observations. If provided, time series 
+#'   are simulated conditional on the past. 
+#' @param rep number of replications; `rep` time series of length `n` are 
+#'   generated.
 #' @param qrng if `TRUE`, generates quasi-random numbers using the multivariate
 #' Generalized Halton sequence up to dimension 300 and the Generalized Sobol
 #' sequence in higher dimensions (default `qrng = FALSE`).
 #' @param cores number of cores to use; if larger than one, computations are
-#'   done in parallel on `cores` batches .
+#'   done in parallel on `cores` batches.
+#'   
+#' @return An `n`-by-`d`-by`rep` arrray, where `d` is the cross-sectional 
+#'   dimension of the model. This reduces to an `n`-by-`d` matrix if `rep == 1`. 
 #'
 #' @export
 #'
-svinecop_sim <- function(n, model, qrng = FALSE) {
+svinecop_sim <- function(n, model, past = NULL, rep = 1, qrng = FALSE, cores = 1) {
   assert_that(
     is.number(n),
     inherits(model, "svinecop_dist"),
     is.flag(qrng)
   )
-  
-  U <- svinecop_sim_cpp(model, n, qrng, rvinecopulib:::get_seeds())
-  if (!is.null(model$names)) {
-    colnames(U) <- simplify_names(model)
+  d0 <- dim(model$cs_structure)[1]
+  if (is.null(past)) {
+    past <- matrix(NA, 0, 0)
+  } else {
+    past <- rvinecopulib:::if_vec_to_matrix(past, NCOL(past) == d0)
   }
+  
+  U <- svinecop_sim_cpp(
+    model, n, rep, past, qrng, cores, rvinecopulib:::get_seeds())
+  if (rep > 1)
+    U <- array(U, dim = c(n, d0, rep))
+  if (!is.null(model$names))
+    colnames(U) <- simplify_names(model)
   
   U
 }
@@ -37,46 +52,6 @@ simplify_names <- function(model) {
   nms <- model$names[seq_along(model$in_vertices)]
   nms <- strsplit(nms, "-")
   sapply(nms, function(n) paste(n[-length(n)], collapse = ""))
-}
-
-#' @rdname svinecop_sim
-#' @param data time series of past observations (more recent observations are
-#'    at the bottom of the matrix.)
-#' @export
-svinecop_sim_conditional <- function(n, data, model, qrng = FALSE, cores = 1) {
-  assert_that(
-    is.number(n),
-    inherits(model, "svinecop_dist"),
-    is.flag(qrng),
-    is.number(cores)
-  )
-  data <- rvinecopulib:::if_vec_to_matrix(data, dim(model$cs_structure)[1] == 1)
-  
-  U <- svinecop_sim_conditional_cpp(model, n, data, qrng, cores,
-                                    rvinecopulib:::get_seeds())
-  if (!is.null(model$names)) {
-    colnames(U) <- simplify_names(model)
-  }
-  
-  U
-}
-
-#' @rdname svinecop_sim
-#' @export
-svinecop_sim_ahead <- function(n, data, model, qrng = FALSE) {
-  assert_that(
-    is.number(n),
-    inherits(model, "svinecop_dist"),
-    is.flag(qrng)
-  )
-  data <- rvinecopulib:::if_vec_to_matrix(data, dim(model$cs_structure)[1] == 1)
-  
-  U <- svinecop_sim_ahead_cpp(model, n, data, qrng, rvinecopulib:::get_seeds())
-  if (!is.null(model$names)) {
-    colnames(U) <- simplify_names(model)
-  }
-  
-  U
 }
 
 #' Log-likelihood for S-vine copula models

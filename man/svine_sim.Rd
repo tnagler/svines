@@ -6,26 +6,29 @@
 \alias{svine_sim_ahead}
 \title{Simulate from a S-vine model}
 \usage{
-svine_sim(n, model, qrng = FALSE)
-
-svine_sim_conditional(n, data, model, qrng = FALSE, cores = 1)
-
-svine_sim_ahead(n, data, model, qrng = FALSE)
+svine_sim(n, model, past = NULL, rep = 1, qrng = FALSE, cores = 1)
 }
 \arguments{
-\item{n}{number of observations.}
+\item{n}{how many steps of the time series to simulate.}
 
-\item{model}{a S-vine model (inheriting from \link{svine_dist}).}
+\item{model}{a S-vine copula model object (inheriting from \link{svinecop_dist}).}
+
+\item{past}{(optional) matrix of past observations. If provided, time series
+are simulated conditional on the past.}
+
+\item{rep}{number of replications; \code{rep} time series of length \code{n} are
+generated.}
 
 \item{qrng}{if \code{TRUE}, generates quasi-random numbers using the multivariate
 Generalized Halton sequence up to dimension 300 and the Generalized Sobol
 sequence in higher dimensions (default \code{qrng = FALSE}).}
 
-\item{data}{time series of past observations (more recent observations are
-at the bottom of the matrix.)}
-
 \item{cores}{number of cores to use; if larger than one, computations are
-done in parallel on \code{cores} batches .}
+done in parallel.}
+}
+\value{
+An \code{n}-by-\code{d}-by\code{rep} arrray, where \code{d} is the cross-sectional
+dimension of the model. This reduces to an \code{n}-by-\code{d} matrix if \code{rep == 1}.
 }
 \description{
 \code{\link[=svine_sim]{svine_sim()}} simulates a time series of length \code{n};

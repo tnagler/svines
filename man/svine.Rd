@@ -26,14 +26,13 @@ Automated fitting or creation of custom S-vine distribution models
 # load data set
 data(returns)  
 
-# convert to pseudo observations with empirical cdf for marginal distributions
-u <- pseudo_obs(returns[, 1:3]) 
-
-# fit parametric S-vine copula model with Markov order 1
-fit <- svinecop(u, p = 1, family_set = "parametric")
+# fit parametric S-vine model with Markov order 1
+fit <- svine(returns[1:100, 1:3], p = 1, family_set = "parametric")
 fit 
 summary(fit)
 plot(fit)
 contour(fit)
 logLik(fit)
+
+pairs(svine_sim(500, fit))
 }
