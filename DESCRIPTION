@@ -14,7 +14,7 @@ LazyData: true
 URL: https://github.com/tnagler/svines
 BugReports: https://github.com/tnagler/svines/issues
 Depends:
-  rvinecopulib (>= 0.5.2.1.0),
+  rvinecopulib (>= 0.5.3.1.0),
   R (>= 2.10)
 Imports: 
   Rcpp,
@@ -33,4 +33,4 @@ Suggests:
   testthat,
   ggraph
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1

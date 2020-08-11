@@ -1,12 +1,5 @@
 #' Simulate from a S-vine copula model
 #'
-#' [svinecop_sim()] simulates a time series of length `n`;
-#' [svinecop_sim_conditional()] simulates `n` observations for the next time
-#' point conditional on past observations;
-#' [svinecop_sim_ahead()]
-#' simulates the next `n` time points conditional on the past.
-#'
-#' @aliases svinecop_sim svinecop_sim_conditional svinecop_sim_ahead
 #'
 #' @param n how many steps of the time series to simulate.
 #' @param model a S-vine copula model object (inheriting from [svinecop_dist]).
@@ -18,19 +11,35 @@
 #' Generalized Halton sequence up to dimension 300 and the Generalized Sobol
 #' sequence in higher dimensions (default `qrng = FALSE`).
 #' @param cores number of cores to use; if larger than one, computations are
-#'   done in parallel on `cores` batches.
+#'   done parallel over replications.
 #'   
 #' @return An `n`-by-`d`-by`rep` arrray, where `d` is the cross-sectional 
 #'   dimension of the model. This reduces to an `n`-by-`d` matrix if `rep == 1`. 
 #'
 #' @export
+#' 
+#' @examples
+#' # load data set
+#' data(returns)  
+#' 
+#' # convert to uniform margins
+#' u <- pseudo_obs(returns[1:100, 1:3])
 #'
-svinecop_sim <- function(n, model, past = NULL, rep = 1, qrng = FALSE, cores = 1) {
+#' # fit parametric S-vine copula model with Markov order 1
+#' fit <- svinecop(u, p = 1, family_set = "parametric")
+#' 
+#' pairs(u)   # original data
+#' pairs(svinecop_sim(100, rep = 1, model = fit))   # simulated data
+#' 
+#' # simulate the next day conditionally on the past 500 times
+#' pairs(t(svinecop_sim(1, rep = 100, model = fit, past = u)[1, , ]))
+svinecop_sim <- function(n, rep, model, past = NULL, qrng = FALSE, cores = 1) {
   assert_that(
     is.number(n),
     inherits(model, "svinecop_dist"),
     is.flag(qrng)
   )
+
   d0 <- dim(model$cs_structure)[1]
   if (is.null(past)) {
     past <- matrix(NA, 0, 0)
@@ -61,6 +70,19 @@ simplify_names <- function(model) {
 #' @param cores number of cores to use; if larger than one, computations are
 #'   done in parallel on `cores` batches .
 #' @export
+#' @examples 
+#' # load data set
+#' data(returns)  
+#' 
+#' # convert to uniform margins
+#' u <- pseudo_obs(returns[1:100, 1:3])
+#'
+#' # fit parametric S-vine copula model with Markov order 1
+#' fit <- svinecop(u, p = 1, family_set = "parametric")
+#' 
+#' svinecop_loglik(u, fit)
+#' svinecop_scores(u, fit)
+#' svinecop_hessian(u, fit)
 svinecop_loglik <- function(u, model, cores = 1) {
   assert_that(inherits(model, "svinecop_dist"))
   u <- rvinecopulib:::if_vec_to_matrix(u, dim(model$cs_structure)[1] == 1)
@@ -74,6 +96,19 @@ svinecop_loglik <- function(u, model, cores = 1) {
 #' @param cores number of cores to use; if larger than one, computations are
 #'   done in parallel on `cores` batches .
 #' @export
+#' @examples 
+#' # load data set
+#' data(returns)  
+#' 
+#' # convert to uniform margins
+#' u <- pseudo_obs(returns[1:100, 1:3])
+#'
+#' # fit parametric S-vine copula model with Markov order 1
+#' fit <- svinecop(u, p = 1, family_set = "parametric")
+#' 
+#' svinecop_loglik(u, fit)
+#' svinecop_scores(u, fit)
+#' svinecop_hessian(u, fit)
 svinecop_scores <- function(u, model, cores = 1) {
   assert_that(inherits(model, "svinecop_dist"))
   u <- rvinecopulib:::if_vec_to_matrix(u, dim(model$cs_structure)[1] == 1)
@@ -87,6 +122,19 @@ svinecop_scores <- function(u, model, cores = 1) {
 #' @param cores number of cores to use; if larger than one, computations are
 #'   done in parallel on `cores` batches .
 #' @export
+#' @examples 
+#' # load data set
+#' data(returns)  
+#' 
+#' # convert to uniform margins
+#' u <- pseudo_obs(returns[1:100, 1:3])
+#'
+#' # fit parametric S-vine copula model with Markov order 1
+#' fit <- svinecop(u, p = 1, family_set = "parametric")
+#' 
+#' svinecop_loglik(u, fit)
+#' svinecop_scores(u, fit)
+#' svinecop_hessian(u, fit)
 svinecop_hessian <- function(u, model, cores = 1) {
   assert_that(inherits(model, "svinecop_dist"))
   u <- rvinecopulib:::if_vec_to_matrix(u, dim(model$cs_structure)[1] == 1)

@@ -17,3 +17,17 @@ done in parallel on \code{cores} batches .}
 \description{
 Log-likelihood scores for S-vine copula models
 }
+\examples{
+# load data set
+data(returns)  
+
+# convert to uniform margins
+u <- pseudo_obs(returns[1:100, 1:3])
+
+# fit parametric S-vine copula model with Markov order 1
+fit <- svinecop(u, p = 1, family_set = "parametric")
+
+svinecop_loglik(u, fit)
+svinecop_scores(u, fit)
+svinecop_hessian(u, fit)
+}

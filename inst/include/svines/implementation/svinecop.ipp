@@ -91,6 +91,17 @@ SVinecop::get_svine_structure() const
   return svine_struct_;
 }
 
+inline SVinecop
+SVinecop::as_continuous() const
+{
+  auto sv = *this;
+  std::vector<std::string> var_types(sv.get_dim());
+  for (auto& v : var_types)
+    v = "c";
+  sv.set_var_types(var_types);
+  return sv;
+}
+
 inline void
 SVinecop::select_families(const Eigen::MatrixXd& data,
                           const FitControlsVinecop& controls)
@@ -140,10 +151,6 @@ SVinecop::simulate(const size_t n,
                    const bool qrng,
                    const std::vector<int>& seeds)
 {
-  // inverse_rosenblatt() only works for continous models
-  auto actual_types = var_types_;
-  set_continuous_var_types();
-
   auto U = tools_stats::simulate_uniform(n, cs_dim_, qrng, seeds);
 
   // initialize first p + 1 lags
@@ -163,7 +170,7 @@ SVinecop::simulate(const size_t n,
     Ui.rightCols(cs_dim_) = U.row(i);
     sim.row(i) = inverse_rosenblatt(Ui).rightCols(cs_dim_);
   }
-  set_var_types_internal(actual_types);
+
   return sim;
 }
 

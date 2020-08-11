@@ -40,6 +40,8 @@ public:
 
   SVineStructure get_svine_structure() const;
 
+  SVinecop as_continuous() const;
+
   void select_families(
     const Eigen::MatrixXd& data,
     const FitControlsVinecop& controls = FitControlsVinecop());
@@ -47,9 +49,10 @@ public:
   void select_all(const Eigen::MatrixXd& data,
                   const FitControlsVinecop& controls = FitControlsVinecop());
 
-  Eigen::MatrixXd simulate(const size_t n,
-                           const bool qrng = false,
-                           const std::vector<int>& seeds = std::vector<int>());
+  Eigen::MatrixXd simulate(
+    const size_t n,
+    const bool qrng = false,
+    const std::vector<int>& seeds = std::vector<int>());
 
   Eigen::MatrixXd simulate_conditional(
     size_t n,

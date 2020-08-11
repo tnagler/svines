@@ -1,12 +1,5 @@
 #' Simulate from a S-vine model
 #'
-#' [svine_sim()] simulates a time series of length `n`;
-#' [svine_sim_conditional()] simulates `n` observations for the next time
-#' point conditional on past observations;
-#' [svine_sim_ahead()]
-#' simulates the next `n` time points conditional on the past.
-#'
-#' @aliases svine_sim svine_sim_conditional svine_sim_ahead
 #'
 #' @param n how many steps of the time series to simulate.
 #' @param model a S-vine copula model object (inheriting from [svinecop_dist]).
@@ -18,26 +11,41 @@
 #' Generalized Halton sequence up to dimension 300 and the Generalized Sobol
 #' sequence in higher dimensions (default `qrng = FALSE`).
 #' @param cores number of cores to use; if larger than one, computations are
-#'   done in parallel.
+#'   done parallel over replications.
 #'   
 #' @return An `n`-by-`d`-by`rep` arrray, where `d` is the cross-sectional 
 #'   dimension of the model. This reduces to an `n`-by-`d` matrix if `rep == 1`. 
 #'
 #' @export
+#' @examples
+#' # load data set
+#' data(returns)  
+#' returns <- returns[1:100, 1:3]
 #'
-svine_sim <- function(n, model, past = NULL, rep = 1, qrng = FALSE, cores = 1) {
+#' # fit parametric S-vine model with Markov order 1
+#' fit <- svine(returns, p = 1, family_set = "parametric")
+#' 
+#' pairs(returns)  # original data
+#' pairs(svine_sim(100, rep = 1, model = fit))   # simulated data
+#' 
+#' # simulate the next day conditionally on the past 500 times
+#' pairs(t(svine_sim(1, rep = 100, model = fit, past = returns)[1, , ]))
+svine_sim <- function(n, rep, model, past = NULL, qrng = FALSE, cores = 1) {
   assert_that(
     is.number(n),
     inherits(model, "svine_dist"),
     is.flag(qrng)
   )
+  if (!is.null(past)) {
+    assert_that(NCOL(past) == length(model$margins))
+  }
   
   if (!is.null(past)) {
     d0 <- length(model$margins)
     past <- rvinecopulib:::if_vec_to_matrix(past, length(past) != d0)
     past <- to_unif(past, model$margins)
   }
-  U <- svinecop_sim(n, model$copula, past, rep, qrng, cores)
+  U <- svinecop_sim(n, rep, model$copula, past, qrng, cores)
   to_quantiles(U, model$margins)
 }
 
@@ -48,6 +56,14 @@ svine_sim <- function(n, model, past = NULL, rep = 1, qrng = FALSE, cores = 1) {
 #' @param cores number of cores to use; if larger than one, computations are
 #'   done in parallel on `cores` batches .
 #' @export
+#' @examples 
+#' # load data set
+#' data(returns)  
+#'
+#' # fit parametric S-vine model with Markov order 1
+#' fit <- svine(returns[1:100, 1:3], p = 1, family_set = "parametric")
+#' 
+#' svine_loglik(returns[1:100, 1:3], fit)
 svine_loglik <- function(x, model, cores = 1) {
   assert_that(inherits(model, "svine_dist"))
   x <- rvinecopulib:::if_vec_to_matrix(x, length(model$margins) == 1)

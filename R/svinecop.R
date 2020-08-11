@@ -68,7 +68,8 @@
 #' plot(fit)
 #' contour(fit)
 #' logLik(fit)
-
+#' 
+#' pairs(svinecop_sim(500, rep = 1, fit))
 svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
                      family_set = "all", cs_structure = NA,
                      out_vertices = NA, in_vertices = NA,
@@ -215,6 +216,24 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
 #' @export
 #' @importFrom assertthat is.count
 #' @importFrom rvinecopulib is.rvine_structure
+#' 
+#' @examples 
+#' cs_struct <- cvine_structure(1:2)
+#' pcs <- list(
+#'   list(  # first tree
+#'     bicop_dist("clayton", 0, 3), # cross sectional copula
+#'     bicop_dist("gaussian", 0, -0.1)  # serial copula
+#'   ),
+#'   list(  # second tree
+#'     bicop_dist("gaussian", 0, 0.2), bicop_dist("indep")  
+#'   ),
+#'   list( # third tree
+#'     bicop_dist("indep")
+#'   )
+#' )
+#' 
+#' cop <- svinecop_dist(
+#'   pcs, cs_struct, p = 1, out_vertices = 1:2, in_vertices = 1:2)
 svinecop_dist <- function(pair_copulas, cs_structure, p,
                           out_vertices, in_vertices,
                           var_types = rep("c", dim(cs_structure)[1])) {

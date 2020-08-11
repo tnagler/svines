@@ -17,3 +17,12 @@ done in parallel on \code{cores} batches .}
 \description{
 Log-likelihood for S-vine models
 }
+\examples{
+# load data set
+data(returns)  
+
+# fit parametric S-vine model with Markov order 1
+fit <- svine(returns[1:100, 1:3], p = 1, family_set = "parametric")
+
+svine_loglik(returns[1:100, 1:3], fit)
+}

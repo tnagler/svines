@@ -4,7 +4,13 @@
 \alias{svine}
 \title{Stationary vine distribution models}
 \usage{
-svine(data, p, margin_families = NA, selcrit = "aic", ...)
+svine(
+  data,
+  p,
+  margin_families = univariateML::univariateML_models,
+  selcrit = "aic",
+  ...
+)
 }
 \arguments{
 \item{data}{a matrix or data.frame of data.}
@@ -30,9 +36,9 @@ data(returns)
 fit <- svine(returns[1:100, 1:3], p = 1, family_set = "parametric")
 fit 
 summary(fit)
-plot(fit)
-contour(fit)
+plot(fit$copula)
+contour(fit$copula)
 logLik(fit)
 
-pairs(svine_sim(500, fit))
+pairs(svine_sim(500, rep = 1, fit))
 }

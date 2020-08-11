@@ -36,3 +36,21 @@ structure is provided.}
 \description{
 Custom S-vine models
 }
+\examples{
+cs_struct <- cvine_structure(1:2)
+pcs <- list(
+  list(  # first tree
+    bicop_dist("clayton", 0, 3), # cross sectional copula
+    bicop_dist("gaussian", 0, -0.1)  # serial copula
+  ),
+  list(  # second tree
+    bicop_dist("gaussian", 0, 0.2), bicop_dist("indep")  
+  ),
+  list( # third tree
+    bicop_dist("indep")
+  )
+)
+
+cop <- svinecop_dist(
+  pcs, cs_struct, p = 1, out_vertices = 1:2, in_vertices = 1:2)
+}

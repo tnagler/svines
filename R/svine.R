@@ -22,18 +22,16 @@
 #' fit <- svine(returns[1:100, 1:3], p = 1, family_set = "parametric")
 #' fit 
 #' summary(fit)
-#' plot(fit)
-#' contour(fit)
+#' plot(fit$copula)
+#' contour(fit$copula)
 #' logLik(fit)
 #' 
-#' pairs(svine_sim(500, fit))
-svine <- function(data, p, margin_families = NA, selcrit = "aic", ...) {
+#' pairs(svine_sim(500, rep = 1, fit))
+svine <- function(data, p, margin_families = univariateML::univariateML_models, 
+                  selcrit = "aic", ...) {
   if (is.list(data)) {
     if (any(sapply(data, is.factor)))
       stop("discrete data not yet yupported")
-  }
-  if (any(is.na(margin_families))) {
-    margin_families <- allowed_margin_families
   }
   data <- as.matrix(data)
   d <- ncol(data)
@@ -44,7 +42,8 @@ svine <- function(data, p, margin_families = NA, selcrit = "aic", ...) {
   margin_crit <- ifelse(selcrit == "mbicv", "bic", selcrit)
   margins <- lapply(
     seq_len(d),
-    function(j) select_margin(data[, j], margin_families[[j]], margin_crit)
+    function(j) 
+      univariateML::model_select(data[, j], margin_families[[j]], margin_crit)
   )
   names(margins) <- colnames(data)
   
@@ -68,12 +67,43 @@ svine <- function(data, p, margin_families = NA, selcrit = "aic", ...) {
 
 
 #' Custom S-vine distribution models
+#' 
 #'
 #' @param margins A list of length `d` containing `univariateML` objects.
 #' @param copula the copula model; an object of class `svinecop_dist` with 
 #'   cross-sectional dimension `d`.
 #'
 #' @export
+#' @examples 
+#' ## marginal objects
+#' # create dummy univariateML models
+#' univ1 <- univ2 <- univariateML::mlnorm(rnorm(10))
+#' 
+#' # modify the parameters to N(5, 10) and N(0, 2) distributions
+#' univ1[] <- c(5, 10)
+#' univ2[] <- c(0, 2)
+#' 
+#' ## copula óbject
+#' cs_struct <- cvine_structure(1:2)
+#' pcs <- list(
+#'   list(  # first tree
+#'     bicop_dist("clayton", 0, 3), # cross sectional copula
+#'     bicop_dist("gaussian", 0, -0.1)  # serial copula
+#'   ),
+#'   list(  # second tree
+#'     bicop_dist("gaussian", 0, 0.2), bicop_dist("indep")  
+#'   ),
+#'   list( # third tree
+#'     bicop_dist("indep")
+#'   )
+#' )
+#' 
+#' cop <- svinecop_dist(
+#'   pcs, cs_struct, p = 1, out_vertices = 1:2, in_vertices = 1:2)
+#'     
+#' model <- svine_dist(margins = list(univ1, univ2), copula = cop)
+#' summary(model)
+#' 
 svine_dist <- function(margins, copula) {
   assert_that(
     is.list(margins),

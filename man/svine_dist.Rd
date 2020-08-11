@@ -15,3 +15,34 @@ cross-sectional dimension \code{d}.}
 \description{
 Custom S-vine distribution models
 }
+\examples{
+## marginal objects
+# create dummy univariateML models
+univ1 <- univ2 <- univariateML::mlnorm(rnorm(10))
+
+# modify the parameters to N(5, 10) and N(0, 2) distributions
+univ1[] <- c(5, 10)
+univ2[] <- c(0, 2)
+
+## copula óbject
+cs_struct <- cvine_structure(1:2)
+pcs <- list(
+  list(  # first tree
+    bicop_dist("clayton", 0, 3), # cross sectional copula
+    bicop_dist("gaussian", 0, -0.1)  # serial copula
+  ),
+  list(  # second tree
+    bicop_dist("gaussian", 0, 0.2), bicop_dist("indep")  
+  ),
+  list( # third tree
+    bicop_dist("indep")
+  )
+)
+
+cop <- svinecop_dist(
+  pcs, cs_struct, p = 1, out_vertices = 1:2, in_vertices = 1:2)
+    
+model <- svine_dist(margins = list(univ1, univ2), copula = cop)
+summary(model)
+
+}

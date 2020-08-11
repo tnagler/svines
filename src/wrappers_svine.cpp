@@ -163,18 +163,18 @@ svinecop_sim_cpp(const Rcpp::List& svinecop_r,
   }
 
   auto cs_dim = sv_cpp.get_cs_dim();
-
   Eigen::MatrixXd sim(n, cs_dim * rep);
+  
   RcppThread::parallelFor(
     0,
     rep,
     [&](size_t r) {
       if (data.size() == 0) {
         sim.block(0, cs_dim * r, n, cs_dim) =
-          sv_cpp.simulate(n, qrng, new_seeds[r]);
+          sv_cpp.as_continuous().simulate(n, qrng, new_seeds[r]);
       } else {
         sim.block(0, cs_dim * r, n, cs_dim) =
-          sv_cpp.simulate_ahead(n, data, qrng, new_seeds[r]);
+        sv_cpp.as_continuous().simulate_ahead(n, data, qrng, new_seeds[r]);
       }
     },
     cores);

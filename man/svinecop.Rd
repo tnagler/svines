@@ -114,4 +114,6 @@ summary(fit)
 plot(fit)
 contour(fit)
 logLik(fit)
+
+pairs(svinecop_sim(500, rep = 1, fit))
 }
