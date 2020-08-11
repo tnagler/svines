@@ -30,7 +30,8 @@ LinkingTo:
   BH,
   wdm
 Suggests:
-  testthat,
-  ggraph
+    testthat,
+    ggraph,
+    covr
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1

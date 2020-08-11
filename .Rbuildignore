@@ -3,3 +3,4 @@
 .vscode/
 .clang-format
 ^\.github$
+^codecov\.yml$
