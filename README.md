@@ -31,7 +31,7 @@ devtools::install_github("tnagler/svines")
 ## Usage
 
 For detailed documentation and examples, see the [API
-documentation](https://tnagler.github.io/svines/).
+documentation](http://tnagler.com/svines.pdf).
 
 ``` r
 library(svines)
@@ -140,67 +140,72 @@ models <- svine_sim_se_models(2, fit)
 summary(models[[1]])
 #> $margins
 #> # A data.frame: 3 x 5 
-#>  margin     name          model                          parameters loglik
-#>       1  Allianz Skew Student-t     -0.0011, 0.0173, 2.9614, 0.9345     NA
-#>       2      AXA Skew Student-t -0.00061, 0.02205, 2.70703, 0.94818     NA
-#>       3 Generali      Student-t             -0.0023, 0.0214, 3.6512     NA
+#>  margin     name          model                      parameters loglik
+#>       1  Allianz Skew Student-t -0.0013, 0.0197, 4.9100, 0.9047     NA
+#>       2      AXA Skew Student-t -0.0027, 0.0243, 4.9817, 0.8743     NA
+#>       3 Generali      Student-t      -0.00022, 0.02381, 3.58409     NA
 #> 
 #> $copula
 #> # A data.frame: 15 x 10 
-#>  tree edge conditioned conditioning var_types family rotation     parameters df
-#>     1    1        4, 5                    c,c      t        0     0.86, 3.55  2
-#>     1    2        5, 6                    c,c    bb1      180     0.39, 2.15  2
-#>     1    3        6, 1                    c,c    joe      180            1.1  1
-#>     1    4        1, 2                    c,c      t        0     0.86, 3.55  2
-#>     1    5        2, 3                    c,c    bb1      180     0.39, 2.15  2
-#>     2    1        4, 6            5       c,c  frank        0           0.93  1
-#>     2    2        5, 1            6       c,c gumbel      180              1  1
-#>     2    3        6, 2            1       c,c    joe       90              1  1
-#>     2    4        1, 3            2       c,c  frank        0           0.93  1
-#>     3    1        4, 1         6, 5       c,c      t        0 -0.071, 11.814  2
+#>  tree edge conditioned conditioning var_types family rotation  parameters df
+#>     1    1        4, 5                    c,c      t        0  0.85, 3.27  2
+#>     1    2        5, 6                    c,c    bb1      180  0.59, 1.93  2
+#>     1    3        6, 1                    c,c    joe      180         1.1  1
+#>     1    4        1, 2                    c,c      t        0  0.85, 3.27  2
+#>     1    5        2, 3                    c,c    bb1      180  0.59, 1.93  2
+#>     2    1        4, 6            5       c,c  frank        0         1.2  1
+#>     2    2        5, 1            6       c,c gumbel      180           1  1
+#>     2    3        6, 2            1       c,c    joe       90           1  1
+#>     2    4        1, 3            2       c,c  frank        0         1.2  1
+#>     3    1        4, 1         6, 5       c,c      t        0 -0.02, 7.88  2
 #>      tau
-#>   0.6589
-#>   0.6099
-#>   0.0341
-#>   0.6589
-#>   0.6099
-#>   0.0355
-#>   0.0057
-#>  -0.0235
-#>   0.0355
-#>  -0.0452
+#>   0.6423
+#>   0.6012
+#>   0.0575
+#>   0.6423
+#>   0.6012
+#>   0.0450
+#>   0.0066
+#>  -0.0148
+#>   0.0450
+#>  -0.0128
 #> # ... with 5 more rows
 summary(models[[1]])
 #> $margins
 #> # A data.frame: 3 x 5 
-#>  margin     name          model                          parameters loglik
-#>       1  Allianz Skew Student-t     -0.0011, 0.0173, 2.9614, 0.9345     NA
-#>       2      AXA Skew Student-t -0.00061, 0.02205, 2.70703, 0.94818     NA
-#>       3 Generali      Student-t             -0.0023, 0.0214, 3.6512     NA
+#>  margin     name          model                      parameters loglik
+#>       1  Allianz Skew Student-t -0.0013, 0.0197, 4.9100, 0.9047     NA
+#>       2      AXA Skew Student-t -0.0027, 0.0243, 4.9817, 0.8743     NA
+#>       3 Generali      Student-t      -0.00022, 0.02381, 3.58409     NA
 #> 
 #> $copula
 #> # A data.frame: 15 x 10 
-#>  tree edge conditioned conditioning var_types family rotation     parameters df
-#>     1    1        4, 5                    c,c      t        0     0.86, 3.55  2
-#>     1    2        5, 6                    c,c    bb1      180     0.39, 2.15  2
-#>     1    3        6, 1                    c,c    joe      180            1.1  1
-#>     1    4        1, 2                    c,c      t        0     0.86, 3.55  2
-#>     1    5        2, 3                    c,c    bb1      180     0.39, 2.15  2
-#>     2    1        4, 6            5       c,c  frank        0           0.93  1
-#>     2    2        5, 1            6       c,c gumbel      180              1  1
-#>     2    3        6, 2            1       c,c    joe       90              1  1
-#>     2    4        1, 3            2       c,c  frank        0           0.93  1
-#>     3    1        4, 1         6, 5       c,c      t        0 -0.071, 11.814  2
+#>  tree edge conditioned conditioning var_types family rotation  parameters df
+#>     1    1        4, 5                    c,c      t        0  0.85, 3.27  2
+#>     1    2        5, 6                    c,c    bb1      180  0.59, 1.93  2
+#>     1    3        6, 1                    c,c    joe      180         1.1  1
+#>     1    4        1, 2                    c,c      t        0  0.85, 3.27  2
+#>     1    5        2, 3                    c,c    bb1      180  0.59, 1.93  2
+#>     2    1        4, 6            5       c,c  frank        0         1.2  1
+#>     2    2        5, 1            6       c,c gumbel      180           1  1
+#>     2    3        6, 2            1       c,c    joe       90           1  1
+#>     2    4        1, 3            2       c,c  frank        0         1.2  1
+#>     3    1        4, 1         6, 5       c,c      t        0 -0.02, 7.88  2
 #>      tau
-#>   0.6589
-#>   0.6099
-#>   0.0341
-#>   0.6589
-#>   0.6099
-#>   0.0355
-#>   0.0057
-#>  -0.0235
-#>   0.0355
-#>  -0.0452
+#>   0.6423
+#>   0.6012
+#>   0.0575
+#>   0.6423
+#>   0.6012
+#>   0.0450
+#>   0.0066
+#>  -0.0148
+#>   0.0450
+#>  -0.0128
 #> # ... with 5 more rows
 ```
+
+## References
+
+Nagler, T., Krüger, D., Min, A. (2020). Stationary vine copula models
+for multivariate time series. [pdf](http://tnagler.com/svines.pdf)

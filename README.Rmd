@@ -37,7 +37,7 @@ devtools::install_github("tnagler/svines")
 
 ## Usage
 
-For detailed documentation and examples, see the [API documentation](https://tnagler.github.io/svines/).
+For detailed documentation and examples, see the [API documentation](http://tnagler.com/svines.pdf).
 
 ``` {r}
 library(svines)
@@ -93,3 +93,7 @@ summary(models[[1]])
 summary(models[[1]])
 ```
 
+
+## References
+
+Nagler, T., Krüger, D., Min, A. (2020). Stationary vine copula models for multivariate time series. [pdf](http://tnagler.com/svines.pdf)
