@@ -91,7 +91,7 @@ svine_loglik <- function(x, model, cores = 1) {
 
 #' @export
 logLik.svine <- function(object, ...) {
-  ll <- -2 * object$loglik
+  ll <- object$loglik
   attr(ll, "df") <- object$npars
   ll
 }
