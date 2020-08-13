@@ -92,5 +92,5 @@ test_that("fitting models (multivariate)", {
   expect_silent(svinecop(u, p = 1, type = "D"))
   expect_silent(svinecop(u, p = 2, type = "M"))
   expect_error(svinecop(u, p = 1, type = "R"))
-
+  expect_equal(svinecop_loglik(u, sv), as.numeric(logLik(sv)), 0.1)
 })

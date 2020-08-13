@@ -104,3 +104,25 @@ test_that("fitting models (multivariate)", {
   expect_error(svine(x, p = 1, type = "R", margin_families = c("exp", "norm")))
   expect_equal(dim(svine_avar(x, fit2)), c(fit2$npars, fit2$npars))
 })
+
+test_that("standard errors", {
+  u <- rbicop(50, bc)
+  x <- qexp(u)
+  fit <- svine(x, margin_families = c("exp", "norm"), p = 0)
+  models <- svine_sim_se_models(2, fit)
+  expect_identical(summary(models[[1]])$family, summary(fit)$family)
+})
+
+test_that("print/summary", {
+  u <- rbicop(50, bc)
+  x <- qexp(u)
+  colnames(x) <- letters[1:2]
+  fit <- svine(x, margin_families = c("exp", "norm"), p = 0)
+  expect_output(print(fit))
+  expect_silent(sm <- summary(fit))
+  expect_length(sm, 2)
+  expect_s3_class(sm[[1]], "summary_df")
+  expect_s3_class(sm[[2]], "summary_df")
+  expect_equal(nrow(sm[[1]]), 2)
+  expect_equal(nrow(sm[[2]]), 1)
+})
