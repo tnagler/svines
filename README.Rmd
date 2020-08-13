@@ -1,0 +1,93 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+<!-- badges: start -->
+[![R build status](https://github.com/tnagler/svines/workflows/R-CMD-check/badge.svg)](https://github.com/tnagler/svines/actions)
+[![Codecov test coverage](https://codecov.io/gh/tnagler/svines/branch/master/graph/badge.svg)](https://codecov.io/gh/tnagler/svines?branch=master)
+[![CRAN status](https://www.r-pkg.org/badges/version/svines)](https://CRAN.R-project.org/package=svines)
+<!-- badges: end -->
+
+An R package that provides functionality to fit and simulate from [stationary vine copula models 
+for time series](https://github.com/tnagler/tnagler.github.io/raw/master/svines.pdf).
+
+The package is build on top of [rvinecopulib](https://github.com/vinecopulib/rvinecopulib)
+and [univariateML](https://github.com/JonasMoss/univariateML).
+
+
+## Installation
+
+Install the development version from Github.
+
+``` r
+# install.packages("devtools")
+devtools::install_github("tnagler/svines")
+```
+
+## Usage
+
+``` {r}
+library(svines)
+data(returns)  # data set of stock returns
+returns <- returns[1:500, 1:3]
+```
+
+### Fitting models
+
+```{r}
+fit <- svine(returns, p = 1)  # Markov order 1
+summary(fit)
+```
+
+```{r}
+contour(fit$copula)
+```
+
+### Simulation
+
+`svine_sim()` can be used in two different ways:
+
+#### Generate a new time series of length 500
+```{r}
+sim <- svine_sim(n = 500, rep = 1, model = fit)
+pairs(sim)
+pairs(returns)
+```
+
+#### Sample conditionally on the past given the past
+
+```{r}
+sim <- svine_sim(n = 1, rep = 100, model = fit, past = returns)
+pairs(t(sim[1, , ]))
+```
+
+
+### Standard errors
+
+```{r}
+# compute standard errors for each parameter
+se <- sqrt(diag(svine_avar(returns, fit)))
+```
+The standard errors correspond to (in this order): parameters of first margin,
+parameters of second margin, ...., copula parameters in first tree (excluding 
+duplicates), ...
+
+The asymptotic variance is the basis of the bootstrap procedure in the paper.
+To generate new models from the asymptotic distribution, use
+```{r}
+models <- svine_sim_se_models(2, fit)
+summary(models[[1]])
+summary(models[[1]])
+```
+
