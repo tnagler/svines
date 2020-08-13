@@ -74,14 +74,14 @@ test_that("fitting models (1d)", {
 test_that("fitting models (multivariate)", {
   u <- rbicop(50, bc)
   x <- qexp(u)
-  fit <- svine(x, p = 0)
+  fit <- svine(x, margin_families = c("exp", "norm"), p = 0)
   AIC(fit)
   expect_equal(unname(dim(svine_sim(10, 1, fit))), c(10, 2))
   expect_equal(unname(dim(svine_sim(10, 1, fit, x))), c(10, 2))
   expect_equal(unname(dim(svine_sim(10, 3, fit, x))), c(10, 2, 3))
   expect_length(svine_loglik(x, fit), 1)
   
-  fit <- svine(x, p = 3)
+  fit <- svine(x, margin_families = c("exp", "norm"), p = 3)
   AIC(fit)
   expect_gt(min(svine_sim(10, 1, fit)), 0)
   expect_gt(min(svine_sim(10, 1, fit, x)), 0)
