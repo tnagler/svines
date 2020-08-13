@@ -37,6 +37,8 @@ devtools::install_github("tnagler/svines")
 
 ## Usage
 
+For detailed documentation and examples, see the [API documentation](https://tnagler.github.io/svines/).
+
 ``` {r}
 library(svines)
 data(returns)  # data set of stock returns
