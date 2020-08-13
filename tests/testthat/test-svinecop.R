@@ -1,3 +1,7 @@
+context("S-vine copulas")
+
+set.seed(5)
+
 bc <- bicop_dist("clay", 0, 3)
 
 test_that("creating custom models (1d)", {

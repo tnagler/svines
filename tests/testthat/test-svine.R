@@ -1,3 +1,7 @@
+context("S-vine distributions")
+
+set.seed(5)
+
 bc <- bicop_dist("clay", 0, 3)
 mrg <- univariateML::mlnorm(rnorm(20))
 
@@ -88,14 +92,15 @@ test_that("fitting models (multivariate)", {
   expect_gt(min(svine_sim(10, 5, fit, x)), 0)
   
   fit2 <- svine(x,
-                p = 3,
+                p = 3, 
+                margin_families = c("exp", "norm"),
                 cs_structure = fit$copula$cs_structure,
                 out_vertices = fit$copula$out_vertices,
                 in_vertices = fit$copula$in_vertices)
   expect_equal(fit, fit2, tolerance = 0.01)
   
-  expect_silent(svine(x, p = 1, type = "D"))
-  expect_silent(svine(x, p = 2, type = "M"))
-  expect_error(svine(x, p = 1, type = "R"))
+  expect_silent(svine(x, p = 1, type = "D", margin_families = c("exp", "norm")))
+  expect_silent(svine(x, p = 2, type = "M", margin_families = c("exp", "norm")))
+  expect_error(svine(x, p = 1, type = "R", margin_families = c("exp", "norm")))
   expect_equal(dim(svine_avar(x, fit2)), c(fit2$npars, fit2$npars))
 })
