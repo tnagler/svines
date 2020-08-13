@@ -4,3 +4,4 @@
 .clang-format
 ^\.github$
 ^codecov\.yml$
+^LICENSE\.md$
