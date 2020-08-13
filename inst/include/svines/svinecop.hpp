@@ -111,8 +111,8 @@ protected:
 
   size_t cs_dim_;
   size_t p_;
-  std::vector<size_t> in_vertices_;
   std::vector<size_t> out_vertices_;
+  std::vector<size_t> in_vertices_;
   SVineStructure svine_struct_;
 };
 }
