@@ -7,7 +7,7 @@ Authors@R:
            role = c("aut", "cre"),
            email = "mail@tnagler.com")
 Description: Provides functionality to fit and simulate from stationary vine 
-  copula models for time series.
+  copula models for time series, see <https://tnagler.com/svines.pdf>.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
