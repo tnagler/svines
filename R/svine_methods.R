@@ -13,7 +13,7 @@
 #' @param cores number of cores to use; if larger than one, computations are
 #'   done parallel over replications.
 #'   
-#' @return An `n`-by-`d`-by`rep` arrray, where `d` is the cross-sectional 
+#' @return An `n`-by-`d`-by`rep` array, where `d` is the cross-sectional 
 #'   dimension of the model. This reduces to an `n`-by-`d` matrix if `rep == 1`. 
 #'
 #' @export
@@ -52,7 +52,7 @@ svine_sim <- function(n, rep, model, past = NULL, qrng = FALSE, cores = 1) {
 #' Log-likelihood for S-vine models
 #' 
 #' @param x the data.
-#' @param model model inherting from class [svine_dist].
+#' @param model model inheriting from class [svine_dist].
 #' @param cores number of cores to use; if larger than one, computations are
 #'   done in parallel on `cores` batches .
 #' @export

@@ -16,9 +16,9 @@ svinecop_dist(
 \arguments{
 \item{pair_copulas}{A nested list of 'bicop_dist' objects, where
 \code{pair_copulas[[t]][[e]]} corresponds to the pair-copula at edge \code{e} in tree
-\code{t}. Only the most-left unique pair copulas are used, others can be ommitted.}
+\code{t}. Only the most-left unique pair copulas are used, others can be omitted.}
 
-\item{cs_structure}{The cross-strectional structure. Either a matrix, or an
+\item{cs_structure}{The cross-sectional structure. Either a matrix, or an
 \code{rvine_structure} object; see \code{rvinecopulib::rvine_structure()}}
 
 \item{p}{the Markov order.}

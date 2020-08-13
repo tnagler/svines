@@ -201,8 +201,8 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
 #'
 #' @param pair_copulas A nested list of 'bicop_dist' objects, where
 #'   `pair_copulas[[t]][[e]]` corresponds to the pair-copula at edge `e` in tree
-#'   `t`. Only the most-left unique pair copulas are used, others can be ommitted.
-#' @param cs_structure The cross-strectional structure. Either a matrix, or an
+#'   `t`. Only the most-left unique pair copulas are used, others can be omitted.
+#' @param cs_structure The cross-sectional structure. Either a matrix, or an
 #'    `rvine_structure` object; see `rvinecopulib::rvine_structure()`
 #' @param p the Markov order.
 #' @param out_vertices the out-vertex; if `NA`, the out-vertex is selected

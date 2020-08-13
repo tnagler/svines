@@ -9,7 +9,7 @@ svine_loglik(x, model, cores = 1)
 \arguments{
 \item{x}{the data.}
 
-\item{model}{model inherting from class \link{svine_dist}.}
+\item{model}{model inheriting from class \link{svine_dist}.}
 
 \item{cores}{number of cores to use; if larger than one, computations are
 done in parallel on \code{cores} batches .}
