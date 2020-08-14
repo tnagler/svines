@@ -7,7 +7,7 @@
 \title{svines: Stationary Vine Copula Models}
 \description{
 Provides functionality to fit and simulate from stationary vine 
-  copula models for time series.
+  copula models for time series, see Nagler et al. (2020) <arXiv:2008.05990>.
 }
 \seealso{
 Useful links:
