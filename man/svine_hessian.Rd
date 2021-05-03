@@ -24,7 +24,7 @@ second tree, etc. Duplicated parameters in the copula model are omitted.
 Expected hessian of an S-vine distribution models
 }
 \examples{
-data(returns)  
+data(returns)
 dat <- returns[1:100, 1:2]
 
 # fit parametric S-vine model with Markov order 1

@@ -27,7 +27,7 @@ Asymptotic variance of parameter estimates of an S-vine model
 }
 \examples{
 # load data set
-data(returns)  
+data(returns)
 dat <- returns[1:100, 1:2]
 
 # fit parametric S-vine model with Markov order 1
@@ -36,6 +36,6 @@ fit <- svine(dat, p = 1, family_set = "parametric")
 # asymptotic variance matrix
 avar <- svine_avar(dat, fit)
 
-# standard errors 
+# standard errors
 sqrt(diag(avar))
 }

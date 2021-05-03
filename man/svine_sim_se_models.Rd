@@ -21,7 +21,7 @@ Simulates \code{n} \emph{iid} models, where each model
 has parameters drawn from the asymptotic distribution.
 }
 \examples{
-data(returns)  
+data(returns)
 dat <- returns[1:100, 1:2]
 
 # fit parametric S-vine model with Markov order 0

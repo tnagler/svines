@@ -37,20 +37,23 @@ svine <- function(data, p, margin_families = univariateML::univariateML_models,
   d <- ncol(data)
   if (!is.list(margin_families))
     margin_families <- lapply(seq_len(d), function(j) margin_families)
-  assert_that(length(margin_families) == ncol(data))
+  assert_that(length(margin_families) == d)
   
   margin_crit <- ifelse(selcrit == "mbicv", "bic", selcrit)
   margins <- lapply(
     seq_len(d),
-    function(j) 
-      univariateML::model_select(data[, j], margin_families[[j]], margin_crit)
+    function(j) select_margin(data[, j], margin_families[[j]], margin_crit)
   )
   names(margins) <- colnames(data)
   
   u <- to_unif(data, margins)
   copula <- svinecop(u, p = p, selcrit = selcrit, ...)
-  loglik <- sum(sapply(margins, stats::logLik)) + stats::logLik(copula)
-  npars  <- sum(sapply(margins, length)) + copula$npars
+  if (!all(unlist(margin_families) == "empirical")) {
+    loglik <- sum(sapply(margins, logLik.svine_margin)) + stats::logLik(copula)
+    npars <- sum(sapply(margins, length)) + copula$npars
+  } else {
+    loglik <- npars <- NA
+  }
   
   structure(
     list(
@@ -165,9 +168,9 @@ to_quantiles <- function(u, margins) {
   x <- u
   for (j in seq_len(ncol(u))) {
     if (is.matrix(u)) {
-      x[, j] <- univariateML::qml(u[, j], margins[[j]])
+      x[, j] <- qmargin(u[, j], margins[[j]])
     } else {
-      x[, j, ] <- univariateML::qml(u[, j, ], margins[[j]])
+      x[, j, ] <- qmargin(u[, j, ], margins[[j]])
     }
   }
 
@@ -181,7 +184,7 @@ to_quantiles <- function(u, margins) {
 to_unif <- function(x, margins) {
   u <- sapply(
     seq_len(ncol(x)), 
-    function(j) univariateML::pml(x[, j], margins[[j]])
+    function(j) pmargin(x[, j], margins[[j]])
   )
   var_names <- names(margins)
   if (!is.null(var_names))
