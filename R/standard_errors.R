@@ -181,7 +181,10 @@ sim_multipliers <- function(n, ell) {
   pmax((xi - mean(xi)) / sd(xi) + 1, 0)
 }
 
-kern <- function(x) pmax(1 - abs(x), 0)
+kern <- function(x) {
+  K <- (1 - 6 * x^2 + 6 * abs(x)^3) * (abs(x) <= 1/2)
+  K + 2 * (1 - abs(x))^3 * (abs(x) > 1 / 2) * (abs(x) <= 1)
+}
 
 bootstrap_pobs <- function(u, xi) {
   u <- as.matrix(u)
@@ -197,7 +200,7 @@ bootstrap_pobs <- function(u, xi) {
 svine_bootstrap_semipar <- function(n_models, model, ...) {
   n <- nrow(model$data)
   np <- n - model$copula$p
-  ell <- ceiling(5 * n^(1 / 5))
+  ell <- ceiling(5 * n ^ (1 / 5))
 
   u <- to_unif(model$data, model$margins)
   par <- svinecop_get_pars(model$copula)
