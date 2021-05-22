@@ -387,6 +387,8 @@ SVinecop::hessian(Eigen::MatrixXd u, bool step_wise, const size_t num_threads)
   check_data_dim(u);
   size_t trunc_lvl = rvine_structure_.get_trunc_lvl();
   TriangularArray<std::vector<Eigen::MatrixXd>> hess(d_);
+
+  size_t ipar = 0;
   for (size_t t = 0; t < trunc_lvl; t++) {
     for (size_t e = 0; e < std::min(cs_dim_, d_ - 1 - t); e++) {
       auto pars = pair_copulas_[t][e].get_parameters();
@@ -416,6 +418,7 @@ SVinecop::hessian(Eigen::MatrixXd u, bool step_wise, const size_t num_threads)
 inline Eigen::MatrixXd
 SVinecop::hessian_exp(const Eigen::MatrixXd& u,
                       bool step_wise,
+                      const Eigen::VectorXd& weights,
                       const size_t num_threads)
 {
   auto hess = this->hessian(u, step_wise, num_threads);
@@ -427,12 +430,41 @@ SVinecop::hessian_exp(const Eigen::MatrixXd& u,
   for (size_t t = 0; t < trunc_lvl; t++) {
     for (size_t e = 0; e < std::min(cs_dim_, d_ - 1 - t); e++) {
       for (size_t p = 0; p < pair_copulas_[t][e].get_parameters().size(); p++) {
-        H.col(ipar++) = hess(t, e)[p].colwise().mean();
+        if (weights.size())  {
+          H.col(ipar++) = (hess(t, e)[p] * weights.asDiagonal()).colwise().mean();
+         } else {
+          H.col(ipar++) = hess(t, e)[p].colwise().mean();
+        }
       }
     }
   }
 
   return H;
+}
+
+inline std::vector<Eigen::MatrixXd>
+SVinecop::hessian_sep(const Eigen::MatrixXd& u,
+                      bool step_wise,
+                      const size_t num_threads)
+{
+  auto hess = this->hessian(u, step_wise, num_threads);
+  size_t npars = this->get_npars();
+  std::vector<Eigen::MatrixXd> Hs(u.rows() - p_);
+  size_t trunc_lvl = rvine_structure_.get_trunc_lvl();
+  for (size_t i = 0; i < Hs.size(); i++) {
+    Eigen::MatrixXd H(npars, npars);
+    H.setZero();
+    size_t ipar = 0;
+    for (size_t t = 0; t < trunc_lvl; t++) {
+      for (size_t e = 0; e < std::min(cs_dim_, d_ - 1 - t); e++) {
+        for (size_t p = 0; p < hess(t, e).size(); p++) {
+          H.col(ipar++) = hess(t, e)[p].row(i);
+        }
+      }
+      Hs.at(i) = H;
+    }
+  }
+  return Hs;
 }
 
 inline Eigen::MatrixXd

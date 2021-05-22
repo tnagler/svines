@@ -204,10 +204,28 @@ svinecop_scores_cpp(const Eigen::MatrixXd& u,
 Eigen::MatrixXd
 svinecop_hessian_cpp(const Eigen::MatrixXd& u,
                      const Rcpp::List& svinecop_r,
+                     const Eigen::VectorXd& weights,
                      const size_t num_threads)
 {
-  return svinecop_wrap(svinecop_r).hessian_exp(u, true, num_threads);
+  return svinecop_wrap(svinecop_r).hessian_exp(u, true, weights, num_threads);
 }
+
+// [[Rcpp::export()]]
+Rcpp::List
+svinecop_hessian_sep_cpp(const Eigen::MatrixXd& u,
+                         const Rcpp::List& svinecop_r,
+                         const size_t num_threads)
+{
+  auto hess = svinecop_wrap(svinecop_r).hessian_sep(u, true, num_threads);
+  size_t p = svinecop_r["p"];
+  Rcpp::List out(u.rows() - p);
+  for (size_t i = 0; i < out.size(); i++) {
+    Eigen::MatrixXd hi = hess[i];
+    out[i] = hi;
+  }
+  return out;
+}
+
 
 // [[Rcpp::export()]]
 Rcpp::List

@@ -189,6 +189,7 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
     threshold = threshold
   )
   vinecop$nobs <- NROW(data)
+  vinecop$weights <- if (!length(weights)) 1 else weights / mean(weights)
 
   structure(
     vinecop,

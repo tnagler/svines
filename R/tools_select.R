@@ -11,7 +11,7 @@ find_hamilton_path <- function(u) {
     W[order, v[imax]] <- W[v[imax], order] <- 0
     order <- if (imax == 1) c(v[imax], order) else c(order, v[imax])
   }
-
+  
   unname(order)
 }
 
@@ -23,7 +23,7 @@ select_mvine <- function(u) {
     u[-1, css$order[c(1, d0)]], # t + 1
     method = "kendall"
   )
-
+  
   if (abs(tau[1, 1]) < abs(tau[2, 2])) {
     css$order <- rev(css$order)
   }
@@ -42,7 +42,7 @@ select_dvine <- function(u) {
     u[-1, css$order[c(1, d0)]], # t + 1
     method = "kendall"
   )
-
+  
   if (abs(tau[1, 2]) > abs(tau[2, 1])) {
     css$order <- rev(css$order)
   }
@@ -54,7 +54,7 @@ select_dvine <- function(u) {
 }
 
 
-select_margin <- function(x, families, criterion) {
+select_margin <- function(x, families, criterion, ...) {
   type <- if (all(families == "empirical")) "empirical" else "univariateML"
   out <- if (type == "empirical") {
     F_n <- ecdf(x)
@@ -64,12 +64,16 @@ select_margin <- function(x, families, criterion) {
       q = function(p) quantile(F_n, probs = p)
     )
   } else if (all(families == "std")) {
-    par <- c(mean(x), sd(x), 10)
-    fn <- function(par) - sum(log(fGarch::dstd(x, par[1], par[2], par[3])))
+    w <- if (!is.null(list(...)$weights)) list(...)$weights else rep(1, length(x))
+    w <- w / mean(w)
+    
+    sigw <- sd(x)
+    par <- c(mean(x * w), sigw, 10)
+    fn <- function(par) -sum(w * log(fGarch::dstd(x, par[1], par[2], par[3])))
     opt <- optim(par, fn,
-          lower = c(min(x), 0.01 * sd(x), 2.0001),
-          upper = c(max(x), 100 * sd(x), 100),
-          method = "L-BFGS-B")
+                 lower = c(min(x), sigw / 20, 2.01),
+                 upper = c(max(x), sigw * 20, 100),
+                 method = "L-BFGS-B")
     fit <- univariateML::mlstd(1:2)
     attr(fit, "n") <- length(x)
     fit[] <- opt$par
@@ -80,7 +84,7 @@ select_margin <- function(x, families, criterion) {
     fit <- univariateML::model_select(x, families, criterion)
     fit
   }
-  structure(out, type = type, class = c(class(fit), "svine_margin"))
+  structure(out, type = type, class = c(class(out), "svine_margin"))
 }
 
 logLik.svine_margin <- function(object) {

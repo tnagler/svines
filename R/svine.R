@@ -42,7 +42,7 @@ svine <- function(data, p, margin_families = univariateML::univariateML_models,
   margin_crit <- ifelse(selcrit == "mbicv", "bic", selcrit)
   margins <- lapply(
     seq_len(d),
-    function(j) select_margin(data[, j], margin_families[[j]], margin_crit)
+    function(j) select_margin(data[, j], margin_families[[j]], margin_crit, ...)
   )
   names(margins) <- colnames(data)
   

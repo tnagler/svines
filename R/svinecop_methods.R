@@ -112,7 +112,7 @@ svinecop_loglik <- function(u, model, cores = 1) {
 svinecop_scores <- function(u, model, cores = 1) {
   assert_that(inherits(model, "svinecop_dist"))
   u <- rvinecopulib:::if_vec_to_matrix(u, dim(model$cs_structure)[1] == 1)
-  svinecop_scores_cpp(u, model, cores)
+  svinecop_scores_cpp(u, model, cores) 
 }
 
 #' Expected hessian for S-vine copula models
@@ -138,7 +138,7 @@ svinecop_scores <- function(u, model, cores = 1) {
 svinecop_hessian <- function(u, model, cores = 1) {
   assert_that(inherits(model, "svinecop_dist"))
   u <- rvinecopulib:::if_vec_to_matrix(u, dim(model$cs_structure)[1] == 1)
-  svinecop_hessian_cpp(u, model, cores)
+  svinecop_hessian_cpp(u, model, model$weights[-seq_len(model$p)], cores)
 }
 
 # svinecop_cond_cdf <- function(u, conditioned, svinecop, cores = 1) {

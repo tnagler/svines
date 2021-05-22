@@ -89,10 +89,14 @@ public:
 
   Eigen::MatrixXd hessian_exp(const Eigen::MatrixXd& u,
                               bool step_wise = true,
+                              const Eigen::VectorXd& weights = Eigen::VectorXd(),
                               const size_t num_threads = 1);
   Eigen::MatrixXd scores_cov(const Eigen::MatrixXd& u,
                              bool step_wise = true,
                              const size_t num_threads = 1);
+  std::vector<Eigen::MatrixXd> hessian_sep(const Eigen::MatrixXd& u,
+                                           bool step_wise,
+                                           const size_t num_threads);
 
 protected:
   Eigen::MatrixXd get_last_cpits(const Eigen::MatrixXd& data);

@@ -21,8 +21,12 @@ svinecop_scores_cpp <- function(u, svinecop_r, num_threads) {
     .Call(`_svines_svinecop_scores_cpp`, u, svinecop_r, num_threads)
 }
 
-svinecop_hessian_cpp <- function(u, svinecop_r, num_threads) {
-    .Call(`_svines_svinecop_hessian_cpp`, u, svinecop_r, num_threads)
+svinecop_hessian_cpp <- function(u, svinecop_r, weights, num_threads) {
+    .Call(`_svines_svinecop_hessian_cpp`, u, svinecop_r, weights, num_threads)
+}
+
+svinecop_hessian_sep_cpp <- function(u, svinecop_r, num_threads) {
+    .Call(`_svines_svinecop_hessian_sep_cpp`, u, svinecop_r, num_threads)
 }
 
 with_parameters_cop_cpp <- function(svinecop_r, parameters) {

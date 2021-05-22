@@ -46,14 +46,14 @@ svine_avar <- function(x, model, n_lags = floor(sqrt(NROW(x))), cores = 1) {
   H <- svine_hessian(x, model, cores)
   Hi <- solve(H)
   avar <- Hi %*% I %*% t(Hi) / NROW(x)
-
+  
   # make sure it's positive definite (rounding errors!)
   eig <- eigen(avar)
   if (any(eig$values <= 0)) {
     eig$values <- abs(eig$values)
     avar <- eig$vectors %*% diag(eig$values) %*% t(eig$vectors)
   }
-
+  
   avar
 }
 
@@ -86,7 +86,7 @@ svine_scores <- function(x, model, cores = 1) {
   assert_that(inherits(model, "svine_dist"))
   x <- rvinecopulib:::if_vec_to_matrix(x, length(model$margins) == 1)
   u <- as.matrix(to_unif(x, model$margins))
-
+  
   S_mrg <- scores_mrg(x, model)
   S_cop <- svinecop_scores(u, model$copula, cores = cores)
   if (model$copula$p > 0) {
@@ -124,7 +124,7 @@ svine_hessian <- function(x, model, cores = 1) {
   assert_that(inherits(model, "svine_dist"))
   x <- rvinecopulib:::if_vec_to_matrix(x, length(model$margins) == 1)
   u <- as.matrix(to_unif(x, model$margins))
-
+  
   H_mrg <- hessian_mrg(x, model)
   H_mxd <- hessian_mxd(x, model, cores = cores)
   H_cop <- svinecop_hessian(u, model$copula, cores = cores)
@@ -158,11 +158,11 @@ svine_hessian <- function(x, model, cores = 1) {
 svine_sim_se_models <- function(n, model, cores = 1, ...) {
   assert_that(inherits(model, "svine_dist"))
   V <- svine_avar(model$data, model = model, cores = cores, ...)
-
+  
   # make sure it's positive definite before simualting
   eig <- eigen(V)
   V <- V + diag(diag(V)) * 0.1
-
+  
   par <- svine_get_pars(model)
   replicate(
     n,
@@ -174,11 +174,11 @@ svine_sim_se_models <- function(n, model, cores = 1, ...) {
 
 sim_multipliers <- function(n, ell) {
   b <- ceiling((ell + 1) / 2)
-  Z <- rexp(n + 2 * b - 2)
+  Z <- rnorm(n + 2 * b - 2)
   w <- kern((1:ell - b) / b)
   w <- w / sqrt(sum(w^2))
   xi <- sapply(1:n, function(i) sum(w * Z[i - 1 + 1:ell]))
-  pmax((xi - mean(xi)) / sd(xi) + 1, 0)
+  xi + 1 - mean(xi)
 }
 
 kern <- function(x) {
@@ -191,7 +191,7 @@ bootstrap_pobs <- function(u, xi) {
   for (j in seq_len(ncol(u))) {
     s <- sort(u[, j], index.return = TRUE)
     u[, j] <- cumsum(xi[s$ix])[order(s$ix)]
-    u[, j] <- u[, j] / (max(u[, j]) + 1e-10)
+    u[, j] <- pmax(u[, j], 1e-10) / (max(u[, j]) + 1e-10)
   }
   u
 }
@@ -200,19 +200,28 @@ bootstrap_pobs <- function(u, xi) {
 svine_bootstrap_semipar <- function(n_models, model, ...) {
   n <- nrow(model$data)
   np <- n - model$copula$p
-  ell <- ceiling(5 * n ^ (1 / 5))
-
+  ell <- ceiling(6 * n ^ (1 / 5))
+  
   u <- to_unif(model$data, model$margins)
   par <- svinecop_get_pars(model$copula)
   phi <- svinecop_scores(u, model$copula)
-  Hi <- solve(svinecop_hessian(u, model$copula))
+  Hs <- svinecop_hessian_sep_cpp(u, model$copula, 1)
+  Hs <- array(unlist(Hs), dim = c(ncol(phi), ncol(phi), length(Hs)))
+  Hi <- solve(apply(Hs, 1:2, mean))
 
   model$data <- NULL
   models <- replicate(n_models, model, simplify = FALSE)
   for (b in seq_along(models)) {
     xi <- sim_multipliers(n, ell)
     u_tilde <- bootstrap_pobs(u, xi)
-    phi_tilde <- c(xi[seq_len(np)]) * svinecop_scores(u_tilde, model$copula)
+    
+    xi <- c(xi[seq_len(np)])
+    # Hi <- apply(Hs, 1:2, function(x) mean(x * xi))
+    # Hi <- solve(Hi + diag(1e-10, nrow(Hi)))
+    phi_tilde <- colMeans(xi * svinecop_scores(u_tilde, model$copula))
+    
+    par_b <- par - Hi %*% phi_tilde
+    models[[b]]$copula <- svinecop_set_pars(models[[b]]$copula, par_b)
     models[[b]]$margins <- lapply(
       seq_along(model$margins),
       function(j) {
@@ -220,8 +229,6 @@ svine_bootstrap_semipar <- function(n_models, model, ...) {
         select_margin(x_tilde, "empirical", "")
       }
     )
-    par_b <- par - Hi %*% colMeans(phi_tilde)
-    models[[b]]$copula <- svinecop_set_pars(models[[b]]$copula, par_b)
   }
   models
 }
@@ -230,11 +237,11 @@ svine_bootstrap_par <- function(n_models, model, ...) {
   n <- nrow(model$data)
   np <- n - model$copula$p
   ell <- ceiling(5 * n ^ (1 / 5))
-
+  
   par <- svine_get_pars(model)
   phi <- svine_scores(model$data, model)
   Hi <- solve(svine_hessian(model$data, model))
-
+  
   model$data <- NULL
   models <- replicate(n_models, model, simplify = FALSE)
   for (b in seq_along(models)) {
@@ -258,7 +265,7 @@ svine_bootstrap_models <- function(n_models, model, ...) {
 
 svine_get_pars <- function(model) {
   assert_that(inherits(model, "svine_dist"))
-
+  
   pars_mrg <- tryCatch(
     lapply(model$margins, as.numeric),
     error = function(e) NULL,
@@ -273,7 +280,7 @@ svine_get_pars <- function(model) {
       )
     }
   )
-
+  
   unname(c(unlist(pars_mrg), unlist(pars_cop)))
 }
 
@@ -311,7 +318,7 @@ svine_set_pars <- function(model, parameters) {
     inherits(model, "svine_dist"),
     length(parameters) == model$npars
   )
-
+  
   margins <- with_parameters_mrg(model$margins, parameters)
   parameters <- parameters[-seq_len(sum(sapply(model$margins, length)))]
   copula <- with_parameters_cop_cpp(model$copula, parameters)
@@ -322,7 +329,7 @@ svine_set_pars <- function(model, parameters) {
     out_vertices = copula$out_vertices,
     in_vertices = copula$in_vertices
   )
-
+  
   svine_dist(margins, copula)
 }
 
@@ -333,6 +340,9 @@ with_parameters_mrg <- function(margins, parameters) {
   for (m in seq_along(margins)) {
     a <- attributes(margins[[m]])
     margins[[m]] <- parameters[(ixs[m] + 1):ixs[m + 1]]
+    if (a$density %in% c("fGarch::dstd", "fGarch::dsstd")) {
+      margins[[m]][3] <- max(margins[[m]][3], 2.001)
+    } 
     attributes(margins[[m]]) <- a
     attr(margins[[m]], "logLik") <- NA
   }
@@ -344,13 +354,13 @@ scores_mrg_1 <- function(x, model) {
   scores <- matrix(NA, length(x), npars)
   for (p in seq_len(npars)) {
     tmp_model <- model
-
+    
     tmp_model[p] <- model[p] - 1e-3
     f_lwr <- univariateML::dml(x, tmp_model, log = TRUE)
-
+    
     tmp_model[p] <- model[p] + 1e-3
     f_upr <- univariateML::dml(x, tmp_model, log = TRUE)
-
+    
     scores[, p] <- (f_upr - f_lwr) / 2e-3
   }
   scores
@@ -362,19 +372,20 @@ scores_mrg <- function(x, model) {
   do.call(cbind, s)
 }
 
-hessian_mrg_1 <- function(x, model) {
+hessian_mrg_1 <- function(x, model, weights) {
+  if (!length(weights)) weights <- rep(1, length(x))
   npars <- length(model)
   hessian <- matrix(NA, npars, npars)
   for (p in seq_len(npars)) {
     tmp_model <- model
-
+    
     tmp_model[p] <- model[p] - 1e-3
-    s_lwr <- scores_mrg_1(x, tmp_model)
-
+    s_lwr <- scores_mrg_1(x, tmp_model) 
+    
     tmp_model[p] <- model[p] + 1e-3
     s_upr <- scores_mrg_1(x, tmp_model)
-
-    hessian[p, ] <- colMeans(s_upr - s_lwr) / 2e-3
+    
+    hessian[p, ] <- colMeans((s_upr - s_lwr) * weights) / 2e-3
   }
   hessian
 }
@@ -384,7 +395,7 @@ bdiag <- function(blocks) {
   rows <- sapply(blocks, NROW)
   cols <- sapply(blocks, NCOL)
   m <- matrix(0, sum(rows), sum(cols))
-
+  
   rows <- c(0, cumsum(rows))
   cols <- c(0, cumsum(cols))
   for (i in seq_along(blocks)) {
@@ -395,7 +406,10 @@ bdiag <- function(blocks) {
 
 hessian_mrg <- function(x, model) {
   d <- NCOL(x)
-  Hs <- lapply(seq_len(d), function(m) hessian_mrg_1(x[, m], model$margins[[m]]))
+  Hs <- lapply(
+    seq_len(d), 
+    function(m) hessian_mrg_1(x[, m], model$margins[[m]], model$copula$weights)
+  )
   bdiag(Hs)
 }
 
@@ -404,23 +418,26 @@ hessian_mxd <- function(x, model, cores = 1) {
   npars_mrg <- sapply(model$margins, length)
   hessian <- matrix(NA, sum(npars_mrg), model$copula$npars)
   i_p <- 1
+  w <- model$copula$weights
+  if (!length(w))
+    w <- 1
   for (m in seq_along(model$margins)) {
     for (p in seq_along(model$margins[[m]])) {
       tmp_model <- model$margins[[m]]
       tmp_u <- u
-
+      
       tmp_model[p] <- model$margins[[m]][p] - 1e-3
       tmp_u[, m] <- univariateML::pml(x[, m], tmp_model)
       s_lwr <- svinecop_scores(tmp_u, model$copula, cores = cores)
-
+      
+      
       tmp_model[p] <- model$margins[[m]][p] + 1e-3
       tmp_u[, m] <- univariateML::pml(x[, m], tmp_model)
       s_upr <- svinecop_scores(tmp_u, model$copula, cores = cores)
-
-      hessian[i_p, ] <- colMeans(s_upr - s_lwr) / 2e-3
+      hessian[i_p, ] <- colMeans((s_upr - s_lwr) * w) / 2e-3
       i_p <- i_p + 1
     }
   }
-
+  
   hessian
 }
