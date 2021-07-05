@@ -18,7 +18,8 @@ svine(
 \item{p}{the Markov order.}
 
 \item{margin_families}{either a vector of \link{univariateML} families to select
-from (used for every margin) or a list with one entry for every variable.}
+from (used for every margin) or a list with one entry for every variable.
+Can also be \code{"empirical"} for empirical cdfs.}
 
 \item{selcrit}{criterion for family selection, either \code{"loglik"}, \code{"aic"},
 \code{"bic"}, \code{"mbicv"}.}

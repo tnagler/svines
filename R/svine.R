@@ -5,7 +5,8 @@
 #' @param data a matrix or data.frame of data.
 #' @param p the Markov order.
 #' @param margin_families either a vector of [univariateML] families to select 
-#'   from (used for every margin) or a list with one entry for every variable.
+#'   from (used for every margin) or a list with one entry for every variable. 
+#'   Can also be `"empirical"` for empirical cdfs.
 #' @param selcrit criterion for family selection, either `"loglik"`, `"aic"`,
 #'   `"bic"`, `"mbicv"`.
 #' @param ... arguments passed to `svinecop()`.
