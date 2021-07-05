@@ -39,7 +39,7 @@ svine_sim <- function(n, rep, model, past = NULL, qrng = FALSE, cores = 1) {
   if (!is.null(past)) {
     assert_that(NCOL(past) == length(model$margins))
   }
-  
+
   if (!is.null(past)) {
     d0 <- length(model$margins)
     past <- rvinecopulib:::if_vec_to_matrix(past, length(past) != d0)

@@ -92,7 +92,7 @@ logLik.svine_margin <- function(object) {
 }
 
 pmargin <- function(x, model) {
-  if (attr(model, "type") == "empirical") {
+  if (identical(attr(model, "type"), "empirical")) {
     model$p(x)
   } else {
     univariateML::pml(x, model)
@@ -100,7 +100,7 @@ pmargin <- function(x, model) {
 }
 
 qmargin <- function(p, model) {
-  if (attr(model, "type") == "empirical") {
+  if (identical(attr(model, "type"), "empirical")) {
     model$q(p)
   } else {
     univariateML::qml(p, model)
