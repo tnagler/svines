@@ -2,7 +2,7 @@
 % Please edit documentation in R/standard_errors.R
 \name{svine_scores}
 \alias{svine_scores}
-\title{Score function of S-vine distribution models}
+\title{Score function of parametric S-vine models}
 \usage{
 svine_scores(x, model, cores = 1)
 }
@@ -21,10 +21,10 @@ marginal parameters, copula parameters of first tree, copula parameters of
 second tree, etc. Duplicated parameters in the copula model are omitted.
 }
 \description{
-Score function of S-vine distribution models
+Score function of parametric S-vine models
 }
 \examples{
-data(returns)  
+data(returns)
 dat <- returns[1:100, 1:2]
 
 # fit parametric S-vine model with Markov order 1

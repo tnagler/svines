@@ -11,7 +11,7 @@ find_hamilton_path <- function(u) {
     W[order, v[imax]] <- W[v[imax], order] <- 0
     order <- if (imax == 1) c(v[imax], order) else c(order, v[imax])
   }
-  
+
   unname(order)
 }
 
@@ -20,7 +20,7 @@ select_mvine <- function(u) {
   css <- rvinecopulib::dvine_structure(find_hamilton_path(u))
   tau <- wdm::wdm(
     u[-nrow(u), css$order[c(1, d0)]], # t
-    u[-1, css$order[c(1, d0)]],       # t + 1
+    u[-1, css$order[c(1, d0)]], # t + 1
     method = "kendall"
   )
 
@@ -39,7 +39,7 @@ select_dvine <- function(u) {
   css <- rvinecopulib::dvine_structure(find_hamilton_path(u))
   tau <- wdm::wdm(
     u[-nrow(u), css$order[c(1, d0)]], # t
-    u[-1, css$order[c(1, d0)]],       # t + 1
+    u[-1, css$order[c(1, d0)]], # t + 1
     method = "kendall"
   )
 
@@ -51,4 +51,58 @@ select_dvine <- function(u) {
     out_vertices = rev(css$order),
     in_vertices = css$order
   )
+}
+
+
+select_margin <- function(x, families, criterion) {
+  type <- if (all(families == "empirical")) "empirical" else "univariateML"
+  out <- if (type == "empirical") {
+    F_n <- ecdf(x)
+    n <- length(x)
+    list(
+      p = function(x) F_n(x) * n / (n + 1),
+      q = function(p) quantile(F_n, probs = p)
+    )
+  } else if (all(families == "std")) {
+    par <- c(mean(x), sd(x), 10)
+    fn <- function(par) - sum(log(fGarch::dstd(x, par[1], par[2], par[3])))
+    opt <- optim(par, fn,
+          lower = c(min(x), 0.01 * sd(x), 2.0001),
+          upper = c(max(x), 100 * sd(x), 100),
+          method = "L-BFGS-B")
+    fit <- univariateML::mlstd(1:2)
+    attr(fit, "n") <- length(x)
+    fit[] <- opt$par
+    attr(fit, "logLik") <- -opt$value
+    fit
+  } else {
+    families <- setdiff(families, "empirical")
+    fit <- univariateML::model_select(x, families, criterion)
+    fit
+  }
+  structure(out, type = type, class = c(class(fit), "svine_margin"))
+}
+
+logLik.svine_margin <- function(object) {
+  if (attr(object, "type") == "empirical") {
+    structure(NA, df = NA)
+  } else {
+    logLik(object)
+  }
+}
+
+pmargin <- function(x, model) {
+  if (identical(attr(model, "type"), "empirical")) {
+    model$p(x)
+  } else {
+    univariateML::pml(x, model)
+  }
+}
+
+qmargin <- function(p, model) {
+  if (identical(attr(model, "type"), "empirical")) {
+    model$q(p)
+  } else {
+    univariateML::qml(p, model)
+  }
 }
