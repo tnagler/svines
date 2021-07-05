@@ -1,63 +1,4 @@
-#' Asymptotic variance of parameter estimates of an S-vine model
-#'
-#' @param x the data.
-#' @param model S-vine model (inheriting from [svine_dist]).
-#' @param n_lags the number of lags to use when computing the Fisher information
-#'   matrix.
-#' @param cores the number of cores to use.
-#'
-#' @return A k-by-k matrix, where k is the total number of parameters in the
-#'   model. Parameters are ordered as follows:
-#'   marginal parameters, copula parameters of first tree, copula parameters of
-#'   second tree, etc. Duplicated parameters in the copula model are omitted.
-#'
-#'
-#' @export
-#' @examples
-#' # load data set
-#' data(returns)
-#' dat <- returns[1:100, 1:2]
-#'
-#' # fit parametric S-vine model with Markov order 1
-#' fit <- svine(dat, p = 1, family_set = "parametric")
-#'
-#' # asymptotic variance matrix
-#' avar <- svine_avar(dat, fit)
-#'
-#' # standard errors
-#' sqrt(diag(avar))
-svine_avar <- function(x, model, n_lags = floor(sqrt(NROW(x))), cores = 1) {
-  assert_that(inherits(model, "svine_dist"))
-  scores <- svine_scores(x, model, cores)
-  I <- stats::cov(scores)
-  if (n_lags > 0) {
-    lagged_covs <- lapply(
-      seq_len(n_lags) - 1,
-      function(l) {
-        sig <- stats::cov(
-          scores[-seq_len(l + 1), ],
-          scores[-((NROW(scores) - l):NROW(scores)), ]
-        )
-        sig + t(sig)
-      }
-    )
-    I <- I + Reduce("+", lagged_covs)
-  }
-  H <- svine_hessian(x, model, cores)
-  Hi <- solve(H)
-  avar <- Hi %*% I %*% t(Hi) / NROW(x)
-
-  # make sure it's positive definite (rounding errors!)
-  eig <- eigen(avar)
-  if (any(eig$values <= 0)) {
-    eig$values <- abs(eig$values)
-    avar <- eig$vectors %*% diag(eig$values) %*% t(eig$vectors)
-  }
-
-  avar
-}
-
-#' Score function of S-vine distribution models
+#' Score function of parametric S-vine models
 #'
 #' @param x the data.
 #' @param model S-vine model (inheriting from [svine_dist]).
@@ -95,7 +36,7 @@ svine_scores <- function(x, model, cores = 1) {
   cbind(S_mrg, S_cop)
 }
 
-#' Expected hessian of an S-vine distribution models
+#' Expected hessian of a parametric S-vine models
 #'
 #' @param x the data.
 #' @param model S-vine model (inheriting from [svine_dist]).
@@ -134,41 +75,43 @@ svine_hessian <- function(x, model, cores = 1) {
   )
 }
 
-#' Simulate models from the asymptotic distribution
-#'
-#' Simulates `n` \emph{iid} models, where each model
-#' has parameters drawn from the asymptotic distribution.
-#' @param n number of models to simulate.
-#' @param model S-vine model (inheriting from [svine_dist]).
-#' @param cores the number of cores used for computation of the asymptotic
-#'   variance.
-#' @param ... passed to [`svine_avar()`].
 
+#' Bootstrap S-vine models
+#' 
+#' Computes bootstrap replicates of a given model using the one-step block 
+#' multiplier bootstrap of Nagler et. al (2021).
+#'
+#' @param n_models number of bootstrap replicates.
+#' @param model the initial fitted model
+#'
+#' @return
+#' @export
+#'
 #' @examples
 #' data(returns)
 #' dat <- returns[1:100, 1:2]
 #'
-#' # fit parametric S-vine model with Markov order 0
-#' fit <- svine(dat, p = 0, family_set = "parametric")
+#' # fit parametric S-vine model with Markov order 1
+#' model <- svine(dat, p = 1, family_set = "parametric")
+#' 
+#' # compute 10 bootstrap replicates of the model
+#' boot_models <- svine_bootstrap_models(10, model)
 #'
-#' new <- svine_sim_se_models(2, fit)
-#' summary(new[[1]])
-#' summary(new[[2]])
-#' @export
-svine_sim_se_models <- function(n, model, cores = 1, ...) {
+#' # compute bootstrap replicates of 90%-quantile of X_1 + X_2.
+#' mu_boot <- sapply(
+#'   boot_models,
+#'   function(m) {
+#'     xx <- rowSums(t(svine_sim(1, 10^2, m, past = past, qrng = TRUE)[1, ,]))
+#'     quantile(xx, 0.9)
+#'   }
+#' ) 
+svine_bootstrap_models <- function(n_models, model) {
   assert_that(inherits(model, "svine_dist"))
-  V <- svine_avar(model$data, model = model, cores = cores, ...)
-
-  # make sure it's positive definite before simualting
-  eig <- eigen(V)
-  V <- V + diag(diag(V)) * 0.1
-
-  par <- svine_get_pars(model)
-  replicate(
-    n,
-    svine_set_pars(model, MASS::mvrnorm(1, par, V)),
-    simplify = FALSE
-  )
+  if (attr(model$margins[[1]], "type") == "empirical") {
+    svine_bootstrap_semipar(n_models, model)
+  } else {
+    svine_bootstrap_par(n_models, model)
+  }
 }
 
 
@@ -197,7 +140,7 @@ bootstrap_pobs <- function(u, xi) {
 }
 
 
-svine_bootstrap_semipar <- function(n_models, model, ...) {
+svine_bootstrap_semipar <- function(n_models, model) {
   n <- nrow(model$data)
   np <- n - model$copula$p
   ell <- ceiling(5 * n ^ (1 / 5))
@@ -226,7 +169,7 @@ svine_bootstrap_semipar <- function(n_models, model, ...) {
   models
 }
 
-svine_bootstrap_par <- function(n_models, model, ...) {
+svine_bootstrap_par <- function(n_models, model) {
   n <- nrow(model$data)
   np <- n - model$copula$p
   ell <- ceiling(5 * n ^ (1 / 5))
@@ -246,15 +189,6 @@ svine_bootstrap_par <- function(n_models, model, ...) {
   models
 }
 
-#' @export
-svine_bootstrap_models <- function(n_models, model, ...) {
-  assert_that(inherits(model, "svine_dist"))
-  if (attr(model$margins[[1]], "type") == "empirical") {
-    svine_bootstrap_semipar(n_models, model, ...)
-  } else {
-    svine_bootstrap_par(n_models, model, ...)
-  }
-}
 
 svine_get_pars <- function(model) {
   assert_that(inherits(model, "svine_dist"))

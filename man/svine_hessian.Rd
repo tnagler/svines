@@ -2,7 +2,7 @@
 % Please edit documentation in R/standard_errors.R
 \name{svine_hessian}
 \alias{svine_hessian}
-\title{Expected hessian of an S-vine distribution models}
+\title{Expected hessian of a parametric S-vine models}
 \usage{
 svine_hessian(x, model, cores = 1)
 }
@@ -21,7 +21,7 @@ marginal parameters, copula parameters of first tree, copula parameters of
 second tree, etc. Duplicated parameters in the copula model are omitted.
 }
 \description{
-Expected hessian of an S-vine distribution models
+Expected hessian of a parametric S-vine models
 }
 \examples{
 data(returns)

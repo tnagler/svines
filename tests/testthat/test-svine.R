@@ -102,14 +102,13 @@ test_that("fitting models (multivariate)", {
   expect_silent(svine(x, p = 1, type = "D", margin_families = c("exp", "norm")))
   expect_silent(svine(x, p = 2, type = "M", margin_families = c("exp", "norm")))
   expect_error(svine(x, p = 1, type = "R", margin_families = c("exp", "norm")))
-  expect_equal(dim(svine_avar(x, fit2)), c(fit2$npars, fit2$npars))
 })
 
 test_that("standard errors", {
   u <- rbicop(50, bc)
   x <- qexp(u)
   fit <- svine(x, margin_families = c("exp", "norm"), p = 0)
-  models <- svine_sim_se_models(2, fit)
+  models <- svine_bootstrap_models(2, fit)
   expect_identical(summary(models[[1]])$family, summary(fit)$family)
 })
 
