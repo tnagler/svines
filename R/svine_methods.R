@@ -42,7 +42,7 @@ svine_sim <- function(n, rep, model, past = NULL, qrng = FALSE, cores = 1) {
 
   if (!is.null(past)) {
     d0 <- length(model$margins)
-    past <- rvinecopulib:::if_vec_to_matrix(past, length(past) != d0)
+    past <- if_vec_to_matrix(past, length(past) != d0)
     past <- to_unif(past, model$margins)
   }
   U <- svinecop_sim(n, rep, model$copula, past, qrng, cores)
@@ -66,7 +66,7 @@ svine_sim <- function(n, rep, model, past = NULL, qrng = FALSE, cores = 1) {
 #' svine_loglik(returns[1:100, 1:3], fit)
 svine_loglik <- function(x, model, cores = 1) {
   assert_that(inherits(model, "svine_dist"))
-  x <- rvinecopulib:::if_vec_to_matrix(x, length(model$margins) == 1)
+  x <- if_vec_to_matrix(x, length(model$margins) == 1)
   assert_that(ncol(x) == length(model$margins))
   
   ll_marg <- sapply(
@@ -85,7 +85,7 @@ svine_loglik <- function(x, model, cores = 1) {
 #     inherits(model, "svinecop_dist"),
 #     conditioned <= dim(model$cs_structure)[1]
 #   )
-#   u <- rvinecopulib:::if_vec_to_matrix(u, dim(model$cs_structure)[1] == 1)
+#   u <- if_vec_to_matrix(u, dim(model$cs_structure)[1] == 1)
 #   svinecop_cond_cdf_cpp(u, conditioned - 1, model, cores)
 # }
 

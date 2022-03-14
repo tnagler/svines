@@ -25,7 +25,7 @@
 #' @export
 svine_scores <- function(x, model, cores = 1) {
   assert_that(inherits(model, "svine_dist"))
-  x <- rvinecopulib:::if_vec_to_matrix(x, length(model$margins) == 1)
+  x <- if_vec_to_matrix(x, length(model$margins) == 1)
   u <- as.matrix(to_unif(x, model$margins))
 
   S_mrg <- scores_mrg(x, model)
@@ -63,7 +63,7 @@ svine_scores <- function(x, model, cores = 1) {
 #' @export
 svine_hessian <- function(x, model, cores = 1) {
   assert_that(inherits(model, "svine_dist"))
-  x <- rvinecopulib:::if_vec_to_matrix(x, length(model$margins) == 1)
+  x <- if_vec_to_matrix(x, length(model$margins) == 1)
   u <- as.matrix(to_unif(x, model$margins))
 
   H_mrg <- hessian_mrg(x, model)
@@ -84,7 +84,6 @@ svine_hessian <- function(x, model, cores = 1) {
 #' @param n_models number of bootstrap replicates.
 #' @param model the initial fitted model
 #'
-#' @return
 #' @export
 #'
 #' @examples
@@ -101,7 +100,7 @@ svine_hessian <- function(x, model, cores = 1) {
 #' mu_boot <- sapply(
 #'   boot_models,
 #'   function(m) {
-#'     xx <- rowSums(t(svine_sim(1, 10^2, m, past = past, qrng = TRUE)[1, ,]))
+#'     xx <- rowSums(t(svine_sim(1, 10^2, m, past = dat)[1, ,]))
 #'     quantile(xx, 0.9)
 #'   }
 #' ) 
@@ -117,7 +116,7 @@ svine_bootstrap_models <- function(n_models, model) {
 
 sim_multipliers <- function(n, ell) {
   b <- ceiling((ell + 1) / 2)
-  Z <- rexp(n + 2 * b - 2)
+  Z <- stats::rexp(n + 2 * b - 2)
   w <- kern((1:ell - b) / b)
   w <- w / sqrt(sum(w^2))
   xi <- sapply(1:n, function(i) sum(w * Z[i - 1 + 1:ell]))

@@ -119,10 +119,10 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
     in_vertices  <- sel$in_vertices
   }
 
-
-
   # check if families known (w/ partial matching) and expand convenience defs
-  family_set <- rvinecopulib:::process_family_set(family_set, par_method)
+  family_set <- rvinecopulib::vinecop(
+    0.5, family_set = family_set, par_method = par_method
+  )$controls$family_set
 
   ## pre-process input
   is_structure_provided <- !(is.scalar(cs_structure) && is.na(cs_structure))
@@ -163,7 +163,7 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
   ## make all pair-copulas bicop objects
   vinecop$pair_copulas <- lapply(
     vinecop$pair_copulas,
-    function(tree) lapply(tree, rvinecopulib:::as.bicop)
+    function(tree) lapply(tree, as.bicop)
   )
 
   ## add information about the fit
@@ -275,7 +275,7 @@ svinecop_dist <- function(pair_copulas, cs_structure, p,
   ## make all pair-copulas bicop objects
   model$pair_copulas <- lapply(
     model$pair_copulas,
-    function(tree) lapply(tree, rvinecopulib:::as.bicop)
+    function(tree) lapply(tree, as.bicop)
   )
 
   ## fix class of structure objects

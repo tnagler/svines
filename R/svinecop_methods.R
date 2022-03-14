@@ -44,17 +44,20 @@ svinecop_sim <- function(n, rep, model, past = NULL, qrng = FALSE, cores = 1) {
   if (is.null(past)) {
     past <- matrix(NA, 0, 0)
   } else {
-    past <- rvinecopulib:::if_vec_to_matrix(past, NCOL(past) == d0)
+    past <- if_vec_to_matrix(past, NCOL(past) == d0)
   }
   
-  U <- svinecop_sim_cpp(
-    model, n, rep, past, qrng, cores, rvinecopulib:::get_seeds())
+  U <- svinecop_sim_cpp(model, n, rep, past, qrng, cores, get_seeds())
   if (rep > 1)
     U <- array(U, dim = c(n, d0, rep))
   if (!is.null(model$names))
     colnames(U) <- simplify_names(model)
   
   U
+}
+
+get_seeds <- function() {
+  as.numeric(sprintf("%20.0f", stats::runif(20, 1e+06, 1e+07)))
 }
 
 simplify_names <- function(model) {
@@ -85,7 +88,7 @@ simplify_names <- function(model) {
 #' svinecop_hessian(u, fit)
 svinecop_loglik <- function(u, model, cores = 1) {
   assert_that(inherits(model, "svinecop_dist"))
-  u <- rvinecopulib:::if_vec_to_matrix(u, dim(model$cs_structure)[1] == 1)
+  u <- if_vec_to_matrix(u, dim(model$cs_structure)[1] == 1)
   svinecop_loglik_cpp(u, model, cores)
 }
 
@@ -111,7 +114,7 @@ svinecop_loglik <- function(u, model, cores = 1) {
 #' svinecop_hessian(u, fit)
 svinecop_scores <- function(u, model, cores = 1) {
   assert_that(inherits(model, "svinecop_dist"))
-  u <- rvinecopulib:::if_vec_to_matrix(u, dim(model$cs_structure)[1] == 1)
+  u <- if_vec_to_matrix(u, dim(model$cs_structure)[1] == 1)
   svinecop_scores_cpp(u, model, cores)
 }
 
@@ -137,7 +140,7 @@ svinecop_scores <- function(u, model, cores = 1) {
 #' svinecop_hessian(u, fit)
 svinecop_hessian <- function(u, model, cores = 1) {
   assert_that(inherits(model, "svinecop_dist"))
-  u <- rvinecopulib:::if_vec_to_matrix(u, dim(model$cs_structure)[1] == 1)
+  u <- if_vec_to_matrix(u, dim(model$cs_structure)[1] == 1)
   svinecop_hessian_cpp(u, model, cores)
 }
 
@@ -147,6 +150,6 @@ svinecop_hessian <- function(u, model, cores = 1) {
 #     inherits(svinecop, "svinecop_dist"),
 #     conditioned <= dim(svinecop$cs_structure)[1]
 #   )
-#   u <- rvinecopulib:::if_vec_to_matrix(u, dim(svinecop$cs_structure)[1] == 1)
+#   u <- if_vec_to_matrix(u, dim(svinecop$cs_structure)[1] == 1)
 #   svinecop_cond_cdf_cpp(u, conditioned - 1, svinecop, cores)
 # }

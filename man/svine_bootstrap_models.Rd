@@ -11,9 +11,6 @@ svine_bootstrap_models(n_models, model)
 
 \item{model}{the initial fitted model}
 }
-\value{
-
-}
 \description{
 Computes bootstrap replicates of a given model using the one-step block
 multiplier bootstrap of Nagler et. al (2021).
@@ -32,7 +29,7 @@ boot_models <- svine_bootstrap_models(10, model)
 mu_boot <- sapply(
   boot_models,
   function(m) {
-    xx <- rowSums(t(svine_sim(1, 10^2, m, past = past, qrng = TRUE)[1, ,]))
+    xx <- rowSums(t(svine_sim(1, 10^2, m, past = dat)[1, ,]))
     quantile(xx, 0.9)
   }
 ) 

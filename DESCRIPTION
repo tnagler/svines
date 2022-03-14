@@ -1,6 +1,6 @@
 Package: svines
 Title: Stationary Vine Copula Models
-Version: 0.0.2
+Version: 0.1.0
 Authors@R: 
     person(given = "Thomas",
            family = "Nagler",
@@ -14,24 +14,25 @@ LazyData: true
 URL: https://github.com/tnagler/svines
 BugReports: https://github.com/tnagler/svines/issues
 Depends:
-  rvinecopulib (>= 0.5.3.1.0),
-  R (>= 2.10)
+  R (>= 3.3.0),
+  rvinecopulib (>= 0.6.1.1.2)
 Imports: 
   Rcpp,
   assertthat,
   univariateML,
   wdm,
-  MASS
+  MASS,
+  fGarch
 LinkingTo: 
-  rvinecopulib,
   RcppEigen,
   Rcpp,
   RcppThread,
   BH,
-  wdm
+  wdm,
+  rvinecopulib
 Suggests:
     testthat,
     ggraph,
     covr
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
