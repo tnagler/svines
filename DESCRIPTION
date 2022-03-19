@@ -22,7 +22,6 @@ Imports:
   assertthat,
   univariateML,
   wdm,
-  MASS,
   fGarch
 LinkingTo: 
   RcppEigen,

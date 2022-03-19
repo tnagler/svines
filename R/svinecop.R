@@ -295,6 +295,7 @@ print.svinecop_dist <- function(x, ...) {
   invisible(x)
 }
 
+#' @importFrom rvinecopulib as_rvine_matrix get_structure par_to_ktau
 #' @export
 summary.svinecop_dist <- function(object, 
                                   trees = seq_len(dim(object)["trunc_lvl"]), 
