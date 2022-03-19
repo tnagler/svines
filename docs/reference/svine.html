@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">svines</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -94,7 +94,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/tnagler/svines/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -120,13 +120,13 @@
     <p>Automated fitting or creation of custom S-vine distribution models</p>
     </div>
 
-    <pre class="usage"><span class='fu'>svine</span>(
-  <span class='no'>data</span>,
-  <span class='no'>p</span>,
-  <span class='kw'>margin_families</span> <span class='kw'>=</span> <span class='kw pkg'>univariateML</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/univariateML/man/univariateML_models.html'>univariateML_models</a></span>,
-  <span class='kw'>selcrit</span> <span class='kw'>=</span> <span class='st'>"aic"</span>,
-  <span class='no'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>svine</span><span class='op'>(</span>
+  <span class='va'>data</span>,
+  <span class='va'>p</span>,
+  margin_families <span class='op'>=</span> <span class='fu'>univariateML</span><span class='fu'>::</span><span class='va'><a href='https://univariateml.netlify.com/reference/univariateML_models.html'>univariateML_models</a></span>,
+  selcrit <span class='op'>=</span> <span class='st'>"aic"</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -142,7 +142,8 @@
     <tr>
       <th>margin_families</th>
       <td><p>either a vector of univariateML families to select
-from (used for every margin) or a list with one entry for every variable.</p></td>
+from (used for every margin) or a list with one entry for every variable.
+Can also be <code>"empirical"</code> for empirical cdfs.</p></td>
     </tr>
     <tr>
       <th>selcrit</th>
@@ -157,47 +158,59 @@ from (used for every margin) or a list with one entry for every variable.</p></t
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># load data set</span>
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>returns</span>)
-
-<span class='co'># fit parametric S-vine model with Markov order 1</span>
-<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'>svine</span>(<span class='no'>returns</span>[<span class='fl'>1</span>:<span class='fl'>100</span>, <span class='fl'>1</span>:<span class='fl'>3</span>], <span class='kw'>p</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>family_set</span> <span class='kw'>=</span> <span class='st'>"parametric"</span>)
-<span class='no'>fit</span></div><div class='output co'>#&gt; 3-dimensional S-vine distribution model of order p = 1 ('svine_dist')</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='no'>fit</span>)</div><div class='output co'>#&gt; $margins
-#&gt; # A data.frame: 3 x 5 
-#&gt;  margin     name    model       parameters loglik
-#&gt;       1  Allianz Logistic   0.0015, 0.0073    292
-#&gt;       2      AXA Logistic   0.0029, 0.0084    277
-#&gt;       3 Generali Logistic 0.00088, 0.00770    286
-#&gt; 
-#&gt; $copula
-#&gt; # A data.frame: 15 x 11 
-#&gt;  tree edge conditioned conditioning var_types   family rotation parameters df
-#&gt;     1    1        4, 5                    c,c        t        0 0.72, 3.66  2
-#&gt;     1    2        5, 6                    c,c    frank        0        7.4  1
-#&gt;     1    3        6, 3                    c,c gaussian        0       -0.2  1
-#&gt;     1    4        1, 2                    c,c        t        0 0.72, 3.66  2
-#&gt;     1    5        2, 3                    c,c    frank        0        7.4  1
-#&gt;     2    1        4, 6            5       c,c    indep        0             0
-#&gt;     2    2        5, 3            6       c,c    indep        0             0
-#&gt;     2    3        6, 2            3       c,c    indep        0             0
-#&gt;     2    4        1, 3            2       c,c    indep        0             0
-#&gt;     3    1        4, 3         6, 5       c,c    indep        0             0
-#&gt;    tau loglik
-#&gt;   0.52    NaN
-#&gt;   0.58    NaN
-#&gt;  -0.13    NaN
-#&gt;   0.52    NaN
-#&gt;   0.58    NaN
-#&gt;   0.00    NaN
-#&gt;   0.00    NaN
-#&gt;   0.00    NaN
-#&gt;   0.00    NaN
-#&gt;   0.00    NaN
-#&gt; # ... with 5 more rows
-#&gt; </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>fit</span>$<span class='no'>copula</span>)</div><div class='img'><img src='svine-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/contour.html'>contour</a></span>(<span class='no'>fit</span>$<span class='no'>copula</span>)</div><div class='img'><img src='svine-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/stats/logLik.html'>logLik</a></span>(<span class='no'>fit</span>)</div><div class='output co'>#&gt; [1] 942.4027
-#&gt; attr(,"df")
-#&gt; [1] 12</div><div class='input'>
-<span class='fu'><a href='https://rdrr.io/r/graphics/pairs.html'>pairs</a></span>(<span class='fu'><a href='svine_sim.html'>svine_sim</a></span>(<span class='fl'>500</span>, <span class='kw'>rep</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='no'>fit</span>))</div><div class='img'><img src='svine-3.png' alt='' width='700' height='433' /></div></pre>
+    <pre class="examples"><span class='r-in'><span class='co'># load data set</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>returns</span><span class='op'>)</span>  </span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># fit parametric S-vine model with Markov order 1</span></span>
+<span class='r-in'><span class='va'>fit</span> <span class='op'>&lt;-</span> <span class='fu'>svine</span><span class='op'>(</span><span class='va'>returns</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>100</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span><span class='op'>]</span>, p <span class='op'>=</span> <span class='fl'>1</span>, family_set <span class='op'>=</span> <span class='st'>"parametric"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>fit</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 3-dimensional S-vine distribution model of order p = 1 ('svine_dist')</span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>fit</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $margins</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> # A data.frame: 3 x 5 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  margin     name    model       parameters loglik</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>       1  Allianz Logistic   0.0015, 0.0073    292</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>       2      AXA Logistic   0.0029, 0.0084    277</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>       3 Generali Logistic 0.00088, 0.00770    286</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $copula</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> # A data.frame: 15 x 11 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  tree edge conditioned conditioning var_types   family rotation parameters df</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     1    1        4, 5                    c,c        t        0 0.72, 3.66  2</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     1    2        5, 6                    c,c    frank        0        7.4  1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     1    3        6, 3                    c,c gaussian        0       -0.2  1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     1    4        1, 2                    c,c        t        0 0.72, 3.66  2</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     1    5        2, 3                    c,c    frank        0        7.4  1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     2    1        4, 6            5       c,c    indep        0             0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     2    2        5, 3            6       c,c    indep        0             0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     2    3        6, 2            3       c,c    indep        0             0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     2    4        1, 3            2       c,c    indep        0             0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     3    1        4, 3         6, 5       c,c    indep        0             0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>    tau loglik</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.52    NaN</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.58    NaN</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.13    NaN</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.52    NaN</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.58    NaN</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.00    NaN</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.00    NaN</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.00    NaN</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.00    NaN</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.00    NaN</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> # ... with 5 more rows</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>fit</span><span class='op'>$</span><span class='va'>copula</span><span class='op'>)</span></span>
+<span class='r-plt img'><img src='svine-1.png' alt='' width='700' height='433' /></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/contour.html'>contour</a></span><span class='op'>(</span><span class='va'>fit</span><span class='op'>$</span><span class='va'>copula</span><span class='op'>)</span></span>
+<span class='r-plt img'><img src='svine-2.png' alt='' width='700' height='433' /></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/stats/logLik.html'>logLik</a></span><span class='op'>(</span><span class='va'>fit</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] 942.4027</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> attr(,"df")</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] 12</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/pairs.html'>pairs</a></span><span class='op'>(</span><span class='fu'><a href='svine_sim.html'>svine_sim</a></span><span class='op'>(</span><span class='fl'>500</span>, rep <span class='op'>=</span> <span class='fl'>1</span>, <span class='va'>fit</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-plt img'><img src='svine-3.png' alt='' width='700' height='433' /></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -213,7 +226,7 @@ from (used for every margin) or a list with one entry for every variable.</p></t
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

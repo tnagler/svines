@@ -31,8 +31,8 @@ and [univariateML](https://github.com/JonasMoss/univariateML).
 Install the development version from Github.
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("tnagler/svines")
+# install.packages("remotes")
+remotes::install_github("tnagler/svines")
 ```
 
 ## Usage
@@ -77,18 +77,9 @@ pairs(t(sim[1, , ]))
 
 ### Standard errors
 
+To generate new bootstrapped models from the asymptotic distribution, use
 ```{r}
-# compute standard errors for each parameter
-sqrt(diag(svine_avar(returns, fit)))
-```
-The standard errors correspond to (in this order): parameters of first margin,
-parameters of second margin, ...., copula parameters in first tree (excluding 
-duplicates), ...
-
-The asymptotic variance is the basis of the bootstrap procedure in the paper.
-To generate new models from the asymptotic distribution, use
-```{r}
-models <- svine_sim_se_models(2, fit)
+models <- svine_bootstrap_models(2, fit)
 summary(models[[1]])
 summary(models[[1]])
 ```
@@ -96,4 +87,4 @@ summary(models[[1]])
 
 ## References
 
-Nagler, T., Krüger, D., Min, A. (2020). Stationary vine copula models for multivariate time series. *arXiv:2008.05990 [stat.ME]* [pdf](https://arxiv.org/abs/2008.05990)
+Nagler, T., Krüger, D., Min, A. (2022). Stationary vine copula models for multivariate time series. *Journal of Econometrics, 227(2), pp. 305-324* [[pdf]](https://arxiv.org/abs/2008.05990) [[doi]](https://www.sciencedirect.com/science/article/pii/S0304407621003043)

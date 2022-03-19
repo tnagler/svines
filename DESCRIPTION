@@ -7,7 +7,8 @@ Authors@R:
            role = c("aut", "cre"),
            email = "mail@tnagler.com")
 Description: Provides functionality to fit and simulate from stationary vine 
-  copula models for time series, see Nagler et al. (2020) <arXiv:2008.05990>.
+  copula models for time series, see Nagler et al. (2022) 
+  <doi:10.1016/j.jeconom.2021.11.015>.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

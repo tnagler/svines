@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Score function of S-vine distribution models — svine_scores • svines</title>
+<title>Score function of parametric S-vine models — svine_scores • svines</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Score function of S-vine distribution models — svine_scores" />
-<meta property="og:description" content="Score function of S-vine distribution models" />
+<meta property="og:title" content="Score function of parametric S-vine models — svine_scores" />
+<meta property="og:description" content="Score function of parametric S-vine models" />
 
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">svines</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -94,7 +94,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/tnagler/svines/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -111,16 +111,16 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Score function of S-vine distribution models</h1>
+    <h1>Score function of parametric S-vine models</h1>
     <small class="dont-index">Source: <a href='https://github.com/tnagler/svines/blob/master/R/standard_errors.R'><code>R/standard_errors.R</code></a></small>
     <div class="hidden name"><code>svine_scores.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Score function of S-vine distribution models</p>
+    <p>Score function of parametric S-vine models</p>
     </div>
 
-    <pre class="usage"><span class='fu'>svine_scores</span>(<span class='no'>x</span>, <span class='no'>model</span>, <span class='kw'>cores</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
+    <pre class="usage"><span class='fu'>svine_scores</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>model</span>, cores <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -148,36 +148,38 @@ marginal parameters, copula parameters of first tree, copula parameters of
 second tree, etc. Duplicated parameters in the copula model are omitted.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>returns</span>)
-<span class='no'>dat</span> <span class='kw'>&lt;-</span> <span class='no'>returns</span>[<span class='fl'>1</span>:<span class='fl'>100</span>, <span class='fl'>1</span>:<span class='fl'>2</span>]
-
-<span class='co'># fit parametric S-vine model with Markov order 1</span>
-<span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='svine.html'>svine</a></span>(<span class='no'>dat</span>, <span class='kw'>p</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>family_set</span> <span class='kw'>=</span> <span class='st'>"parametric"</span>)
-
-<span class='co'># Implementation of asymptotic variances</span>
-<span class='no'>I</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/cor.html'>cov</a></span>(<span class='fu'>svine_scores</span>(<span class='no'>dat</span>, <span class='no'>model</span>))
-<span class='no'>H</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='svine_hessian.html'>svine_hessian</a></span>(<span class='no'>dat</span>, <span class='no'>model</span>)
-<span class='no'>Hi</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/solve.html'>solve</a></span>(<span class='no'>H</span>)
-<span class='no'>Hi</span> <span class='kw'>%*%</span> <span class='no'>I</span> <span class='kw'>%*%</span> <span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span>(<span class='no'>Hi</span>) / <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>dat</span>)</div><div class='output co'>#&gt;                [,1]          [,2]          [,3]          [,4]          [,5]
-#&gt;  [1,]  1.646796e-06 -7.272344e-08  1.251305e-06 -1.910311e-07 -1.168358e-05
-#&gt;  [2,] -7.272344e-08  2.742702e-07 -9.648873e-08  1.579411e-07  1.498636e-06
-#&gt;  [3,]  1.251305e-06 -9.648873e-08  2.312842e-06 -2.382406e-07  2.483107e-05
-#&gt;  [4,] -1.910311e-07  1.579411e-07 -2.382406e-07  3.800397e-07 -6.936534e-06
-#&gt;  [5,] -1.168358e-05  1.498636e-06  2.483107e-05 -6.936534e-06  2.901260e-03
-#&gt;  [6,]  7.321564e-05  1.461360e-04  2.460298e-04  1.070329e-04  2.775175e-02
-#&gt;  [7,]  2.201479e-05  3.191463e-08  2.451188e-06 -4.426849e-08  5.152500e-04
-#&gt;  [8,] -5.200378e-04  2.666282e-04 -5.876479e-04 -4.609247e-06 -1.562354e-02
-#&gt;  [9,]  2.009948e-05  6.246522e-07  1.157621e-05  1.257099e-05 -1.267362e-03
-#&gt;                [,6]          [,7]          [,8]          [,9]
-#&gt;  [1,]  7.321564e-05  2.201479e-05 -5.200378e-04  2.009948e-05
-#&gt;  [2,]  1.461360e-04  3.191463e-08  2.666282e-04  6.246522e-07
-#&gt;  [3,]  2.460298e-04  2.451188e-06 -5.876479e-04  1.157621e-05
-#&gt;  [4,]  1.070329e-04 -4.426849e-08 -4.609247e-06  1.257099e-05
-#&gt;  [5,]  2.775175e-02  5.152500e-04 -1.562354e-02 -1.267362e-03
-#&gt;  [6,]  2.498412e+00  2.507666e-02 -5.657977e-02  1.999937e-02
-#&gt;  [7,]  2.507666e-02  1.281737e-02 -1.078908e-01  8.848303e-04
-#&gt;  [8,] -5.657977e-02 -1.078908e-01  6.793553e+00 -1.017607e-02
-#&gt;  [9,]  1.999937e-02  8.848303e-04 -1.017607e-02  9.022121e-03</div></pre>
+    <pre class="examples"><span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>returns</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>dat</span> <span class='op'>&lt;-</span> <span class='va'>returns</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>100</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>]</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># fit parametric S-vine model with Markov order 1</span></span>
+<span class='r-in'><span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'><a href='svine.html'>svine</a></span><span class='op'>(</span><span class='va'>dat</span>, p <span class='op'>=</span> <span class='fl'>1</span>, family_set <span class='op'>=</span> <span class='st'>"parametric"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Implementation of asymptotic variances</span></span>
+<span class='r-in'><span class='va'>I</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/cor.html'>cov</a></span><span class='op'>(</span><span class='fu'>svine_scores</span><span class='op'>(</span><span class='va'>dat</span>, <span class='va'>model</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>H</span> <span class='op'>&lt;-</span> <span class='fu'><a href='svine_hessian.html'>svine_hessian</a></span><span class='op'>(</span><span class='va'>dat</span>, <span class='va'>model</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>Hi</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/solve.html'>solve</a></span><span class='op'>(</span><span class='va'>H</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>Hi</span> <span class='op'><a href='https://rdrr.io/r/base/matmult.html'>%*%</a></span> <span class='va'>I</span> <span class='op'><a href='https://rdrr.io/r/base/matmult.html'>%*%</a></span> <span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span><span class='op'>(</span><span class='va'>Hi</span><span class='op'>)</span> <span class='op'>/</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>dat</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                [,1]          [,2]          [,3]          [,4]          [,5]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [1,]  1.646796e-06 -7.272344e-08  1.251305e-06 -1.910311e-07 -1.168358e-05</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [2,] -7.272344e-08  2.742702e-07 -9.648873e-08  1.579411e-07  1.498636e-06</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [3,]  1.251305e-06 -9.648873e-08  2.312842e-06 -2.382406e-07  2.483107e-05</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [4,] -1.910311e-07  1.579411e-07 -2.382406e-07  3.800397e-07 -6.936534e-06</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [5,] -1.168358e-05  1.498636e-06  2.483107e-05 -6.936534e-06  2.901260e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [6,]  7.321564e-05  1.461360e-04  2.460298e-04  1.070329e-04  2.775175e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [7,]  2.201479e-05  3.191463e-08  2.451188e-06 -4.426849e-08  5.152500e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [8,] -5.200378e-04  2.666282e-04 -5.876479e-04 -4.609247e-06 -1.562354e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [9,]  2.009948e-05  6.246522e-07  1.157621e-05  1.257099e-05 -1.267362e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                [,6]          [,7]          [,8]          [,9]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [1,]  7.321564e-05  2.201479e-05 -5.200378e-04  2.009948e-05</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [2,]  1.461360e-04  3.191463e-08  2.666282e-04  6.246522e-07</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [3,]  2.460298e-04  2.451188e-06 -5.876479e-04  1.157621e-05</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [4,]  1.070329e-04 -4.426849e-08 -4.609247e-06  1.257099e-05</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [5,]  2.775175e-02  5.152500e-04 -1.562354e-02 -1.267362e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [6,]  2.498412e+00  2.507666e-02 -5.657977e-02  1.999937e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [7,]  2.507666e-02  1.281737e-02 -1.078908e-01  8.848303e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [8,] -5.657977e-02 -1.078908e-01  6.793553e+00 -1.017607e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [9,]  1.999937e-02  8.848303e-04 -1.017607e-02  9.022121e-03</span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -193,7 +195,7 @@ second tree, etc. Duplicated parameters in the copula model are omitted.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

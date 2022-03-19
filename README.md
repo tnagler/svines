@@ -1,6 +1,5 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
 <!-- badges: start -->
 
 [![R build
@@ -24,8 +23,8 @@ The package is build on top of
 Install the development version from Github.
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("tnagler/svines")
+# install.packages("remotes")
+remotes::install_github("tnagler/svines")
 ```
 
 ## Usage
@@ -110,73 +109,62 @@ pairs(t(sim[1, , ]))
 
 ### Standard errors
 
-``` r
-# compute standard errors for each parameter
-sqrt(diag(svine_avar(returns, fit)))
-#>  [1] 0.001072565 0.002204710 1.655597069 0.076482871 0.001234424 0.003390612
-#>  [7] 1.258598849 0.077172424 0.017384606 0.556816774 0.060649114 0.569225457
-#> [13] 0.036588840 0.045142703 3.656046653
-```
-
-The standard errors correspond to (in this order): parameters of first
-margin, parameters of second margin, …., copula parameters in first tree
-(excluding duplicates), …
-
-The asymptotic variance is the basis of the bootstrap procedure in the
-paper. To generate new models from the asymptotic distribution, use
+To generate new bootstrapped models from the asymptotic distribution,
+use
 
 ``` r
-models <- svine_sim_se_models(2, fit)
+models <- svine_bootstrap_models(2, fit)
 summary(models[[1]])
 #> $margins
 #> # A data.frame: 2 x 5 
 #>  margin    name          model                     parameters loglik
-#>       1 Allianz Skew Student-t 0.0011, 0.0159, 6.0833, 0.8153     NA
-#>       2     AXA Skew Student-t 0.0011, 0.0211, 5.1912, 0.9200     NA
+#>       1 Allianz Skew Student-t 0.0004, 0.0154, 5.6714, 0.9138     NA
+#>       2     AXA Skew Student-t 0.0009, 0.0200, 3.5547, 0.9457     NA
 #> 
 #> $copula
 #> # A data.frame: 6 x 10 
-#>  tree edge conditioned conditioning var_types family rotation     parameters df
-#>     1    1        4, 3                    c,c      t        0     0.84, 3.88  2
-#>     1    2        3, 2                    c,c      t        0 0.0067, 4.6709  2
-#>     1    3        2, 1                    c,c      t        0     0.84, 3.88  2
-#>     2    1        4, 2            3       c,c    joe       90              1  1
-#>     2    2        3, 1            2       c,c  indep        0                 0
-#>     3    1        4, 1         2, 3       c,c      t        0   0.021, 7.169  2
-#>      tau
-#>   0.6400
-#>   0.0042
-#>   0.6400
-#>  -0.0045
-#>   0.0000
-#>   0.0131
+#>  tree edge conditioned conditioning var_types family rotation   parameters df
+#>     1    1        4, 3                    c,c      t        0   0.86, 3.41  2
+#>     1    2        3, 2                    c,c      t        0 0.072, 4.975  2
+#>     1    3        2, 1                    c,c      t        0   0.86, 3.41  2
+#>     2    1        4, 2            3       c,c    joe       90            1  1
+#>     2    2        3, 1            2       c,c  indep        0               0
+#>     3    1        4, 1         2, 3       c,c      t        0 0.084, 6.958  2
+#>     tau
+#>   0.662
+#>   0.046
+#>   0.662
+#>  -0.021
+#>   0.000
+#>   0.053
 summary(models[[1]])
 #> $margins
 #> # A data.frame: 2 x 5 
 #>  margin    name          model                     parameters loglik
-#>       1 Allianz Skew Student-t 0.0011, 0.0159, 6.0833, 0.8153     NA
-#>       2     AXA Skew Student-t 0.0011, 0.0211, 5.1912, 0.9200     NA
+#>       1 Allianz Skew Student-t 0.0004, 0.0154, 5.6714, 0.9138     NA
+#>       2     AXA Skew Student-t 0.0009, 0.0200, 3.5547, 0.9457     NA
 #> 
 #> $copula
 #> # A data.frame: 6 x 10 
-#>  tree edge conditioned conditioning var_types family rotation     parameters df
-#>     1    1        4, 3                    c,c      t        0     0.84, 3.88  2
-#>     1    2        3, 2                    c,c      t        0 0.0067, 4.6709  2
-#>     1    3        2, 1                    c,c      t        0     0.84, 3.88  2
-#>     2    1        4, 2            3       c,c    joe       90              1  1
-#>     2    2        3, 1            2       c,c  indep        0                 0
-#>     3    1        4, 1         2, 3       c,c      t        0   0.021, 7.169  2
-#>      tau
-#>   0.6400
-#>   0.0042
-#>   0.6400
-#>  -0.0045
-#>   0.0000
-#>   0.0131
+#>  tree edge conditioned conditioning var_types family rotation   parameters df
+#>     1    1        4, 3                    c,c      t        0   0.86, 3.41  2
+#>     1    2        3, 2                    c,c      t        0 0.072, 4.975  2
+#>     1    3        2, 1                    c,c      t        0   0.86, 3.41  2
+#>     2    1        4, 2            3       c,c    joe       90            1  1
+#>     2    2        3, 1            2       c,c  indep        0               0
+#>     3    1        4, 1         2, 3       c,c      t        0 0.084, 6.958  2
+#>     tau
+#>   0.662
+#>   0.046
+#>   0.662
+#>  -0.021
+#>   0.000
+#>   0.053
 ```
 
 ## References
 
-Nagler, T., Krüger, D., Min, A. (2020). Stationary vine copula models
-for multivariate time series. *arXiv:2008.05990 \[stat.ME\]*
-[pdf](https://arxiv.org/abs/2008.05990)
+Nagler, T., Krüger, D., Min, A. (2022). Stationary vine copula models
+for multivariate time series. *Journal of Econometrics, 227(2),
+pp. 305-324* [\[pdf\]](https://arxiv.org/abs/2008.05990)
+[\[doi\]](https://www.sciencedirect.com/science/article/pii/S0304407621003043)
