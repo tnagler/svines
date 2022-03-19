@@ -147,10 +147,12 @@ SVinecop::select_all(const Eigen::MatrixXd& data,
 }
 
 inline Eigen::MatrixXd
-SVinecop::simulate(const size_t n,
+SVinecop::simulate(size_t n,
                    const bool qrng,
                    const std::vector<int>& seeds)
 {
+  auto old_n = n;
+  n = std::max(n, p_ + 1);
   auto U = tools_stats::simulate_uniform(n, cs_dim_, qrng, seeds);
 
   // initialize first p + 1 lags
@@ -171,7 +173,7 @@ SVinecop::simulate(const size_t n,
     sim.row(i) = inverse_rosenblatt(Ui).rightCols(cs_dim_);
   }
 
-  return sim;
+  return sim.bottomRows(old_n);
 }
 
 inline Eigen::MatrixXd
@@ -323,7 +325,7 @@ SVinecop::scores(Eigen::MatrixXd u, bool step_wise, const size_t num_threads)
           u_e.col(1) = hfunc1.col(m - 1);
         }
 
-        if ((var_types[0] == "d") | (var_types[1] == "d")) {
+        if ((var_types[0] == "d") || (var_types[1] == "d")) {
           u_e.conservativeResize(b.size, 4);
           u_e.col(2) = hfunc2_sub.col(edge);
           if (m == rvine_structure_.struct_array(tree, edge, true)) {

@@ -93,4 +93,8 @@ test_that("fitting models (multivariate)", {
   expect_silent(svinecop(u, p = 2, type = "M"))
   expect_error(svinecop(u, p = 1, type = "R"))
   expect_equal(svinecop_loglik(u, sv), as.numeric(logLik(sv)), 0.1)
+  
+  # just check whether sim works with only one sample
+  expect_silent(svinecop_sim(1, 1, sv))
+  expect_silent(svinecop_sim(1, 1, sv, u))
 })

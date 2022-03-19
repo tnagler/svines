@@ -50,7 +50,7 @@ public:
                   const FitControlsVinecop& controls = FitControlsVinecop());
 
   Eigen::MatrixXd simulate(
-    const size_t n,
+    size_t n,
     const bool qrng = false,
     const std::vector<int>& seeds = std::vector<int>());
 
