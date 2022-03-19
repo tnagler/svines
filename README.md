@@ -56,21 +56,19 @@ summary(fit)
 #>       2     AXA Skew Student-t 0.00052, 0.02089, 4.35198, 0.90611   1260
 #> 
 #> $copula
-#> # A data.frame: 6 x 11 
+#> # A data.frame: 5 x 10 
 #>  tree edge conditioned conditioning var_types family rotation   parameters df
-#>     1    1        4, 3                    c,c      t        0   0.86, 3.48  2
+#>     1    1        2, 1                    c,c      t        0   0.86, 3.48  2
 #>     1    2        3, 2                    c,c      t        0 0.037, 4.893  2
-#>     1    3        2, 1                    c,c      t        0   0.86, 3.48  2
 #>     2    1        4, 2            3       c,c    joe       90          1.1  1
 #>     2    2        3, 1            2       c,c  indep        0               0
 #>     3    1        4, 1         2, 3       c,c      t        0 0.079, 8.994  2
-#>     tau loglik
-#>   0.662    NaN
-#>   0.023    NaN
-#>   0.662    NaN
-#>  -0.033    NaN
-#>   0.000    NaN
-#>   0.051    NaN
+#>     tau
+#>   0.662
+#>   0.023
+#>  -0.033
+#>   0.000
+#>   0.051
 ```
 
 ``` r
@@ -117,49 +115,45 @@ models <- svine_bootstrap_models(2, fit)
 summary(models[[1]])
 #> $margins
 #> # A data.frame: 2 x 5 
-#>  margin    name          model                         parameters loglik
-#>       1 Allianz Skew Student-t 0.00074, 0.01591, 5.86342, 0.89086     NA
-#>       2     AXA Skew Student-t     0.0013, 0.0226, 3.8041, 0.9367     NA
+#>  margin    name          model                          parameters loglik
+#>       1 Allianz Skew Student-t -0.00048, 0.01754, 3.87548, 0.86223     NA
+#>       2     AXA Skew Student-t  3.3e-05, 2.2e-02, 3.5e+00, 8.5e-01     NA
 #> 
 #> $copula
-#> # A data.frame: 6 x 10 
-#>  tree edge conditioned conditioning var_types family rotation parameters df
-#>     1    1        4, 3                    c,c      t        0 0.85, 3.33  2
-#>     1    2        3, 2                    c,c      t        0 0.04, 5.16  2
-#>     1    3        2, 1                    c,c      t        0 0.85, 3.33  2
-#>     2    1        4, 2            3       c,c    joe       90          1  1
-#>     2    2        3, 1            2       c,c  indep        0             0
-#>     3    1        4, 1         2, 3       c,c      t        0 0.12, 8.53  2
-#>      tau
-#>   0.6493
-#>   0.0257
-#>   0.6493
-#>  -0.0042
-#>   0.0000
-#>   0.0739
+#> # A data.frame: 5 x 10 
+#>  tree edge conditioned conditioning var_types family rotation   parameters df
+#>     1    1        2, 1                    c,c      t        0   0.89, 3.60  2
+#>     1    2        3, 2                    c,c      t        0 0.037, 4.364  2
+#>     2    1        4, 2            3       c,c    joe       90          1.1  1
+#>     2    2        3, 1            2       c,c  indep        0               0
+#>     3    1        4, 1         2, 3       c,c      t        0  0.04, 15.17  2
+#>     tau
+#>   0.694
+#>   0.024
+#>  -0.070
+#>   0.000
+#>   0.025
 summary(models[[1]])
 #> $margins
 #> # A data.frame: 2 x 5 
-#>  margin    name          model                         parameters loglik
-#>       1 Allianz Skew Student-t 0.00074, 0.01591, 5.86342, 0.89086     NA
-#>       2     AXA Skew Student-t     0.0013, 0.0226, 3.8041, 0.9367     NA
+#>  margin    name          model                          parameters loglik
+#>       1 Allianz Skew Student-t -0.00048, 0.01754, 3.87548, 0.86223     NA
+#>       2     AXA Skew Student-t  3.3e-05, 2.2e-02, 3.5e+00, 8.5e-01     NA
 #> 
 #> $copula
-#> # A data.frame: 6 x 10 
-#>  tree edge conditioned conditioning var_types family rotation parameters df
-#>     1    1        4, 3                    c,c      t        0 0.85, 3.33  2
-#>     1    2        3, 2                    c,c      t        0 0.04, 5.16  2
-#>     1    3        2, 1                    c,c      t        0 0.85, 3.33  2
-#>     2    1        4, 2            3       c,c    joe       90          1  1
-#>     2    2        3, 1            2       c,c  indep        0             0
-#>     3    1        4, 1         2, 3       c,c      t        0 0.12, 8.53  2
-#>      tau
-#>   0.6493
-#>   0.0257
-#>   0.6493
-#>  -0.0042
-#>   0.0000
-#>   0.0739
+#> # A data.frame: 5 x 10 
+#>  tree edge conditioned conditioning var_types family rotation   parameters df
+#>     1    1        2, 1                    c,c      t        0   0.89, 3.60  2
+#>     1    2        3, 2                    c,c      t        0 0.037, 4.364  2
+#>     2    1        4, 2            3       c,c    joe       90          1.1  1
+#>     2    2        3, 1            2       c,c  indep        0               0
+#>     3    1        4, 1         2, 3       c,c      t        0  0.04, 15.17  2
+#>     tau
+#>   0.694
+#>   0.024
+#>  -0.070
+#>   0.000
+#>   0.025
 ```
 
 ## References

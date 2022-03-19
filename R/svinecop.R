@@ -294,3 +294,46 @@ print.svinecop_dist <- function(x, ...) {
   )
   invisible(x)
 }
+
+#' @export
+summary.svinecop_dist <- function(object, 
+                                  trees = seq_len(dim(object)["trunc_lvl"]), 
+                                  ...) {
+  mat <- as_rvine_matrix(get_structure(object))
+  d <- unname(dim(object)[1])
+  cs_dim <- unname(dim(object$cs_structure)[1])
+  
+  trees <- intersect(trees, seq_len(dim(object)["trunc_lvl"]))
+  n_pcs <- cs_dim^2 * object$p + choose(cs_dim, 2)
+  mdf <- as.data.frame(matrix(NA, n_pcs, 10))
+  names(mdf) <- c(
+    "tree", "edge",
+    "conditioned", "conditioning", "var_types",
+    "family", "rotation", "parameters", "df", "tau"
+  )
+  k <- 1
+  for (t in trees) {
+    for (e in seq_len(min(d - t, cs_dim))) {
+      mdf$tree[k] <- t
+      mdf$edge[k] <- e
+      mdf$conditioned[k] <- list(c(mat[d - e + 1, e], mat[t, e]))
+      min_lag <- min(ceiling(mdf$conditioned[[k]] / cs_dim))
+      if (all(mdf$conditioned[[k]] >= cs_dim)) {
+        mdf$conditioned[[k]] <- mdf$conditioned[[k]] - (min_lag - 1) * cs_dim
+      }
+      mdf$conditioning[k] <- list(mat[rev(seq_len(t - 1)), e])
+      pc <- object$pair_copulas[[t]][[e]]
+      mdf$var_types[k] <- paste(pc$var_types, collapse = ",")
+      mdf$family[k] <- pc$family
+      mdf$rotation[k] <- pc$rotation
+      mdf$parameters[k] <- list(pc$parameters)
+      if (pc$family %in% "tll")
+        mdf$parameters[k] <- list("[30x30 grid]")
+      mdf$df[k] <- pc$npars
+      mdf$tau[k] <- par_to_ktau(pc)
+      k <- k + 1
+    }
+  }
+  class(mdf) <- c("summary_df", class(mdf))
+  mdf
+}
