@@ -107,7 +107,11 @@ test_that("fitting models (multivariate)", {
 test_that("standard errors", {
   u <- rbicop(50, bc)
   x <- qexp(u)
-  fit <- svine(x, margin_families = c("exp", "norm"), p = 0)
+  fit <- svine(x, margin_families = c("std", "norm", "exp"), p = 0)
+  models <- svine_bootstrap_models(2, fit)
+  expect_identical(summary(models[[1]])$family, summary(fit)$family)
+
+  fit <- svine(x, margin_families = "empirical", p = 0)
   models <- svine_bootstrap_models(2, fit)
   expect_identical(summary(models[[1]])$family, summary(fit)$family)
 })

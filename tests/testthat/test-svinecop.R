@@ -88,7 +88,7 @@ test_that("fitting models (multivariate)", {
                   out_vertices = sv$out_vertices,
                   in_vertices = sv$in_vertices)
   expect_equal(sv, sv2, tolerance = 0.01)
-
+  
   expect_silent(svinecop(u, p = 1, type = "D"))
   expect_silent(svinecop(u, p = 2, type = "M"))
   expect_error(svinecop(u, p = 1, type = "R"))

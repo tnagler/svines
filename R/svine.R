@@ -156,9 +156,11 @@ get_svine_dist_margin_summary <- function(margins) {
     loglik = sapply(margins, function(x) attr(x, "logLik"))
   )
   for (m in seq_along(margins)) {
-    df$parameters[m] <- list(
-      stats::setNames(as.numeric(margins[[m]]), names(margins[[m]]))
-    )
+    if (attr(margins[[m]], "model") != "empirical") {
+      df$parameters[m] <- list(
+        stats::setNames(as.numeric(margins[[m]]), names(margins[[m]]))
+      )
+    }
   }
   class(df) <- c("summary_df", class(df))
   df
@@ -174,7 +176,7 @@ to_quantiles <- function(u, margins) {
       x[, j, ] <- qmargin(u[, j, ], margins[[j]])
     }
   }
-
+  
   var_names <- names(margins)
   if (!is.null(var_names))
     colnames(x) <- var_names

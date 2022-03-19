@@ -60,10 +60,13 @@ select_margin <- function(x, families, criterion) {
   out <- if (type == "empirical") {
     F_n <- stats::ecdf(x)
     n <- length(x)
-    list(
+    fit <- list(
       p = function(x) F_n(x) * n / (n + 1),
       q = function(p) stats::quantile(F_n, probs = p)
     )
+    attr(fit, "model") <- "empirical"
+    attr(fit, "logLik") <- NA
+    fit
   } else if (all(families == "std")) {
     par <- c(mean(x), sd(x), 10)
     fn <- function(par) -sum(log(fGarch::dstd(x, par[1], par[2], par[3])))
@@ -82,7 +85,7 @@ select_margin <- function(x, families, criterion) {
     fit <- univariateML::model_select(x, families, criterion)
     fit
   }
-  structure(out, type = type, class = c(class(fit), "svine_margin"))
+  structure(out, type = type, class = c(class(out), "svine_margin"))
 }
 
 #' @importFrom stats logLik
