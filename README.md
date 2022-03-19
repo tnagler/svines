@@ -5,7 +5,7 @@
 [![R build
 status](https://github.com/tnagler/svines/workflows/R-CMD-check/badge.svg)](https://github.com/tnagler/svines/actions)
 [![Codecov test
-coverage](https://codecov.io/gh/tnagler/svines/branch/master/graph/badge.svg)](https://codecov.io/gh/tnagler/svines?branch=master)
+coverage](https://codecov.io/gh/tnagler/svines/branch/main/graph/badge.svg)](https://app.codecov.io/gh/tnagler/svines?branch=main)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/svines)](https://CRAN.R-project.org/package=svines)
 <!-- badges: end -->
@@ -117,49 +117,49 @@ models <- svine_bootstrap_models(2, fit)
 summary(models[[1]])
 #> $margins
 #> # A data.frame: 2 x 5 
-#>  margin    name          model                     parameters loglik
-#>       1 Allianz Skew Student-t 0.0004, 0.0154, 5.6714, 0.9138     NA
-#>       2     AXA Skew Student-t 0.0009, 0.0200, 3.5547, 0.9457     NA
+#>  margin    name          model                         parameters loglik
+#>       1 Allianz Skew Student-t 0.00074, 0.01591, 5.86342, 0.89086     NA
+#>       2     AXA Skew Student-t     0.0013, 0.0226, 3.8041, 0.9367     NA
 #> 
 #> $copula
 #> # A data.frame: 6 x 10 
-#>  tree edge conditioned conditioning var_types family rotation   parameters df
-#>     1    1        4, 3                    c,c      t        0   0.86, 3.41  2
-#>     1    2        3, 2                    c,c      t        0 0.072, 4.975  2
-#>     1    3        2, 1                    c,c      t        0   0.86, 3.41  2
-#>     2    1        4, 2            3       c,c    joe       90            1  1
-#>     2    2        3, 1            2       c,c  indep        0               0
-#>     3    1        4, 1         2, 3       c,c      t        0 0.084, 6.958  2
-#>     tau
-#>   0.662
-#>   0.046
-#>   0.662
-#>  -0.021
-#>   0.000
-#>   0.053
+#>  tree edge conditioned conditioning var_types family rotation parameters df
+#>     1    1        4, 3                    c,c      t        0 0.85, 3.33  2
+#>     1    2        3, 2                    c,c      t        0 0.04, 5.16  2
+#>     1    3        2, 1                    c,c      t        0 0.85, 3.33  2
+#>     2    1        4, 2            3       c,c    joe       90          1  1
+#>     2    2        3, 1            2       c,c  indep        0             0
+#>     3    1        4, 1         2, 3       c,c      t        0 0.12, 8.53  2
+#>      tau
+#>   0.6493
+#>   0.0257
+#>   0.6493
+#>  -0.0042
+#>   0.0000
+#>   0.0739
 summary(models[[1]])
 #> $margins
 #> # A data.frame: 2 x 5 
-#>  margin    name          model                     parameters loglik
-#>       1 Allianz Skew Student-t 0.0004, 0.0154, 5.6714, 0.9138     NA
-#>       2     AXA Skew Student-t 0.0009, 0.0200, 3.5547, 0.9457     NA
+#>  margin    name          model                         parameters loglik
+#>       1 Allianz Skew Student-t 0.00074, 0.01591, 5.86342, 0.89086     NA
+#>       2     AXA Skew Student-t     0.0013, 0.0226, 3.8041, 0.9367     NA
 #> 
 #> $copula
 #> # A data.frame: 6 x 10 
-#>  tree edge conditioned conditioning var_types family rotation   parameters df
-#>     1    1        4, 3                    c,c      t        0   0.86, 3.41  2
-#>     1    2        3, 2                    c,c      t        0 0.072, 4.975  2
-#>     1    3        2, 1                    c,c      t        0   0.86, 3.41  2
-#>     2    1        4, 2            3       c,c    joe       90            1  1
-#>     2    2        3, 1            2       c,c  indep        0               0
-#>     3    1        4, 1         2, 3       c,c      t        0 0.084, 6.958  2
-#>     tau
-#>   0.662
-#>   0.046
-#>   0.662
-#>  -0.021
-#>   0.000
-#>   0.053
+#>  tree edge conditioned conditioning var_types family rotation parameters df
+#>     1    1        4, 3                    c,c      t        0 0.85, 3.33  2
+#>     1    2        3, 2                    c,c      t        0 0.04, 5.16  2
+#>     1    3        2, 1                    c,c      t        0 0.85, 3.33  2
+#>     2    1        4, 2            3       c,c    joe       90          1  1
+#>     2    2        3, 1            2       c,c  indep        0             0
+#>     3    1        4, 1         2, 3       c,c      t        0 0.12, 8.53  2
+#>      tau
+#>   0.6493
+#>   0.0257
+#>   0.6493
+#>  -0.0042
+#>   0.0000
+#>   0.0739
 ```
 
 ## References
