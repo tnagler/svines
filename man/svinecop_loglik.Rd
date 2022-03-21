@@ -14,6 +14,9 @@ svinecop_loglik(u, model, cores = 1)
 \item{cores}{number of cores to use; if larger than one, computations are
 done in parallel on \code{cores} batches .}
 }
+\value{
+Returns the log-likelihood of the data for the model.
+}
 \description{
 Log-likelihood for S-vine copula models
 }

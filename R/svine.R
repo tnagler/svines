@@ -10,6 +10,13 @@
 #' @param selcrit criterion for family selection, either `"loglik"`, `"aic"`,
 #'   `"bic"`, `"mbicv"`.
 #' @param ... arguments passed to `svinecop()`.
+#' 
+#' @return Returns the fitted model as an object with classes 
+#'   `svine` and [svine_dist]. A list with entries 
+#'   - `$margins`: list of marginal models from [univariateML],
+#'   - `$copula`: an object of `svinecop_dist`.
+#'   
+#' @seealso [svine_dist], [svine_loglik], [svine_sim], [svine_bootstrap_models]
 #'
 #' @importFrom assertthat assert_that is.scalar is.string is.number is.flag
 #' @importFrom rvinecopulib as_rvine_structure
@@ -77,6 +84,13 @@ svine <- function(data, p, margin_families = univariateML::univariateML_models,
 #' @param copula the copula model; an object of class `svinecop_dist` with 
 #'   cross-sectional dimension `d`.
 #'
+#' @return Returns the model as an object with class  `svine_dist`. 
+#'   A list with entries 
+#'   - `$margins`: list of marginal models from [univariateML],
+#'   - `$copula`: an object of `svinecop_dist`.
+#'   
+#' @seealso [svine_dist], [svine_loglik], [svine_sim], [svine_bootstrap_models]
+#' 
 #' @export
 #' @examples 
 #' ## marginal objects

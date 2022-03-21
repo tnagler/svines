@@ -55,6 +55,8 @@ svine_sim <- function(n, rep, model, past = NULL, qrng = FALSE, cores = 1) {
 #' @param model model inheriting from class [svine_dist].
 #' @param cores number of cores to use; if larger than one, computations are
 #'   done in parallel on `cores` batches .
+#' @return Returns the log-likelihood of the data for the model.  
+#'  
 #' @export
 #' @examples 
 #' # load data set

@@ -13,7 +13,7 @@
 #' @param cores number of cores to use; if larger than one, computations are
 #'   done parallel over replications.
 #'   
-#' @return An `n`-by-`d`-by`rep` array, where `d` is the cross-sectional 
+#' @return An `n`-by-`d`-by-`rep` array, where `d` is the cross-sectional 
 #'   dimension of the model. This reduces to an `n`-by-`d` matrix if `rep == 1`. 
 #'
 #' @export
@@ -72,6 +72,8 @@ simplify_names <- function(model) {
 #' @param model model inheriting from class [svinecop_dist].
 #' @param cores number of cores to use; if larger than one, computations are
 #'   done in parallel on `cores` batches .
+#' @return Returns the log-likelihood of the data for the model.  
+#'   
 #' @export
 #' @examples 
 #' # load data set
@@ -98,6 +100,15 @@ svinecop_loglik <- function(u, model, cores = 1) {
 #' @param model model inheriting from class [svinecop_dist].
 #' @param cores number of cores to use; if larger than one, computations are
 #'   done in parallel on `cores` batches .
+#'   
+#' @returns A matrix containing the score vectors in its rows, where each 
+#'   row corresponds to one observation (row in `u`). The columns correspond 
+#'   to model parameters in the order: 
+#'   copula parameters of first tree, copula parameters of
+#'   second tree, etc. Duplicated parameters in the copula model are omitted.
+#'   
+#' @seealso [svinecop_hessian]
+#' 
 #' @export
 #' @examples 
 #' # load data set
@@ -119,22 +130,29 @@ svinecop_scores <- function(u, model, cores = 1) {
 }
 
 #' Expected hessian for S-vine copula models
-#' 
+#'
 #' @param u the data; should have approximately uniform margins..
 #' @param model model inheriting from class [svinecop_dist].
 #' @param cores number of cores to use; if larger than one, computations are
 #'   done in parallel on `cores` batches .
+#' @return Returns the observed Hessian matrix. Rows/columns correspond to to
+#'   model parameters in the order: copula parameters of first tree, copula
+#'   parameters of second tree, etc. Duplicated parameters in the copula model
+#'   are omitted.
+#'
+#' @seealso [svinecop_scores]
+#'
 #' @export
-#' @examples 
+#' @examples
 #' # load data set
-#' data(returns)  
-#' 
+#' data(returns)
+#'
 #' # convert to uniform margins
 #' u <- pseudo_obs(returns[1:100, 1:3])
 #'
 #' # fit parametric S-vine copula model with Markov order 1
 #' fit <- svinecop(u, p = 1, family_set = "parametric")
-#' 
+#'
 #' svinecop_loglik(u, fit)
 #' svinecop_scores(u, fit)
 #' svinecop_hessian(u, fit)

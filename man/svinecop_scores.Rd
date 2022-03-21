@@ -14,6 +14,13 @@ svinecop_scores(u, model, cores = 1)
 \item{cores}{number of cores to use; if larger than one, computations are
 done in parallel on \code{cores} batches .}
 }
+\value{
+A matrix containing the score vectors in its rows, where each
+row corresponds to one observation (row in \code{u}). The columns correspond
+to model parameters in the order:
+copula parameters of first tree, copula parameters of
+second tree, etc. Duplicated parameters in the copula model are omitted.
+}
 \description{
 Log-likelihood scores for S-vine copula models
 }
@@ -30,4 +37,7 @@ fit <- svinecop(u, p = 1, family_set = "parametric")
 svinecop_loglik(u, fit)
 svinecop_scores(u, fit)
 svinecop_hessian(u, fit)
+}
+\seealso{
+\link{svinecop_hessian}
 }

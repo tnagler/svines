@@ -49,6 +49,10 @@
 #'   printed.
 #' @param cores number of cores to use; if more than 1, estimation of pair
 #'   copulas within a tree is done in parallel.
+#'   
+#' @return Returns the fitted model as an object with classes 
+#'   `svinecop` and `svinecop_dist`. Also inherits from `vinecop`, `vinecop_dist`
+#'   such that many functions from [rvinecopulib] can be called.
 #'
 #' @importFrom assertthat assert_that is.scalar is.string is.number is.flag
 #' @importFrom rvinecopulib as_rvine_structure
@@ -212,6 +216,14 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
 #'   automatically if no structure is provided, and is equivalent to 1 if a
 #'    structure is provided.
 #' @param var_types variable types; discrete variables not (yet) allowed.
+#' 
+#' @return Returns the model as an object with classes 
+#'   `svinecop_dist`. Also inherits from `vinecop_dist`
+#'   such that many functions from [rvinecopulib] can be called.
+#'   
+#' @seealso [svinecop_loglik], [svinecop_sim], [svinecop_hessian], 
+#'   [svinecop_scores]
+#'
 #'
 #' @export
 #' @importFrom assertthat is.count

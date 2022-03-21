@@ -26,6 +26,14 @@ Can also be \code{"empirical"} for empirical cdfs.}
 
 \item{...}{arguments passed to \code{svinecop()}.}
 }
+\value{
+Returns the fitted model as an object with classes
+\code{svine} and \link{svine_dist}. A list with entries
+\itemize{
+\item \verb{$margins}: list of marginal models from \link{univariateML},
+\item \verb{$copula}: an object of \code{svinecop_dist}.
+}
+}
 \description{
 Automated fitting or creation of custom S-vine distribution models
 }
@@ -42,4 +50,7 @@ contour(fit$copula)
 logLik(fit)
 
 pairs(svine_sim(500, rep = 1, fit))
+}
+\seealso{
+\link{svine_dist}, \link{svine_loglik}, \link{svine_sim}, \link{svine_bootstrap_models}
 }

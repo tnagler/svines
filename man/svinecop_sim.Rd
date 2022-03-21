@@ -25,7 +25,7 @@ sequence in higher dimensions (default \code{qrng = FALSE}).}
 done parallel over replications.}
 }
 \value{
-An \code{n}-by-\code{d}-by\code{rep} array, where \code{d} is the cross-sectional
+An \code{n}-by-\code{d}-by-\code{rep} array, where \code{d} is the cross-sectional
 dimension of the model. This reduces to an \code{n}-by-\code{d} matrix if \code{rep == 1}.
 }
 \description{

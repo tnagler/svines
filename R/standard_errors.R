@@ -79,10 +79,13 @@ svine_hessian <- function(x, model, cores = 1) {
 #' Bootstrap S-vine models
 #' 
 #' Computes bootstrap replicates of a given model using the one-step block 
-#' multiplier bootstrap of Nagler et. al (2021).
+#' multiplier bootstrap of Nagler et. al (2022).
 #'
 #' @param n_models number of bootstrap replicates.
 #' @param model the initial fitted model
+#' 
+#' @return A list of length `n_models`, with each entry representing one 
+#'   bootstrapped model as object of class [svine].
 #'
 #' @export
 #'

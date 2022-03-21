@@ -12,6 +12,14 @@ svine_dist(margins, copula)
 \item{copula}{the copula model; an object of class \code{svinecop_dist} with
 cross-sectional dimension \code{d}.}
 }
+\value{
+Returns the model as an object with class  \code{svine_dist}.
+A list with entries
+\itemize{
+\item \verb{$margins}: list of marginal models from \link{univariateML},
+\item \verb{$copula}: an object of \code{svinecop_dist}.
+}
+}
 \description{
 Custom S-vine distribution models
 }
@@ -45,4 +53,7 @@ cop <- svinecop_dist(
 model <- svine_dist(margins = list(univ1, univ2), copula = cop)
 summary(model)
 
+}
+\seealso{
+\link{svine_dist}, \link{svine_loglik}, \link{svine_sim}, \link{svine_bootstrap_models}
 }

@@ -14,12 +14,18 @@ svinecop_hessian(u, model, cores = 1)
 \item{cores}{number of cores to use; if larger than one, computations are
 done in parallel on \code{cores} batches .}
 }
+\value{
+Returns the observed Hessian matrix. Rows/columns correspond to to
+model parameters in the order: copula parameters of first tree, copula
+parameters of second tree, etc. Duplicated parameters in the copula model
+are omitted.
+}
 \description{
 Expected hessian for S-vine copula models
 }
 \examples{
 # load data set
-data(returns)  
+data(returns)
 
 # convert to uniform margins
 u <- pseudo_obs(returns[1:100, 1:3])
@@ -30,4 +36,7 @@ fit <- svinecop(u, p = 1, family_set = "parametric")
 svinecop_loglik(u, fit)
 svinecop_scores(u, fit)
 svinecop_hessian(u, fit)
+}
+\seealso{
+\link{svinecop_scores}
 }

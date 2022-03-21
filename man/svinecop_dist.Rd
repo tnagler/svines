@@ -33,6 +33,11 @@ structure is provided.}
 
 \item{var_types}{variable types; discrete variables not (yet) allowed.}
 }
+\value{
+Returns the model as an object with classes
+\code{svinecop_dist}. Also inherits from \code{vinecop_dist}
+such that many functions from \link{rvinecopulib} can be called.
+}
 \description{
 Custom S-vine models
 }
@@ -53,4 +58,8 @@ pcs <- list(
 
 cop <- svinecop_dist(
   pcs, cs_struct, p = 1, out_vertices = 1:2, in_vertices = 1:2)
+}
+\seealso{
+\link{svinecop_loglik}, \link{svinecop_sim}, \link{svinecop_hessian},
+\link{svinecop_scores}
 }
