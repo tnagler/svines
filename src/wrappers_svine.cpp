@@ -169,36 +169,27 @@ svinecop_sim_cpp(const Rcpp::List& svinecop_r,
     for (size_t i = 0; i < rep; i++) {
       new_seeds[i].resize(10);
       for (int k = 0; k < 10; k++)
-        new_seeds[i][k] = std::floor(tmp_seeds(i, k) * 1e10);
+        new_seeds[i][k] = 
+          std::floor(tmp_seeds(i, k) * std::numeric_limits<int>::max());
     }
   }
 
   auto cs_dim = sv_cpp.get_cs_dim();
   Eigen::MatrixXd sim(n, cs_dim * rep);
   
-  for (int r = 0; r < rep; r++) {
-        if (data.size() == 0) {
-          sim.block(0, cs_dim * r, n, cs_dim) =
-            sv_cpp.as_continuous().simulate(n, qrng, new_seeds[r]);
-        } else {
-          sim.block(0, cs_dim * r, n, cs_dim) =
-            sv_cpp.as_continuous().simulate_ahead(n, data, qrng, new_seeds[r]);
-        }
-  }
-  
-  // RcppThread::parallelFor(
-  //   0,
-  //   rep,
-  //   [&](size_t r) {
-  //     if (data.size() == 0) {
-  //       sim.block(0, cs_dim * r, n, cs_dim) =
-  //         sv_cpp.as_continuous().simulate(n, qrng, new_seeds[r]);
-  //     } else {
-  //       sim.block(0, cs_dim * r, n, cs_dim) =
-  //       sv_cpp.as_continuous().simulate_ahead(n, data, qrng, new_seeds[r]);
-  //     }
-  //   },
-  //   cores);
+  RcppThread::parallelFor(
+    0,
+    rep,
+    [&](size_t r) {
+      if (data.size() == 0) {
+        sim.block(0, cs_dim * r, n, cs_dim) =
+          sv_cpp.as_continuous().simulate(n, qrng, new_seeds[r]);
+      } else {
+        sim.block(0, cs_dim * r, n, cs_dim) =
+        sv_cpp.as_continuous().simulate_ahead(n, data, qrng, new_seeds[r]);
+      }
+    },
+    cores);
 
   return sim;
 }
