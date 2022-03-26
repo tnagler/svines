@@ -132,6 +132,12 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
   is_structure_provided <- !(is.scalar(cs_structure) && is.na(cs_structure))
   if (is_structure_provided) {
     cs_structure <- as_rvine_structure(cs_structure)
+    if (any(is.na(c(in_vertices, out_vertices)))) {
+      stop("must specifiy in-/out-vertices if cs_structure is given.")
+    }
+  } else {
+    in_vertices <- out_vertices <- 0
+    cs_structure <- list()
   }
 
   ## fit and select copula model

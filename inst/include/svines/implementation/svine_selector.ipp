@@ -304,6 +304,7 @@ SVineStructureSelector::add_allowed_connections(VineTree& tree, size_t t)
     auto e = boost::add_edge(v0, v1, w, tree).first;
     tree[e].weight = w;
     tree[e].crit = 1 - w;
+    tree[e].fit_id = 0.0;
   };
   auto nv = boost::num_vertices(tree);
   if (t == 1) {
