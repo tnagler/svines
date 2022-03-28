@@ -612,6 +612,8 @@ inline Eigen::MatrixXd
 SVinecop::get_diff_pars(const Bicop& bicop) const
 {
   Eigen::VectorXd pars = bicop.get_parameters();
+  if (pars.size() == 0)
+    return Eigen::MatrixXd(2, 0);
   Eigen::MatrixXd dpars(2, pars.size());
   dpars.row(0) =
     (pars.array() - 1e-3).cwiseMax(bicop.get_parameters_lower_bounds().array());
