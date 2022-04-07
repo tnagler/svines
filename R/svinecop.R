@@ -332,14 +332,12 @@ summary.svinecop_dist <- function(object,
   )
   k <- 1
   for (t in trees) {
-    for (e in seq_len(min(d - t, cs_dim))) {
+    e_unique <- rev(rev(seq_len(d - t))[seq_len(min(cs_dim, d - t))])
+    eid <- 0
+    for (e in e_unique) {
       mdf$tree[k] <- t
-      mdf$edge[k] <- e
+      mdf$edge[k] <- eid <- eid + 1
       mdf$conditioned[k] <- list(c(mat[d - e + 1, e], mat[t, e]))
-      min_lag <- min(ceiling(mdf$conditioned[[k]] / cs_dim))
-      if (all(mdf$conditioned[[k]] >= cs_dim)) {
-        mdf$conditioned[[k]] <- mdf$conditioned[[k]] - (min_lag - 1) * cs_dim
-      }
       mdf$conditioning[k] <- list(mat[rev(seq_len(t - 1)), e])
       pc <- object$pair_copulas[[t]][[e]]
       mdf$var_types[k] <- paste(pc$var_types, collapse = ",")
@@ -353,6 +351,7 @@ summary.svinecop_dist <- function(object,
       k <- k + 1
     }
   }
+  mdf <- mdf[complete.cases(mdf[, 1]), ]
   class(mdf) <- c("summary_df", class(mdf))
   mdf
 }
