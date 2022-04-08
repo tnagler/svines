@@ -351,7 +351,7 @@ summary.svinecop_dist <- function(object,
       k <- k + 1
     }
   }
-  mdf <- mdf[complete.cases(mdf[, 1]), ]
+  mdf <- mdf[stats::complete.cases(mdf[, 1]), ]
   class(mdf) <- c("summary_df", class(mdf))
   mdf
 }
