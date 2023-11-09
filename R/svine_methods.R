@@ -95,6 +95,7 @@ svine_loglik <- function(x, model, cores = 1) {
 logLik.svine <- function(object, ...) {
   ll <- object$loglik
   attr(ll, "df") <- object$npars
+  attr(ll, "nobs") <- object$copula$nobs
   ll
 }
 
