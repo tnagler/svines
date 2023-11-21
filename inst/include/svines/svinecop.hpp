@@ -67,6 +67,9 @@ public:
     const bool qrng = false,
     const std::vector<int>& seeds = std::vector<int>());
 
+  Eigen::MatrixXd pseudo_residuals(const Eigen::MatrixXd& data, 
+                                   size_t num_threads);
+  
   Eigen::VectorXd pdf(const Eigen::MatrixXd&, const size_t = 1) const;
 
   double loglik(const Eigen::MatrixXd& u, const size_t num_threads = 1);

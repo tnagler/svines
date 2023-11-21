@@ -6,7 +6,7 @@
 \alias{svines-package}
 \title{svines: Stationary Vine Copula Models}
 \description{
-Provides functionality to fit and simulate from stationary vine copula models for time series, see Nagler et al. (2022) <doi:10.1016/j.jeconom.2021.11.015>.
+Provides functionality to fit and simulate from stationary vine copula models for time series, see Nagler et al. (2022) \doi{10.1016/j.jeconom.2021.11.015}.
 }
 \seealso{
 Useful links:

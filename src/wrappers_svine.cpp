@@ -196,6 +196,16 @@ svinecop_sim_cpp(const Rcpp::List& svinecop_r,
 
 // [[Rcpp::export()]]
 Eigen::MatrixXd
+svinecop_pseudo_residuals_cpp(const Eigen::MatrixXd& u,
+                              const Rcpp::List& svinecop_r,
+                              const size_t num_threads)
+{
+  return svinecop_wrap(svinecop_r).pseudo_residuals(u, num_threads);
+}
+
+
+// [[Rcpp::export()]]
+Eigen::MatrixXd
 svinecop_scores_cpp(const Eigen::MatrixXd& u,
                     const Rcpp::List& svinecop_r,
                     const size_t num_threads)
