@@ -1,6 +1,6 @@
 Package: svines
 Title: Stationary Vine Copula Models
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: 
     person(given = "Thomas",
            family = "Nagler",
