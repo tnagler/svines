@@ -91,7 +91,7 @@ svine_loglik <- function(x, model, cores = 1) {
 #   svinecop_cond_cdf_cpp(u, conditioned - 1, model, cores)
 # }
 
-#' @export
+#' @exportS3Method
 logLik.svine <- function(object, ...) {
   ll <- object$loglik
   attr(ll, "df") <- object$npars

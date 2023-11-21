@@ -89,6 +89,7 @@ select_margin <- function(x, families, criterion) {
 }
 
 #' @importFrom stats logLik
+#' @exportS3Method 
 logLik.svine_margin <- function(object) {
   if (attr(object, "type") == "empirical") {
     structure(NA, df = NA)
