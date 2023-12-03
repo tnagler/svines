@@ -1,5 +1,5 @@
-Fixes issue with deprecated `result_of` by enforcing CXX14 standard 
-until the issue is resolved upstream in the Eigen C++ library.
+Fixes issue with false positive `stringop-overread` by enforcing CXX11 standard 
+until this is resolved upstream in the Eigen C++ library.
 
 ## Test environments
 * ubuntu 20.04 (release, devel)
@@ -9,4 +9,4 @@ until the issue is resolved upstream in the Eigen C++ library.
 
 ## R CMD check results
 
-0 errors | 0 warnings | 1 notes
+0 errors | 0 warnings | 2 notes
