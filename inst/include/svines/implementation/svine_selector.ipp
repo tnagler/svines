@@ -491,13 +491,13 @@ SVineStructureSelector::finalize(size_t trunc_lvl)
   if (d_ == cs_dim_) {
     trees_ = trees_opt_;
     auto mat = vine_struct_.get_matrix();
-    cs_struct_ = RVineStructure(mat.block(0, d_ - cs_dim_, cs_dim_, cs_dim_));
+    cs_struct_ = RVineStructure(mat.block(0, d_ - cs_dim_, cs_dim_, cs_dim_).eval());
     in_vertices_ = tools_stl::rev(cs_struct_.get_order());
     out_vertices_ = in_vertices_;
   } else {
     finalize_svine(trunc_lvl);
     auto mat = vine_struct_.get_matrix();
-    cs_struct_ = RVineStructure(mat.block(0, d_ - cs_dim_, cs_dim_, cs_dim_));
+    cs_struct_ = RVineStructure(mat.block(0, d_ - cs_dim_, cs_dim_, cs_dim_).eval());
   }
 }
 
