@@ -220,6 +220,19 @@ SVinecop::simulate_ahead(size_t n_ahead,
   return sim.bottomRows(n_ahead);
 }
 
+inline Eigen::MatrixXd
+SVinecop::pseudo_residuals(const Eigen::MatrixXd& data, size_t num_threads)
+{
+  check_cond_data(data);
+  check_data_dim(data);
+
+  Eigen::MatrixXd data_spr = data;
+  for (size_t lag = 0; lag < p_; ++lag) {
+    data_spr = spread_lag(data_spr, cs_dim_);
+  }
+  return rosenblatt(data_spr, num_threads).rightCols(cs_dim_);;
+}
+
 inline Eigen::VectorXd
 SVinecop::pdf(const Eigen::MatrixXd&, const size_t) const
 {

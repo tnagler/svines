@@ -91,10 +91,46 @@ svine_loglik <- function(x, model, cores = 1) {
 #   svinecop_cond_cdf_cpp(u, conditioned - 1, model, cores)
 # }
 
-#' @export
+#' @exportS3Method
 logLik.svine <- function(object, ...) {
   ll <- object$loglik
   attr(ll, "df") <- object$npars
+  attr(ll, "nobs") <- object$copula$nobs
   ll
 }
 
+
+#' Pseudo-residuals of S-vine models
+#' 
+#' Pseudo-residuals are defined as the Rosenblatt transform of the data, 
+#' conditional on the past. Under a correctly specified model, they are
+#' approximately \emph{iid} uniform on \eqn{[0, 1]^d}.
+#' 
+#' @param x the data.
+#' @param model model inheriting from class [svine_dist].
+#' @param cores number of cores to use; if larger than one, computations are
+#'   done in parallel on `cores` batches .
+#' @return Returns a multivariate time series of pseudo-residuals  
+#' 
+#' @examples 
+#' # load data set
+#' data(returns)  
+#'
+#' # convert to pseudo observations with empirical cdf for marginal distributions
+#' u <- pseudo_obs(returns[1:100, 1:3]) 
+#'
+#' # fit parametric S-vine copula model with Markov order 1
+#' fit <- svinecop(u, p = 1, family_set = "parametric")
+#' 
+#' # compute pseudo-residuals
+#' # (should be independent uniform across variables and time)
+#' v <- svinecop_pseudo_residuals(u, fit)
+#' pairs(cbind(v[-1, ], v[-nrow(v), ]))
+#'
+#' @export
+svine_pseudo_residuals <- function(x, model, cores = 1) {
+  assert_that(inherits(model, "svine_dist"))
+  x <- if_vec_to_matrix(x, length(model$margins) == 1)
+  u <- to_unif(x, model$margins)
+  svinecop_pseudo_residuals_cpp(u, model$copula, cores)
+}

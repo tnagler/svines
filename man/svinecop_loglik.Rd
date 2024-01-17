@@ -7,7 +7,7 @@
 svinecop_loglik(u, model, cores = 1)
 }
 \arguments{
-\item{u}{the data; should have approximately uniform margins..}
+\item{u}{the data; should have approximately uniform margins.}
 
 \item{model}{model inheriting from class \link{svinecop_dist}.}
 

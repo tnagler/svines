@@ -68,7 +68,7 @@ simplify_names <- function(model) {
 
 #' Log-likelihood for S-vine copula models
 #' 
-#' @param u the data; should have approximately uniform margins..
+#' @param u the data; should have approximately uniform margins.
 #' @param model model inheriting from class [svinecop_dist].
 #' @param cores number of cores to use; if larger than one, computations are
 #'   done in parallel on `cores` batches .
@@ -171,3 +171,37 @@ svinecop_hessian <- function(u, model, cores = 1) {
 #   u <- if_vec_to_matrix(u, dim(svinecop$cs_structure)[1] == 1)
 #   svinecop_cond_cdf_cpp(u, conditioned - 1, svinecop, cores)
 # }
+
+#' Pseudo-residuals of S-vine copula models
+#' 
+#' Pseudo-residuals are defined as the Rosenblatt transform of the data, 
+#' conditional on the past. Under a correctly specified model, they are
+#' approximately \emph{iid} uniform on \eqn{[0, 1]^d}.
+#' 
+#' @param u the data; should have approximately uniform margins.
+#' @param model model inheriting from class [svinecop_dist].
+#' @param cores number of cores to use; if larger than one, computations are
+#'   done in parallel on `cores` batches .
+#' @return Returns a multivariate time series of pseudo-residuals  
+#' 
+#' @examples 
+#' # load data set
+#' data(returns)  
+#'
+#' # convert to pseudo observations with empirical cdf for marginal distributions
+#' u <- pseudo_obs(returns[1:100, 1:3]) 
+#'
+#' # fit parametric S-vine copula model with Markov order 1
+#' fit <- svinecop(u, p = 1, family_set = "parametric")
+#' 
+#' # compute pseudo-residuals
+#' # (should be independent uniform across variables and time)
+#' v <- svinecop_pseudo_residuals(u, fit)
+#' pairs(cbind(v[-1, ], v[-nrow(v), ]))
+#'
+#' @export
+svinecop_pseudo_residuals <- function(u, model, cores = 1) {
+  assert_that(inherits(model, "svinecop_dist"))
+  u <- if_vec_to_matrix(u, dim(model$cs_structure)[1] == 1)
+  svinecop_pseudo_residuals_cpp(u, model, cores)
+}
