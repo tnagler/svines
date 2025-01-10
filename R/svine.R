@@ -4,7 +4,7 @@
 #'
 #' @param data a matrix or data.frame of data.
 #' @param p the Markov order.
-#' @param margin_families either a vector of [univariateML] families to select 
+#' @param margin_families either a vector of [univariateML::univariateML_models] to select 
 #'   from (used for every margin) or a list with one entry for every variable. 
 #'   Can also be `"empirical"` for empirical cdfs.
 #' @param selcrit criterion for family selection, either `"loglik"`, `"aic"`,
@@ -13,7 +13,7 @@
 #' 
 #' @return Returns the fitted model as an object with classes 
 #'   `svine` and [svine_dist]. A list with entries 
-#'   - `$margins`: list of marginal models from [univariateML],
+#'   - `$margins`: list of marginal models from [univariateML::univariateML_models],
 #'   - `$copula`: an object of `svinecop_dist`.
 #'   
 #' @seealso [svine_dist], [svine_loglik], [svine_sim], [svine_bootstrap_models]
@@ -86,7 +86,7 @@ svine <- function(data, p, margin_families = univariateML::univariateML_models,
 #'
 #' @return Returns the model as an object with class  `svine_dist`. 
 #'   A list with entries 
-#'   - `$margins`: list of marginal models from [univariateML],
+#'   - `$margins`: list of marginal models from [univariateML::univariateML_models],
 #'   - `$copula`: an object of `svinecop_dist`.
 #'   
 #' @seealso [svine_dist], [svine_loglik], [svine_sim], [svine_bootstrap_models]

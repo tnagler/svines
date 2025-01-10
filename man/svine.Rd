@@ -17,7 +17,7 @@ svine(
 
 \item{p}{the Markov order.}
 
-\item{margin_families}{either a vector of \link{univariateML} families to select
+\item{margin_families}{either a vector of \link[univariateML:univariateML_models]{univariateML::univariateML_models} to select
 from (used for every margin) or a list with one entry for every variable.
 Can also be \code{"empirical"} for empirical cdfs.}
 
@@ -30,7 +30,7 @@ Can also be \code{"empirical"} for empirical cdfs.}
 Returns the fitted model as an object with classes
 \code{svine} and \link{svine_dist}. A list with entries
 \itemize{
-\item \verb{$margins}: list of marginal models from \link{univariateML},
+\item \verb{$margins}: list of marginal models from \link[univariateML:univariateML_models]{univariateML::univariateML_models},
 \item \verb{$copula}: an object of \code{svinecop_dist}.
 }
 }

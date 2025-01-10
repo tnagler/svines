@@ -36,7 +36,7 @@ structure is provided.}
 \value{
 Returns the model as an object with classes
 \code{svinecop_dist}. Also inherits from \code{vinecop_dist}
-such that many functions from \link{rvinecopulib} can be called.
+such that many functions from \code{rvinecopulib} can be called.
 }
 \description{
 Custom S-vine models

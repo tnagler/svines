@@ -121,10 +121,10 @@ svinecop_select_cpp(const Eigen::MatrixXd& data,
                                   psi0,
                                   preselect_families,
                                   select_truncation_level,
-                                  select_threshold,
-                                  show_trace,
-                                  num_threads);
-
+                                  select_threshold);
+  fit_controls.set_show_trace(show_trace);
+  fit_controls.set_num_threads(num_threads);
+  
   SVinecop svine(var_types.size(), p, var_types);
   if (is_structure_provided) {
     svine = SVinecop(rvine_structure_wrap(structure, false),

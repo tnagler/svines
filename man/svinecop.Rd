@@ -100,7 +100,7 @@ copulas within a tree is done in parallel.}
 \value{
 Returns the fitted model as an object with classes
 \code{svinecop} and \code{svinecop_dist}. Also inherits from \code{vinecop}, \code{vinecop_dist}
-such that many functions from \link{rvinecopulib} can be called.
+such that many functions from \code{rvinecopulib} can be called.
 }
 \description{
 Automated fitting or creation of custom S-vine copula models
