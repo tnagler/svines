@@ -571,8 +571,8 @@ SVineFamilySelector::add_lag()
     auto old_tree = trees_[t];
     for (auto v : boost::vertices(old_tree))
       duplicate_vertex(v, trees_[t]);
-//    for (auto e : boost::edges(old_tree))
-//      duplicate_edge(e, trees_[t]);
+    for (auto e : boost::edges(old_tree))
+      duplicate_edge(e, trees_[t]);
   }
 
   // update trees and structure
