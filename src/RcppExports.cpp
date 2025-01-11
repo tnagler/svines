@@ -24,7 +24,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // svinecop_select_cpp
-Rcpp::List svinecop_select_cpp(const Eigen::MatrixXd& data, size_t p, const std::vector<std::string>& var_types, std::vector<size_t> out_vertices, std::vector<size_t> in_vertices, bool is_structure_provided, Rcpp::List& structure, std::vector<std::string> family_set, std::string par_method, std::string nonpar_method, double mult, int trunc_lvl, std::string tree_criterion, double threshold, std::string selection_criterion, const Eigen::VectorXd& weights, double psi0, bool select_trunc_lvl, bool select_threshold, bool preselect_families, bool show_trace, size_t num_threads);
+Rcpp::List svinecop_select_cpp(const Eigen::MatrixXd& data, size_t p, const std::vector<std::string>& var_types, const std::vector<size_t>& out_vertices, const std::vector<size_t>& in_vertices, bool is_structure_provided, Rcpp::List& structure, const std::vector<std::string>& family_set, std::string par_method, std::string nonpar_method, double mult, int trunc_lvl, std::string tree_criterion, double threshold, std::string selection_criterion, const Eigen::VectorXd& weights, double psi0, bool select_trunc_lvl, bool select_threshold, bool preselect_families, bool show_trace, size_t num_threads);
 RcppExport SEXP _svines_svinecop_select_cpp(SEXP dataSEXP, SEXP pSEXP, SEXP var_typesSEXP, SEXP out_verticesSEXP, SEXP in_verticesSEXP, SEXP is_structure_providedSEXP, SEXP structureSEXP, SEXP family_setSEXP, SEXP par_methodSEXP, SEXP nonpar_methodSEXP, SEXP multSEXP, SEXP trunc_lvlSEXP, SEXP tree_criterionSEXP, SEXP thresholdSEXP, SEXP selection_criterionSEXP, SEXP weightsSEXP, SEXP psi0SEXP, SEXP select_trunc_lvlSEXP, SEXP select_thresholdSEXP, SEXP preselect_familiesSEXP, SEXP show_traceSEXP, SEXP num_threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -32,11 +32,11 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type data(dataSEXP);
     Rcpp::traits::input_parameter< size_t >::type p(pSEXP);
     Rcpp::traits::input_parameter< const std::vector<std::string>& >::type var_types(var_typesSEXP);
-    Rcpp::traits::input_parameter< std::vector<size_t> >::type out_vertices(out_verticesSEXP);
-    Rcpp::traits::input_parameter< std::vector<size_t> >::type in_vertices(in_verticesSEXP);
+    Rcpp::traits::input_parameter< const std::vector<size_t>& >::type out_vertices(out_verticesSEXP);
+    Rcpp::traits::input_parameter< const std::vector<size_t>& >::type in_vertices(in_verticesSEXP);
     Rcpp::traits::input_parameter< bool >::type is_structure_provided(is_structure_providedSEXP);
     Rcpp::traits::input_parameter< Rcpp::List& >::type structure(structureSEXP);
-    Rcpp::traits::input_parameter< std::vector<std::string> >::type family_set(family_setSEXP);
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type family_set(family_setSEXP);
     Rcpp::traits::input_parameter< std::string >::type par_method(par_methodSEXP);
     Rcpp::traits::input_parameter< std::string >::type nonpar_method(nonpar_methodSEXP);
     Rcpp::traits::input_parameter< double >::type mult(multSEXP);
