@@ -185,32 +185,32 @@ SVineStructureSelector::add_lag()
   data_ = spread_lag(data_, cs_dim_);
   if (controls_.get_weights().size())
     controls_.set_weights(controls_.get_weights().head(data_.rows()));
-    auto vt0 = var_types_;
-//    vt0.resize(cs_dim_);
-//  var_types_ = tools_stl::cat(var_types_, vt0);
-//  trees_.resize(d_);
-//  trees_opt_.resize(d_);
+  auto vt0 = var_types_;
+  vt0.resize(cs_dim_);
+  var_types_ = tools_stl::cat(var_types_, vt0);
+  trees_.resize(d_);
+  trees_opt_.resize(d_);
 
-//  vine_struct_ = RVineStructure(tools_stl::seq_int(1, d_), 1, false);
-//
-//  trees_[0] = make_base_tree(data_);
-//  // add vertices and edges for lagged variable
-//  for (size_t t = 1; t < trees_.size(); t++) {
-//    auto old_tree = trees_[t];
-//    auto new_tree = edges_as_vertices(trees_[t - 1]);
-//
-//    duplicate_edges(old_tree, new_tree, t);
-//    trees_opt_[t] = new_tree;
-//    min_spanning_tree(new_tree);
-//    add_edge_info(new_tree);
-//    select_pair_copulas(new_tree, trees_opt_[t]);
-//
-//    trees_[t] = new_tree;
-//    if (controls_.get_show_trace()) {
-//      std::cout << "** Tree: " << t - 1 << std::endl;
-//      print_pair_copulas_of_tree(t - 1);
-//    }
-//  }
+  vine_struct_ = RVineStructure(tools_stl::seq_int(1, d_), 1, false);
+
+  trees_[0] = make_base_tree(data_);
+  // add vertices and edges for lagged variable
+  for (size_t t = 1; t < trees_.size(); t++) {
+    auto old_tree = trees_[t];
+    auto new_tree = edges_as_vertices(trees_[t - 1]);
+
+    duplicate_edges(old_tree, new_tree, t);
+    trees_opt_[t] = new_tree;
+    min_spanning_tree(new_tree);
+    add_edge_info(new_tree);
+    select_pair_copulas(new_tree, trees_opt_[t]);
+
+    trees_[t] = new_tree;
+    if (controls_.get_show_trace()) {
+      std::cout << "** Tree: " << t - 1 << std::endl;
+      print_pair_copulas_of_tree(t - 1);
+    }
+  }
 }
 
 VineTree
@@ -563,25 +563,25 @@ SVineFamilySelector::add_lag()
   d_ += cs_dim_;
   auto vt0 = var_types_;
   vt0.resize(cs_dim_);
-  var_types_ = tools_stl::cat(var_types_, vt0);
-
-  // add vertices and edges for lagged variable
-  for (size_t t = 1; t < trees_.size(); t++) {
-    auto old_tree = trees_[t];
-    for (auto v : boost::vertices(old_tree))
-      duplicate_vertex(v, trees_[t]);
-    for (auto e : boost::edges(old_tree))
-      duplicate_edge(e, trees_[t]);
-  }
-
-  // update trees and structure
-  trees_opt_ = trees_;
-  trees_ = std::vector<VineTree>(1);
-  vine_struct_ = SVineStructure(cs_struct_, lag_, out_vertices_, in_vertices_);
-  data_ = spread_lag(data_, cs_dim_);
-  if (controls_.get_weights().size())
-    controls_.set_weights(controls_.get_weights().head(data_.rows()));
-  controls_.set_trunc_lvl(std::numeric_limits<size_t>::max());
+//  var_types_ = tools_stl::cat(var_types_, vt0);
+//
+//  // add vertices and edges for lagged variable
+//  for (size_t t = 1; t < trees_.size(); t++) {
+//    auto old_tree = trees_[t];
+//    for (auto v : boost::vertices(old_tree))
+//      duplicate_vertex(v, trees_[t]);
+//    for (auto e : boost::edges(old_tree))
+//      duplicate_edge(e, trees_[t]);
+//  }
+//
+//  // update trees and structure
+//  trees_opt_ = trees_;
+//  trees_ = std::vector<VineTree>(1);
+//  vine_struct_ = SVineStructure(cs_struct_, lag_, out_vertices_, in_vertices_);
+//  data_ = spread_lag(data_, cs_dim_);
+//  if (controls_.get_weights().size())
+//    controls_.set_weights(controls_.get_weights().head(data_.rows()));
+//  controls_.set_trunc_lvl(std::numeric_limits<size_t>::max());
 }
 
 inline Eigen::MatrixXd
