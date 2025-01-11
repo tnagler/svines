@@ -564,16 +564,16 @@ SVineFamilySelector::add_lag()
   auto vt0 = var_types_;
   vt0.resize(cs_dim_);
   var_types_ = tools_stl::cat(var_types_, vt0);
-//
-//  // add vertices and edges for lagged variable
-//  for (size_t t = 1; t < trees_.size(); t++) {
-//    auto old_tree = trees_[t];
-//    for (auto v : boost::vertices(old_tree))
-//      duplicate_vertex(v, trees_[t]);
-//    for (auto e : boost::edges(old_tree))
-//      duplicate_edge(e, trees_[t]);
-//  }
-//
+
+  // add vertices and edges for lagged variable
+  for (size_t t = 1; t < trees_.size(); t++) {
+    auto old_tree = trees_[t];
+    for (auto v : boost::vertices(old_tree))
+      duplicate_vertex(v, trees_[t]);
+    for (auto e : boost::edges(old_tree))
+      duplicate_edge(e, trees_[t]);
+  }
+
 //  // update trees and structure
 //  trees_opt_ = trees_;
 //  trees_ = std::vector<VineTree>(1);
