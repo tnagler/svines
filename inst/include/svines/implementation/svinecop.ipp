@@ -119,10 +119,10 @@ SVinecop::select_families(const Eigen::MatrixXd& data,
                                                vt0);
 
     selector.select_all_trees(data);
-//    for (size_t lag = 1; lag <= p_; lag++) {
-//      selector.add_lag();
-//      selector.select_all_trees(selector.data());
-//    }
+    for (size_t lag = 1; lag <= p_; lag++) {
+      selector.add_lag();
+      // selector.select_all_trees(selector.data());
+    }
 
 //    finalize_fit(selector);
 //    loglik_ = this->loglik(data);
