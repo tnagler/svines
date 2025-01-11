@@ -574,10 +574,10 @@ SVineFamilySelector::add_lag()
       duplicate_edge(e, trees_[t]);
   }
 
-//  // update trees and structure
-//  trees_opt_ = trees_;
-//  trees_ = std::vector<VineTree>(1);
-//  vine_struct_ = SVineStructure(cs_struct_, lag_, out_vertices_, in_vertices_);
+  // update trees and structure
+  trees_opt_ = trees_;
+  trees_ = std::vector<VineTree>(1);
+  vine_struct_ = SVineStructure(cs_struct_, lag_, out_vertices_, in_vertices_);
 //  data_ = spread_lag(data_, cs_dim_);
 //  if (controls_.get_weights().size())
 //    controls_.set_weights(controls_.get_weights().head(data_.rows()));
