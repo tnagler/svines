@@ -114,16 +114,16 @@ svinecop_select_cpp(const Eigen::MatrixXd& data,
   fit_controls.set_num_threads(num_threads);
   
   SVinecop svine(var_types.size(), p, var_types);
-  if (is_structure_provided) {
-    svine = SVinecop(rvine_structure_wrap(structure, false),
-                     p,
-                     out_vertices,
-                     in_vertices,
-                     var_types);
-    svine.select_families(data, fit_controls);
-  } else {
-    svine.select_all(data, fit_controls);
-  }
+  // if (is_structure_provided) {
+  //   svine = SVinecop(rvine_structure_wrap(structure, false),
+  //                    p,
+  //                    out_vertices,
+  //                    in_vertices,
+  //                    var_types);
+  //   svine.select_families(data, fit_controls);
+  // } else {
+  //   svine.select_all(data, fit_controls);
+  // }
 
   return svinecop_wrap(svine, true);
 }
