@@ -111,17 +111,17 @@ SVineSelector::duplicate_edge(EdgeIterator e, VineTree& tree)
   size_t v1 = boost::source(e, tree);
   size_t v2 = boost::target(e, tree);
   auto e_new = boost::add_edge(v1 + cs_dim_, v2 + cs_dim_, tree);
-//  tree[e_new.first].pair_copula = tree[e].pair_copula;
-//  tree[e_new.first].fit_id = tree[e].fit_id;
-//  auto shift = [this](std::vector<size_t> index) {
-//    for (auto& i : index)
-//      i = i + cs_dim_ * lag_;
-//    return index;
-//  };
-//  tree[e_new.first].conditioned = shift(tree[e].conditioned);
-//  tree[e_new.first].conditioning = shift(tree[e].conditioning);
-//  tree[e_new.first].all_indices = shift(tree[e].all_indices);
-//   tree[e_new.first].var_types = tree[e].var_types;
+  tree[e_new.first].pair_copula = tree[e].pair_copula;
+  tree[e_new.first].fit_id = tree[e].fit_id;
+  auto shift = [this](std::vector<size_t> index) {
+    for (auto& i : index)
+      i = i + cs_dim_ * lag_;
+    return index;
+  };
+  tree[e_new.first].conditioned = shift(tree[e].conditioned);
+  tree[e_new.first].conditioning = shift(tree[e].conditioning);
+  tree[e_new.first].all_indices = shift(tree[e].all_indices);
+  tree[e_new.first].var_types = tree[e].var_types;
 }
 
 inline void
