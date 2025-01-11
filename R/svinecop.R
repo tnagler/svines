@@ -157,14 +157,14 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
     weights = weights,
     psi0 = psi0,
     preselect_families = presel,
-    truncation_level = ifelse( # Inf cannot be passed to C++
+    trunc_lvl = ifelse( # Inf cannot be passed to C++
       is.finite(trunc_lvl),
       trunc_lvl,
       .Machine$integer.max
     ),
     tree_criterion = tree_crit,
     threshold = threshold,
-    select_truncation_level = is.na(trunc_lvl),
+    select_trunc_lvl = is.na(trunc_lvl),
     select_threshold = is.na(threshold),
     show_trace = show_trace,
     num_threads = cores
