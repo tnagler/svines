@@ -124,8 +124,8 @@ SVinecop::select_families(const Eigen::MatrixXd& data,
       selector.select_all_trees(selector.data());
     }
 
-    finalize_fit(selector);
-    loglik_ = this->loglik(data);
+//    finalize_fit(selector);
+//    loglik_ = this->loglik(data);
   }
 }
 

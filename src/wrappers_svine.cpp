@@ -119,7 +119,7 @@ svinecop_select_cpp(const Eigen::MatrixXd& data,
                      out_vertices,
                      in_vertices,
                      var_types);
-    // svine.select_families(data, fit_controls);
+    svine.select_families(data, fit_controls);
   } else {
     svine.select_all(data, fit_controls);
   }
