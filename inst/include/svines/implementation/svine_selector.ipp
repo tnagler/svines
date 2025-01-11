@@ -111,7 +111,7 @@ SVineSelector::duplicate_edge(EdgeIterator e, VineTree& tree)
   size_t v1 = boost::source(e, tree);
   size_t v2 = boost::target(e, tree);
   auto e_new = boost::add_edge(v1 + cs_dim_ * lag_, v2 + cs_dim_ * lag_, tree);
-  //tree[e_new.first].pair_copula = tree[e].pair_copula;
+  tree[e_new.first].pair_copula = tree[e].pair_copula;
   tree[e_new.first].fit_id = tree[e].fit_id;
   auto shift = [this](std::vector<size_t> index) {
     for (auto& i : index)
