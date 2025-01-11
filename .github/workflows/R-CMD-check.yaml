@@ -65,7 +65,7 @@ jobs:
         run: |
           remotes::install_deps(dependencies = TRUE)
           remotes::install_cran("rcmdcheck")
-          remotes::install_github("vinecopulib/rvinecopulib@dev")
+          # remotes::install_github("vinecopulib/rvinecopulib@dev")
         shell: Rscript {0}
 
       - name: Session info

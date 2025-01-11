@@ -91,11 +91,11 @@ svinecop_select_cpp(const Eigen::MatrixXd& data,
                     bool show_trace,
                     size_t num_threads)
 {
-  std::vector<BicopFamily> fam_set(family_set.size());
-  for (unsigned int fam = 0; fam < fam_set.size(); ++fam) {
-    fam_set[fam] = to_cpp_family(family_set[fam]);
-  }
-  FitControlsVinecop fit_controls(fam_set);
+  // std::vector<BicopFamily> fam_set(family_set.size());
+  // for (unsigned int fam = 0; fam < fam_set.size(); ++fam) {
+  //   fam_set[fam] = to_cpp_family(family_set[fam]);
+  // }
+  // FitControlsVinecop fit_controls(fam_set);
   // fit_controls.set_family_set(fam_set);
   // fit_controls.set_parametric_method(par_method);
   // fit_controls.set_nonparametric_method(nonpar_method);
@@ -113,15 +113,15 @@ svinecop_select_cpp(const Eigen::MatrixXd& data,
   // fit_controls.set_num_threads(num_threads);
   
   SVinecop svine(var_types.size(), p, var_types);
-  if (is_structure_provided) {
-    svine = SVinecop(rvine_structure_wrap(structure, false),
-                     p,
-                     out_vertices,
-                     in_vertices,
-                     var_types);
-    svine.select_families(data, fit_controls);
-  } else {
-    svine.select_all(data, fit_controls);
+  // if (is_structure_provided) {
+  //   svine = SVinecop(rvine_structure_wrap(structure, false),
+  //                    p,
+  //                    out_vertices,
+  //                    in_vertices,
+  //                    var_types);
+  //   svine.select_families(data, fit_controls);
+  // } else {
+  //   svine.select_all(data, fit_controls);
   }
 
   return svinecop_wrap(svine, true);
