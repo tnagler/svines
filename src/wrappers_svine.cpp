@@ -7,6 +7,7 @@ using namespace vinecopulib;
 SVinecop
 svinecop_wrap(const Rcpp::List& svinecop_r)
 {
+  return SVinecop(3, 1);
   size_t p = svinecop_r["p"];
 
   std::vector<size_t> out_vertices = svinecop_r["out_vertices"];
@@ -122,7 +123,7 @@ svinecop_select_cpp(const Eigen::MatrixXd& data,
   //   svine.select_families(data, fit_controls);
   // } else {
   //   svine.select_all(data, fit_controls);
-  }
+  // }
 
   return svinecop_wrap(svine, true);
 }
