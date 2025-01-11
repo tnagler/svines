@@ -160,5 +160,5 @@ summary(models[[1]])
 
 Nagler, T., Krüger, D., Min, A. (2022). Stationary vine copula models
 for multivariate time series. *Journal of Econometrics, 227(2),
-pp. 305-324* [\[pdf\]](https://arxiv.org/abs/2008.05990)
-[\[doi\]](https://www.sciencedirect.com/science/article/pii/S0304407621003043)
+pp. 305-324* [\[pdf\]](https://arxiv.org/abs/2008.05990)
+[\[doi\]](https://doi.org/10.1016/j.jeconom.2021.11.015)
