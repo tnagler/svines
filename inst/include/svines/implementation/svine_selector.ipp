@@ -186,8 +186,8 @@ SVineStructureSelector::add_lag()
   if (controls_.get_weights().size())
     controls_.set_weights(controls_.get_weights().head(data_.rows()));
     auto vt0 = var_types_;
-//  vt0.resize(cs_dim_);
-//   var_types_ = tools_stl::cat(var_types_, vt0);
+    vt0.resize(cs_dim_);
+//  var_types_ = tools_stl::cat(var_types_, vt0);
 //  trees_.resize(d_);
 //  trees_opt_.resize(d_);
 
