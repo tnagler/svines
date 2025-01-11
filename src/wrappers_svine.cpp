@@ -7,7 +7,6 @@ using namespace vinecopulib;
 SVinecop
 svinecop_wrap(const Rcpp::List& svinecop_r)
 {
-  return SVinecop(3, 1);
   size_t p = svinecop_r["p"];
 
   std::vector<size_t> out_vertices = svinecop_r["out_vertices"];
