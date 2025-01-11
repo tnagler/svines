@@ -18,10 +18,10 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: macOS-latest,   r: 'release'}
-          - {os: windows-latest, r: 'release'}
-          - {os: ubuntu-20.04,   r: 'devel', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest", http-user-agent: "R/4.0.0 (ubuntu-16.04) R (4.0.0 x86_64-pc-linux-gnu x86_64 linux-gnu) on GitHub Actions" }
-          - {os: ubuntu-20.04,   r: 'release', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"}
+          - {os: macOS-latest,   r: 'devel'}
+          - {os: windows-latest, r: 'devel'}
+          - {os: ubuntu-latest,   r: 'devel', rspm: "https://packagemanager.posit.co/cran/__linux__/noble/latest", "GitHub Actions" }
+          - {os: ubuntu-latest,   r: 'release', rspm: "https://packagemanager.posit.co/cran/__linux__/noble/latest"}
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
@@ -65,6 +65,7 @@ jobs:
         run: |
           remotes::install_deps(dependencies = TRUE)
           remotes::install_cran("rcmdcheck")
+          remotes::install_github("vinecopulib/rvinecopulib@dev")
         shell: Rscript {0}
 
       - name: Session info
