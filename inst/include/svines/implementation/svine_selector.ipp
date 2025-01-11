@@ -179,14 +179,14 @@ SVineStructureSelector::select_all_trees(const Eigen::MatrixXd& data)
 void
 SVineStructureSelector::add_lag()
 {
-  controls_.set_trunc_lvl(std::numeric_limits<size_t>::max());
-  lag_++;
-  d_ += cs_dim_;
-  data_ = spread_lag(data_, cs_dim_);
-  if (controls_.get_weights().size())
-    controls_.set_weights(controls_.get_weights().head(data_.rows()));
-    auto vt0 = var_types_;
-    vt0.resize(cs_dim_);
+//  controls_.set_trunc_lvl(std::numeric_limits<size_t>::max());
+//  lag_++;
+//  d_ += cs_dim_;
+//  data_ = spread_lag(data_, cs_dim_);
+//  if (controls_.get_weights().size())
+//    controls_.set_weights(controls_.get_weights().head(data_.rows()));
+//    auto vt0 = var_types_;
+//    vt0.resize(cs_dim_);
 //  var_types_ = tools_stl::cat(var_types_, vt0);
 //  trees_.resize(d_);
 //  trees_opt_.resize(d_);
