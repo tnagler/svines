@@ -16,7 +16,7 @@ cross-sectional dimension \code{d}.}
 Returns the model as an object with class  \code{svine_dist}.
 A list with entries
 \itemize{
-\item \verb{$margins}: list of marginal models from \link{univariateML},
+\item \verb{$margins}: list of marginal models from \link[univariateML:univariateML_models]{univariateML::univariateML_models},
 \item \verb{$copula}: an object of \code{svinecop_dist}.
 }
 }

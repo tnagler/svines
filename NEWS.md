@@ -1,3 +1,7 @@
+# svines 0.2.4
+
+* Adapt to new rvinecopulib version.
+
 # svines 0.2.0
 
 * Add new functions to compute pseudo-resiudals.

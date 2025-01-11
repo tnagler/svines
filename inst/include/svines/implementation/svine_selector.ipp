@@ -110,7 +110,7 @@ SVineSelector::duplicate_edge(EdgeIterator e, VineTree& tree)
 {
   size_t v1 = boost::source(e, tree);
   size_t v2 = boost::target(e, tree);
-  auto e_new = boost::add_edge(v1 + cs_dim_ * lag_, v2 + cs_dim_ * lag_, tree);
+  auto e_new = boost::add_edge(v1 + cs_dim_, v2 + cs_dim_, tree);
   tree[e_new.first].pair_copula = tree[e].pair_copula;
   tree[e_new.first].fit_id = tree[e].fit_id;
   auto shift = [this](std::vector<size_t> index) {
@@ -570,8 +570,17 @@ SVineFamilySelector::add_lag()
     auto old_tree = trees_[t];
     for (auto v : boost::vertices(old_tree))
       duplicate_vertex(v, trees_[t]);
-    for (auto e : boost::edges(old_tree))
+    
+    long int ei = 0;
+    long int e_start = (lag_ - 1) * cs_dim_ - t;
+    long int ei_max = lag_ * cs_dim_ - t;
+    for (auto e : boost::edges(old_tree)) {
+      if (ei++ < e_start)
+        continue;
+      if (ei > ei_max)
+        continue;
       duplicate_edge(e, trees_[t]);
+    }
   }
 
   // update trees and structure

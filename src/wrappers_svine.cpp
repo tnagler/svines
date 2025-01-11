@@ -1,19 +1,13 @@
-#ifndef BOOST_NO_AUTO_PTR
-#define BOOST_NO_AUTO_PTR
-#endif
+// silences all the BOOST_CONCEPT warnings bullshit
+// https://stackoverflow.com/questions/13930894/how-to-disable-boost-concept-check
+#include <boost/concept/assert.hpp>
+#undef BOOST_CONCEPT_ASSERT
+#define BOOST_CONCEPT_ASSERT(Model)
+#include <boost/concept_check.hpp>
 
-#ifndef BOOST_ALLOW_DEPRECATED_HEADERS
-#define BOOST_ALLOW_DEPRECATED_HEADERS
-#endif
-
-#ifdef BOOST_MATH_PROMOTE_DOUBLE_POLICY
-#undef BOOST_MATH_PROMOTE_DOUBLE_POLICY
-#endif
-#define BOOST_MATH_PROMOTE_DOUBLE_POLICY false
-
+#include <vinecopulib-wrappers.hpp>
 #include "Rcpp.h"
 #include "svines.hpp"
-#include <vinecopulib-wrappers.hpp>
 
 using namespace vinecopulib;
 
@@ -84,21 +78,21 @@ Rcpp::List
 svinecop_select_cpp(const Eigen::MatrixXd& data,
                     size_t p,
                     const std::vector<std::string>& var_types,
-                    std::vector<size_t> out_vertices,
-                    std::vector<size_t> in_vertices,
+                    const std::vector<size_t>& out_vertices,
+                    const std::vector<size_t>& in_vertices,
                     bool is_structure_provided,
                     Rcpp::List& structure,
-                    std::vector<std::string> family_set,
+                    const std::vector<std::string>& family_set,
                     std::string par_method,
                     std::string nonpar_method,
                     double mult,
-                    int truncation_level,
+                    int trunc_lvl,
                     std::string tree_criterion,
                     double threshold,
                     std::string selection_criterion,
                     const Eigen::VectorXd& weights,
                     double psi0,
-                    bool select_truncation_level,
+                    bool select_trunc_lvl,
                     bool select_threshold,
                     bool preselect_families,
                     bool show_trace,
@@ -108,23 +102,23 @@ svinecop_select_cpp(const Eigen::MatrixXd& data,
   for (unsigned int fam = 0; fam < fam_set.size(); ++fam) {
     fam_set[fam] = to_cpp_family(family_set[fam]);
   }
-
-  FitControlsVinecop fit_controls(fam_set,
-                                  par_method,
-                                  nonpar_method,
-                                  mult,
-                                  truncation_level,
-                                  tree_criterion,
-                                  threshold,
-                                  selection_criterion,
-                                  weights,
-                                  psi0,
-                                  preselect_families,
-                                  select_truncation_level,
-                                  select_threshold,
-                                  show_trace,
-                                  num_threads);
-
+  FitControlsVinecop fit_controls(fam_set);
+  fit_controls.set_family_set(fam_set);
+  fit_controls.set_parametric_method(par_method);
+  fit_controls.set_nonparametric_method(nonpar_method);
+  fit_controls.set_nonparametric_mult(mult);
+  fit_controls.set_trunc_lvl(trunc_lvl);
+  fit_controls.set_tree_criterion(tree_criterion);
+  fit_controls.set_threshold(threshold);
+  fit_controls.set_selection_criterion(selection_criterion);
+  fit_controls.set_weights(weights);
+  fit_controls.set_psi0(psi0);
+  fit_controls.set_preselect_families(preselect_families);
+  fit_controls.set_select_threshold(select_threshold);
+  fit_controls.set_select_trunc_lvl(select_trunc_lvl);
+  fit_controls.set_show_trace(show_trace);
+  fit_controls.set_num_threads(num_threads);
+  
   SVinecop svine(var_types.size(), p, var_types);
   if (is_structure_provided) {
     svine = SVinecop(rvine_structure_wrap(structure, false),
@@ -137,7 +131,7 @@ svinecop_select_cpp(const Eigen::MatrixXd& data,
     svine.select_all(data, fit_controls);
   }
 
-  return svinecop_wrap(svine, TRUE);
+  return svinecop_wrap(svine, true);
 }
 
 // [[Rcpp::export()]]

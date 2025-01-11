@@ -5,8 +5,8 @@ svinecop_create_cpp <- function(svine_r) {
     .Call(`_svines_svinecop_create_cpp`, svine_r)
 }
 
-svinecop_select_cpp <- function(data, p, var_types, out_vertices, in_vertices, is_structure_provided, structure, family_set, par_method, nonpar_method, mult, truncation_level, tree_criterion, threshold, selection_criterion, weights, psi0, select_truncation_level, select_threshold, preselect_families, show_trace, num_threads) {
-    .Call(`_svines_svinecop_select_cpp`, data, p, var_types, out_vertices, in_vertices, is_structure_provided, structure, family_set, par_method, nonpar_method, mult, truncation_level, tree_criterion, threshold, selection_criterion, weights, psi0, select_truncation_level, select_threshold, preselect_families, show_trace, num_threads)
+svinecop_select_cpp <- function(data, p, var_types, out_vertices, in_vertices, is_structure_provided, structure, family_set, par_method, nonpar_method, mult, trunc_lvl, tree_criterion, threshold, selection_criterion, weights, psi0, select_trunc_lvl, select_threshold, preselect_families, show_trace, num_threads) {
+    .Call(`_svines_svinecop_select_cpp`, data, p, var_types, out_vertices, in_vertices, is_structure_provided, structure, family_set, par_method, nonpar_method, mult, trunc_lvl, tree_criterion, threshold, selection_criterion, weights, psi0, select_trunc_lvl, select_threshold, preselect_families, show_trace, num_threads)
 }
 
 svinecop_loglik_cpp <- function(u, svinecop_r, cores) {

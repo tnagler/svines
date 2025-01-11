@@ -52,7 +52,7 @@
 #'   
 #' @return Returns the fitted model as an object with classes 
 #'   `svinecop` and `svinecop_dist`. Also inherits from `vinecop`, `vinecop_dist`
-#'   such that many functions from [rvinecopulib] can be called.
+#'   such that many functions from `rvinecopulib` can be called.
 #'
 #' @importFrom assertthat assert_that is.scalar is.string is.number is.flag
 #' @importFrom rvinecopulib as_rvine_structure
@@ -157,14 +157,14 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
     weights = weights,
     psi0 = psi0,
     preselect_families = presel,
-    truncation_level = ifelse( # Inf cannot be passed to C++
+    trunc_lvl = ifelse( # Inf cannot be passed to C++
       is.finite(trunc_lvl),
       trunc_lvl,
       .Machine$integer.max
     ),
     tree_criterion = tree_crit,
     threshold = threshold,
-    select_truncation_level = is.na(trunc_lvl),
+    select_trunc_lvl = is.na(trunc_lvl),
     select_threshold = is.na(threshold),
     show_trace = show_trace,
     num_threads = cores
@@ -225,7 +225,7 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
 #' 
 #' @return Returns the model as an object with classes 
 #'   `svinecop_dist`. Also inherits from `vinecop_dist`
-#'   such that many functions from [rvinecopulib] can be called.
+#'   such that many functions from `rvinecopulib` can be called.
 #'   
 #' @seealso [svinecop_loglik], [svinecop_sim], [svinecop_hessian], 
 #'   [svinecop_scores]

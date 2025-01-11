@@ -1,6 +1,6 @@
 Package: svines
 Title: Stationary Vine Copula Models
-Version: 0.2.3
+Version: 0.2.4
 Authors@R: 
     person(given = "Thomas",
            family = "Nagler",
@@ -35,4 +35,4 @@ Suggests:
     ggraph,
     covr
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
