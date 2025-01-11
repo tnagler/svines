@@ -191,26 +191,26 @@ SVineStructureSelector::add_lag()
   trees_.resize(d_);
   trees_opt_.resize(d_);
 
-  vine_struct_ = RVineStructure(tools_stl::seq_int(1, d_), 1, false);
-
-  trees_[0] = make_base_tree(data_);
-  // add vertices and edges for lagged variable
-  for (size_t t = 1; t < trees_.size(); t++) {
-    auto old_tree = trees_[t];
-    auto new_tree = edges_as_vertices(trees_[t - 1]);
-
-    duplicate_edges(old_tree, new_tree, t);
-    trees_opt_[t] = new_tree;
-    min_spanning_tree(new_tree);
-    add_edge_info(new_tree);
-    select_pair_copulas(new_tree, trees_opt_[t]);
-
-    trees_[t] = new_tree;
-    if (controls_.get_show_trace()) {
-      std::cout << "** Tree: " << t - 1 << std::endl;
-      print_pair_copulas_of_tree(t - 1);
-    }
-  }
+//  vine_struct_ = RVineStructure(tools_stl::seq_int(1, d_), 1, false);
+//
+//  trees_[0] = make_base_tree(data_);
+//  // add vertices and edges for lagged variable
+//  for (size_t t = 1; t < trees_.size(); t++) {
+//    auto old_tree = trees_[t];
+//    auto new_tree = edges_as_vertices(trees_[t - 1]);
+//
+//    duplicate_edges(old_tree, new_tree, t);
+//    trees_opt_[t] = new_tree;
+//    min_spanning_tree(new_tree);
+//    add_edge_info(new_tree);
+//    select_pair_copulas(new_tree, trees_opt_[t]);
+//
+//    trees_[t] = new_tree;
+//    if (controls_.get_show_trace()) {
+//      std::cout << "** Tree: " << t - 1 << std::endl;
+//      print_pair_copulas_of_tree(t - 1);
+//    }
+//  }
 }
 
 VineTree
