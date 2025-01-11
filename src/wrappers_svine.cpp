@@ -1,3 +1,10 @@
+// silences all the BOOST_CONCEPT warnings bullshit
+// https://stackoverflow.com/questions/13930894/how-to-disable-boost-concept-check
+#include <boost/concept/assert.hpp>
+#undef BOOST_CONCEPT_ASSERT
+#define BOOST_CONCEPT_ASSERT(Model)
+#include <boost/concept_check.hpp>
+
 #include <vinecopulib-wrappers.hpp>
 #include "Rcpp.h"
 #include "svines.hpp"
@@ -95,7 +102,7 @@ svinecop_select_cpp(const Eigen::MatrixXd& data,
   for (unsigned int fam = 0; fam < fam_set.size(); ++fam) {
     fam_set[fam] = to_cpp_family(family_set[fam]);
   }
-  FitControlsVinecop fit_controls;
+  FitControlsVinecop fit_controls(fam_set);
   fit_controls.set_family_set(fam_set);
   fit_controls.set_parametric_method(par_method);
   fit_controls.set_nonparametric_method(nonpar_method);
@@ -124,7 +131,7 @@ svinecop_select_cpp(const Eigen::MatrixXd& data,
     svine.select_all(data, fit_controls);
   }
 
-  return svinecop_wrap(svine, TRUE);
+  return svinecop_wrap(svine, true);
 }
 
 // [[Rcpp::export()]]
