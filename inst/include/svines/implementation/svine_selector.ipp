@@ -563,7 +563,7 @@ SVineFamilySelector::add_lag()
   d_ += cs_dim_;
   auto vt0 = var_types_;
   vt0.resize(cs_dim_);
-//  var_types_ = tools_stl::cat(var_types_, vt0);
+  var_types_ = tools_stl::cat(var_types_, vt0);
 //
 //  // add vertices and edges for lagged variable
 //  for (size_t t = 1; t < trees_.size(); t++) {
