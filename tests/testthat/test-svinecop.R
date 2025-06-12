@@ -70,6 +70,7 @@ test_that("fitting models (1d)", {
 
 
 test_that("fitting models (multivariate)", {
+  set.seed(1)
   u <- rbicop(50, bc)
   sv <- svinecop(u, p = 0)
   AIC(sv)
@@ -98,3 +99,4 @@ test_that("fitting models (multivariate)", {
   expect_silent(svinecop_sim(1, 1, sv))
   expect_silent(svinecop_sim(1, 1, sv, u))
 })
+

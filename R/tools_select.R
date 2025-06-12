@@ -82,7 +82,8 @@ select_margin <- function(x, families, criterion) {
     fit
   } else {
     families <- setdiff(families, "empirical")
-    fit <- univariateML::model_select(x, families, criterion)
+    fit <- univariateML::model_select(x, families, criterion) |>
+      suppressWarnings()
     fit
   }
   structure(out, type = type, class = c(class(out), "svine_margin"))
