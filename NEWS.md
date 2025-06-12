@@ -1,3 +1,7 @@
+# svines 0.2.7
+
+* Make unit tests safer for dependencies.
+
 # svines 0.2.4
 
 * Adapt to new rvinecopulib version.
