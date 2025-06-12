@@ -15,7 +15,7 @@ LazyData: true
 URL: https://github.com/tnagler/svines
 BugReports: https://github.com/tnagler/svines/issues
 Depends:
-  R (>= 4.0.0),
+  R (>= 4.1.0),
   rvinecopulib (>= 0.7.2.1.0)
 Imports: 
   Rcpp,
