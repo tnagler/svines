@@ -39,3 +39,8 @@ vignettes/*.pdf
 .Renviron
 docs
 .positai
+
+# Personal working files (not for upstream)
+CLAUDE.md
+NOTES.md
+correspondence.md
