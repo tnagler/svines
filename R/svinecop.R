@@ -104,9 +104,6 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
     is.numeric(in_vertices) || all(is.na(in_vertices)),
     is.numeric(out_vertices) || all(is.na(out_vertices))
   )
-  
-  if (any(var_types != "c"))
-    stop("discrete variables not yet implemented.")
 
   if ((type != "S") & (NCOL(data) > 1)) {
     if (!is.na(cs_structure))
