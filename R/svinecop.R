@@ -260,9 +260,7 @@ svinecop_dist <- function(pair_copulas, cs_structure, p,
     all(in_vertices <= dim(cs_structure)[1]),
     all(out_vertices <= dim(cs_structure)[1])
   )
-  if (any(var_types != "c"))
-    stop("discrete variables not yet implemented.")
-  
+
   d0 <- dim(cs_structure)[1]
   d <- d0 * (p + 1)
   if (p > 0) {

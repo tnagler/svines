@@ -22,3 +22,16 @@ test_that("svinecop accepts doubled-column discrete data", {
     )
   )
 })
+
+test_that("svinecop_dist accepts discrete var_types", {
+  bc <- bicop_dist("gaussian", parameters = 0.5)
+  sv <- svinecop_dist(
+    pair_copulas = list(list(bc)),
+    cs_structure  = cvine_structure(1:2),
+    p             = 0,
+    out_vertices  = 1:2,
+    in_vertices   = 1:2,
+    var_types     = c("d", "d")
+  )
+  expect_s3_class(sv, "svinecop_dist")
+})
