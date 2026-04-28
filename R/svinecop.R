@@ -74,7 +74,7 @@
 #' logLik(fit)
 #' 
 #' pairs(svinecop_sim(500, rep = 1, fit))
-svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
+svinecop <- function(data, p, var_types,
                      family_set = "all", cs_structure = NA,
                      out_vertices = NA, in_vertices = NA,
                      type = "S",
@@ -83,6 +83,13 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
                      presel = TRUE, trunc_lvl = Inf, tree_crit = "tau",
                      threshold = 0, keep_data = FALSE, show_trace = FALSE,
                      cores = 1) {
+  if (missing(var_types)) {
+    if (is.scalar(cs_structure) && is.na(cs_structure)) {
+      var_types <- rep("c", NCOL(data))
+    } else {
+      var_types <- rep("c", dim(cs_structure)[1])
+    }
+  }
   assert_that(
     is.character(family_set),
     inherits(cs_structure, "matrix") ||
