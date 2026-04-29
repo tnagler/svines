@@ -7,8 +7,6 @@
 #include <vinecopulib/vinecop/class.hpp>
 #include <algorithm>
 
-// TODO: discrete ?
-
 namespace vinecopulib {
 
 SVinecop::SVinecop(size_t cs_dim,
