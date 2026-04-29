@@ -200,11 +200,33 @@ to_quantiles <- function(u, margins) {
 
 to_unif <- function(x, margins) {
   u <- sapply(
-    seq_len(ncol(x)), 
+    seq_len(ncol(x)),
     function(j) pmargin(x[, j], margins[[j]])
   )
   var_names <- names(margins)
   if (!is.null(var_names))
     colnames(u) <- var_names
+
+  # When any margin is discrete, the copula evaluation requires a
+  # doubled-column n x 2d input layout: F(x) in columns 1..d and
+  # F(x-) in columns d+1..2d. Continuous-only margin sets fall
+  # through with the original n x d output unchanged.
+  has_discrete <- any(vapply(
+    margins,
+    function(m) identical(attr(m, "type"), "discrete"),
+    logical(1)
+  ))
+  if (has_discrete) {
+    u_sub <- sapply(
+      seq_len(ncol(x)),
+      function(j) pmargin_sub(x[, j], margins[[j]])
+    )
+    u <- cbind(u, u_sub)
+    # Shadow columns are positional, not named — drop colnames on
+    # the doubled output so downstream callers can't inadvertently
+    # key on the empty-string column names cbind would otherwise
+    # leave on the right half.
+    colnames(u) <- NULL
+  }
   u
 }
