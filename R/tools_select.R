@@ -90,25 +90,49 @@ select_margin <- function(x, families, criterion) {
 }
 
 #' @importFrom stats logLik
-#' @exportS3Method 
+#' @exportS3Method
 logLik.svine_margin <- function(object, ...) {
-  if (attr(object, "type") == "empirical") {
+  type <- attr(object, "type")
+  if (identical(type, "empirical")) {
     structure(NA, df = NA)
+  } else if (identical(type, "discrete")) {
+    ll <- attr(object, "logLik")
+    df <- attr(object, "df")
+    structure(if (is.null(ll)) NA else ll,
+              df = if (is.null(df)) NA else df)
   } else {
     logLik(object)
   }
 }
 
 pmargin <- function(x, model) {
-  if (identical(attr(model, "type"), "empirical")) {
+  if (identical(attr(model, "type"), "empirical") ||
+      identical(attr(model, "type"), "discrete")) {
     model$p(x)
   } else {
     univariateML::pml(x, model)
   }
 }
 
+# pmargin_sub returns F(x-): the CDF at the largest support point
+# strictly less than x — for integer-valued discrete margins this is
+# F(x - 1). Companion to pmargin for the doubled-column input layout
+# that discrete-margin copula evaluation expects: an n x 2d matrix
+# with F(x) in columns 1..d and F(x-) in columns d+1..2d. Continuous
+# margins satisfy F(x-) = F(x), so we delegate to pmargin and emit
+# redundant shadow columns that the copula collapses internally.
+#' @noRd
+pmargin_sub <- function(x, model) {
+  if (identical(attr(model, "type"), "discrete")) {
+    model$p_sub(x)
+  } else {
+    pmargin(x, model)
+  }
+}
+
 qmargin <- function(p, model) {
-  if (identical(attr(model, "type"), "empirical")) {
+  if (identical(attr(model, "type"), "empirical") ||
+      identical(attr(model, "type"), "discrete")) {
     model$q(p)
   } else {
     univariateML::qml(p, model)
