@@ -5,7 +5,12 @@
 #' @param data a matrix or data.frame (copula data should have approximately
 #'   uniform margins).
 #' @param p the Markov order.
-#' @param var_types variable types; discrete variables not (yet) allowed.
+#' @param var_types variable types, a length `d` vector with entries `"c"`
+#'   (continuous) or `"d"` (discrete). For discrete variables, `data` is
+#'   supplied as `n`-by-`(2d)` with `F(x)` in columns `1..d` and `F(x-)` in
+#'   columns `(d+1)..2d`. Callers passing discrete data without
+#'   `cs_structure` must specify `var_types` explicitly — otherwise
+#'   `svinecop()` silently fits a continuous model.
 #' @param out_vertices the out-vertex; if `NA`, the out-vertex is selected
 #'   automatically if no structure is provided, and is equivalent to 1 if a
 #'   structure is provided.
@@ -225,9 +230,12 @@ svinecop <- function(data, p, var_types,
 #' @param in_vertices the in-vertex; if `NA`, the in-vertex is selected
 #'   automatically if no structure is provided, and is equivalent to 1 if a
 #'    structure is provided.
-#' @param var_types variable types; discrete variables not (yet) allowed.
-#' 
-#' @return Returns the model as an object with classes 
+#' @param var_types variable types, a length `d` vector with entries `"c"`
+#'   (continuous) or `"d"` (discrete). For discrete variables, methods on
+#'   the returned object expect `data` in `n`-by-`(2d)` form, with `F(x)`
+#'   in columns `1..d` and `F(x-)` in columns `(d+1)..2d`.
+#'
+#' @return Returns the model as an object with classes
 #'   `svinecop_dist`. Also inherits from `vinecop_dist`
 #'   such that many functions from `rvinecopulib` can be called.
 #'   

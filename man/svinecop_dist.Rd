@@ -31,7 +31,10 @@ structure is provided.}
 automatically if no structure is provided, and is equivalent to 1 if a
 structure is provided.}
 
-\item{var_types}{variable types; discrete variables not (yet) allowed.}
+\item{var_types}{variable types, a length \code{d} vector with entries \code{"c"}
+(continuous) or \code{"d"} (discrete). For discrete variables, methods on
+the returned object expect \code{data} in \code{n}-by-\verb{(2d)} form, with \code{F(x)}
+in columns \verb{1..d} and \verb{F(x-)} in columns \verb{(d+1)..2d}.}
 }
 \value{
 Returns the model as an object with classes
