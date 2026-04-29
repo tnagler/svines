@@ -7,7 +7,26 @@
 svine_dist(margins, copula)
 }
 \arguments{
-\item{margins}{A list of length \code{d} containing \code{univariateML} objects.}
+\item{margins}{A list of length \code{d}. Each element is either a
+\code{univariateML} object (the standard continuous path; dispatch
+uses \link[univariateML:MaximumLikelihoodDistribution]{univariateML::pml} / \link[univariateML:MaximumLikelihoodDistribution]{univariateML::qml}) or a list
+satisfying the following contract:
+\itemize{
+\item \verb{$p}, \verb{$q} -- callables returning the marginal CDF F(x) and
+quantile function F^{-1}(p).
+\item \verb{$p_sub} -- required for discrete margins (a callable
+returning F(x-), the CDF at the largest support point strictly
+less than x; for integer-valued margins this is F(x - 1)).
+\item \code{attr(., "type")} -- must be \code{"discrete"} for discrete
+list-form margins; this attribute is the dispatch key that
+triggers the doubled-column input layout used by the
+discrete-aware copula path.
+\item \code{attr(., "model")} -- printable name surfaced by \code{\link[=summary]{summary()}}.
+\item \code{attr(., "logLik")} -- model log-likelihood at fitted data, or
+\code{NA} for hand-constructed margins.
+\item \code{attr(., "df")} -- parameter count.
+\item \code{class(.)} -- must include \code{"svine_margin"}.
+}}
 
 \item{copula}{the copula model; an object of class \code{svinecop_dist} with
 cross-sectional dimension \code{d}.}

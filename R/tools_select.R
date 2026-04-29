@@ -138,3 +138,25 @@ qmargin <- function(p, model) {
     univariateML::qml(p, model)
   }
 }
+
+# check_margin validates a margin object against the β contract.
+# univariateML objects pass on class (dispatch goes through
+# univariateML::pml / qml without touching $p / $q). All other margins
+# must be lists with $p and $q callables, plus $p_sub when
+# attr(., "type") is "discrete". j is the column index, included in
+# error messages so users can locate the offending margin.
+#' @noRd
+check_margin <- function(m, j) {
+  if (inherits(m, "univariateML")) return(invisible(TRUE))
+
+  if (!is.list(m)) {
+    stop(sprintf("margin [%d]: expected a univariateML object or a list with $p and $q callables, got %s.", j, typeof(m)))
+  }
+  if (!is.function(m$p) || !is.function(m$q)) {
+    stop(sprintf("margin [%d]: list-form margins must provide both $p and $q as callables.", j))
+  }
+  if (identical(attr(m, "type"), "discrete") && !is.function(m$p_sub)) {
+    stop(sprintf("margin [%d]: discrete margins must additionally provide $p_sub (a callable returning F(x-)).", j))
+  }
+  invisible(TRUE)
+}

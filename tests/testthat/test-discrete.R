@@ -122,3 +122,16 @@ test_that("svine_dist builds end-to-end with hand-constructed Poisson margins", 
   # fitted-svine path defines logLik.svine separately).
   expect_equal(attr(logLik(margins[[1]]), "df"), 1L)
 })
+
+test_that("check_margin rejects discrete margin lacking $p_sub", {
+  bad <- list(
+    p = function(x) ppois(x, 3),
+    q = function(p) qpois(p, 3)
+    # intentionally omits $p_sub
+  )
+  attr(bad, "type")  <- "discrete"
+  attr(bad, "model") <- "poisson_bad"
+  class(bad) <- "svine_margin"
+
+  expect_error(check_margin(bad, 1), regexp = "p_sub")
+})

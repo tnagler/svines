@@ -80,7 +80,24 @@ svine <- function(data, p, margin_families = univariateML::univariateML_models,
 #' Custom S-vine distribution models
 #' 
 #'
-#' @param margins A list of length `d` containing `univariateML` objects.
+#' @param margins A list of length `d`. Each element is either a
+#'   `univariateML` object (the standard continuous path; dispatch
+#'   uses [univariateML::pml] / [univariateML::qml]) or a list
+#'   satisfying the following contract:
+#'   * `$p`, `$q` -- callables returning the marginal CDF F(x) and
+#'     quantile function F^{-1}(p).
+#'   * `$p_sub` -- required for discrete margins (a callable
+#'     returning F(x-), the CDF at the largest support point strictly
+#'     less than x; for integer-valued margins this is F(x - 1)).
+#'   * `attr(., "type")` -- must be `"discrete"` for discrete
+#'     list-form margins; this attribute is the dispatch key that
+#'     triggers the doubled-column input layout used by the
+#'     discrete-aware copula path.
+#'   * `attr(., "model")` -- printable name surfaced by [summary()].
+#'   * `attr(., "logLik")` -- model log-likelihood at fitted data, or
+#'     `NA` for hand-constructed margins.
+#'   * `attr(., "df")` -- parameter count.
+#'   * `class(.)` -- must include `"svine_margin"`.
 #' @param copula the copula model; an object of class `svinecop_dist` with 
 #'   cross-sectional dimension `d`.
 #'
@@ -128,6 +145,7 @@ svine_dist <- function(margins, copula) {
     inherits(copula, "vinecop_dist"),
     length(margins) == dim(copula$cs_structure)["dim"]
   )
+  for (j in seq_along(margins)) check_margin(margins[[j]], j)
   structure(
     list(
       margins = margins, 
