@@ -31,8 +31,8 @@ spread_lag(const Eigen::MatrixXd& data, size_t cs_dim, size_t n_discrete)
   }
   size_t lag_blocks  = data.cols() / period; // number of lag blocks already in input
   size_t n_out       = data.rows() - 1;      // output row count (one row dropped)
-  size_t k_real_old  = lag_blocks * cs_dim;     // width of existing F-region in input
-  size_t k_disc_old  = lag_blocks * n_discrete; // width of existing F⁻-region in input
+  size_t k_real_old  = lag_blocks * cs_dim;     // width of existing F(x) region in input
+  size_t k_disc_old  = lag_blocks * n_discrete; // width of existing F(x-) region in input
 
   Eigen::MatrixXd newdata(n_out, (lag_blocks + 1) * period);
 
@@ -41,7 +41,7 @@ spread_lag(const Eigen::MatrixXd& data, size_t cs_dim, size_t n_discrete)
       = data.topRows(n_out).leftCols(k_real_old);
 
   // (ii) new lag's reals: take the rightmost cs_dim columns of the input's
-  //      F-region (= the most recent existing lag's F-values) and shift
+  //      F(x) region (= the most recent existing lag's F-values) and shift
   //      them down by one row, so output row t holds F at time t+1
   newdata.block(0, k_real_old, n_out, cs_dim)
       = data.middleCols(k_real_old - cs_dim, cs_dim).bottomRows(n_out);
@@ -52,7 +52,7 @@ spread_lag(const Eigen::MatrixXd& data, size_t cs_dim, size_t n_discrete)
         = data.middleCols(k_real_old, k_disc_old).topRows(n_out);
 
     // (iv) new lag's shadows: take the rightmost n_discrete columns of the
-    //      input's F⁻-region (= the most recent existing lag's shadows) and
+    //      input's F(x-) region (= the most recent existing lag's shadows) and
     //      shift them down by one row
     newdata.block(0, k_real_old + cs_dim + k_disc_old, n_out, n_discrete)
         = data.rightCols(n_discrete).bottomRows(n_out);

@@ -9,7 +9,7 @@
 #'   (continuous) or `"d"` (discrete). For discrete variables, `data` is
 #'   supplied as `n`-by-`(2d)` with `F(x)` in columns `1..d` and `F(x-)` in
 #'   columns `(d+1)..2d`. Callers passing discrete data without
-#'   `cs_structure` must specify `var_types` explicitly — otherwise
+#'   `cs_structure` must specify `var_types` explicitly -- otherwise
 #'   `svinecop()` silently fits a continuous model.
 #' @param out_vertices the out-vertex; if `NA`, the out-vertex is selected
 #'   automatically if no structure is provided, and is equivalent to 1 if a

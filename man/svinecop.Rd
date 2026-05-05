@@ -38,7 +38,7 @@ uniform margins).}
 (continuous) or \code{"d"} (discrete). For discrete variables, \code{data} is
 supplied as \code{n}-by-\verb{(2d)} with \code{F(x)} in columns \verb{1..d} and \verb{F(x-)} in
 columns \verb{(d+1)..2d}. Callers passing discrete data without
-\code{cs_structure} must specify \code{var_types} explicitly — otherwise
+\code{cs_structure} must specify \code{var_types} explicitly -- otherwise
 \code{svinecop()} silently fits a continuous model.}
 
 \item{family_set}{a character vector of families; see \code{\link[rvinecopulib:bicop]{rvinecopulib::bicop()}}
