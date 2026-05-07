@@ -222,6 +222,8 @@ SVineStructureSelector::add_lag()
   data_ = spread_lag(data_, cs_dim_, n_disc_cs);
   if (controls_.get_weights().size())
     controls_.set_weights(controls_.get_weights().head(data_.rows()));
+  // Right-append preserves the var_types_ layout invariant documented
+  // at the SVinecop class declaration in svinecop.hpp.
   auto vt0 = var_types_;
   vt0.resize(cs_dim_);
   var_types_ = tools_stl::cat(var_types_, vt0);
@@ -598,6 +600,8 @@ SVineFamilySelector::add_lag()
 {
   lag_++;
   d_ += cs_dim_;
+  // Right-append preserves the var_types_ layout invariant documented
+  // at the SVinecop class declaration in svinecop.hpp.
   auto vt0 = var_types_;
   vt0.resize(cs_dim_);
   var_types_ = tools_stl::cat(var_types_, vt0);
