@@ -86,7 +86,12 @@ select_margin <- function(x, families, criterion) {
       suppressWarnings()
     fit
   }
-  structure(out, type = type, class = c(class(out), "svine_margin"))
+  out_type <- if (inherits(out, "univariateML") && isFALSE(attr(out, "continuous"))) {
+    "discrete"
+  } else {
+    type
+  }
+  structure(out, type = out_type, class = c(class(out), "svine_margin"))
 }
 
 #' @importFrom stats logLik
@@ -106,11 +111,10 @@ logLik.svine_margin <- function(object, ...) {
 }
 
 pmargin <- function(x, model) {
-  if (identical(attr(model, "type"), "empirical") ||
-      identical(attr(model, "type"), "discrete")) {
-    model$p(x)
-  } else {
+  if (inherits(model, "univariateML")) {
     univariateML::pml(x, model)
+  } else {
+    model$p(x)
   }
 }
 
@@ -118,12 +122,18 @@ pmargin <- function(x, model) {
 # strictly less than x — for integer-valued discrete margins this is
 # F(x - 1). Companion to pmargin for the doubled-column input layout
 # that discrete-margin copula evaluation expects: an n x 2d matrix
-# with F(x) in columns 1..d and F(x-) in columns d+1..2d. Continuous
-# margins satisfy F(x-) = F(x), so we delegate to pmargin and emit
-# redundant shadow columns that the copula collapses internally.
+# with F(x) in columns 1..d and F(x-) in columns d+1..2d. Three arms:
+# univariateML-classed discrete margins (auto-fit path, or user-
+# constructed via mlpois/mlnbinom/mlgeom directly) use F(x - 1) via
+# pml on shifted inputs; list-form discrete margins (β contract)
+# supply $p_sub directly; everything else is continuous and falls
+# through to pmargin, emitting redundant shadow columns that the
+# copula collapses internally.
 #' @noRd
 pmargin_sub <- function(x, model) {
-  if (identical(attr(model, "type"), "discrete")) {
+  if (inherits(model, "univariateML") && isFALSE(attr(model, "continuous"))) {
+    univariateML::pml(x - 1, model)
+  } else if (!inherits(model, "univariateML") && is.function(model$p_sub)) {
     model$p_sub(x)
   } else {
     pmargin(x, model)
@@ -131,11 +141,10 @@ pmargin_sub <- function(x, model) {
 }
 
 qmargin <- function(p, model) {
-  if (identical(attr(model, "type"), "empirical") ||
-      identical(attr(model, "type"), "discrete")) {
-    model$q(p)
-  } else {
+  if (inherits(model, "univariateML")) {
     univariateML::qml(p, model)
+  } else {
+    model$q(p)
   }
 }
 
