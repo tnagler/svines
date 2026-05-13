@@ -135,3 +135,63 @@ test_that("check_margin rejects discrete margin lacking $p_sub", {
 
   expect_error(check_margin(bad, 1), regexp = "p_sub")
 })
+
+test_that("pmargin_sub routes raw univariateML-discrete margins through pml(x - 1)", {
+  set.seed(11)
+  lambda <- 3
+  m <- univariateML::mlpois(rpois(100, lambda))
+
+  # Raw mlpois object — never went through select_margin, so
+  # attr(., "type") is unset. The robustness expansion in the first
+  # arm keys on isFALSE(attr(., "continuous")) instead, which works
+  # for both auto-fit and user-constructed mlpois/mlnbinom/mlgeom.
+  expect_equal(pmargin_sub(5, m), ppois(4, m[["lambda"]]))
+})
+
+test_that("pmargin_sub routes list-form discrete margins through $p_sub", {
+  set.seed(11)
+  lambda <- 3
+  m <- make_poisson_margin(lambda)
+
+  expect_equal(pmargin_sub(5, m), ppois(4, lambda))
+})
+
+test_that("pmargin_sub falls through to pmargin for continuous margins", {
+  set.seed(11)
+  m <- univariateML::mlnorm(rnorm(100))
+
+  # Continuous margins satisfy F(x-) = F(x); the third arm delegates
+  # to pmargin without shifting the input.
+  expect_equal(pmargin_sub(0.5, m), pmargin(0.5, m))
+})
+
+test_that("pmargin and qmargin dispatch on inherits(model, 'univariateML')", {
+  set.seed(11)
+
+  # univariateML route delegates to pml / qml. Compare against base-R
+  # pnorm / qnorm rather than pml / qml so the assertion verifies the
+  # numeric output, not just that two equivalent dispatches agree.
+  m_uni <- univariateML::mlnorm(rnorm(100))
+  expect_equal(pmargin(0.5, m_uni), pnorm(0.5, m_uni[["mean"]], m_uni[["sd"]]))
+  expect_equal(qmargin(0.5, m_uni), qnorm(0.5, m_uni[["mean"]], m_uni[["sd"]]))
+
+  # List-form route invokes the user-supplied $p / $q callables.
+  m_list <- make_poisson_margin(3)
+  expect_equal(pmargin(5, m_list), ppois(5, 3))
+  expect_equal(qmargin(0.5, m_list), qpois(0.5, 3))
+})
+
+test_that("select_margin tags univariateML-discrete fits with attr(., 'type') == 'discrete'", {
+  set.seed(11)
+
+  # Discrete fit: the line 89 tag derives from univariateML's
+  # `continuous` flag (FALSE -> "discrete"). This is the dispatch
+  # key downstream code reads (to_unif, logLik.svine_margin).
+  m_d <- select_margin(rpois(200, 3), "pois", "aic")
+  expect_equal(attr(m_d, "type"), "discrete")
+
+  # Continuous fit: falls through to the input-arm `type` variable,
+  # which is "univariateML" for all non-empirical family sets.
+  m_c <- select_margin(rnorm(200), "norm", "aic")
+  expect_equal(attr(m_c, "type"), "univariateML")
+})
