@@ -39,7 +39,7 @@ svine <- function(data, p, margin_families = univariateML::univariateML_models,
                   selcrit = "aic", ...) {
   if (is.list(data)) {
     if (any(sapply(data, is.factor)))
-      stop("discrete data not yet yupported")
+      stop("factor columns are not supported; convert to integer counts before fitting.")
   }
   data <- as.matrix(data)
   d <- ncol(data)

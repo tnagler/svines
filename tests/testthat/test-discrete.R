@@ -195,3 +195,37 @@ test_that("select_margin tags univariateML-discrete fits with attr(., 'type') ==
   m_c <- select_margin(rnorm(200), "norm", "aic")
   expect_equal(attr(m_c, "type"), "univariateML")
 })
+
+test_that("svine rejects factor columns with an informative error", {
+  set.seed(13)
+  n <- 50
+  df <- data.frame(
+    x = rpois(n, 3),
+    y = factor(sample(letters[1:3], n, replace = TRUE))
+  )
+  expect_error(
+    svine(df, p = 1),
+    regexp = "factor"
+  )
+})
+
+test_that("svine does not reject an integer matrix at the factor gate", {
+  set.seed(13)
+  n <- 100
+  x <- matrix(rpois(n * 2, 3), n, 2)
+
+  # Narrow gate test: we're verifying svine.R:40-43's factor check
+  # doesn't fire on an integer matrix, not that the full discrete
+  # pipeline works (Phase 2.7 var_types threading is not yet in).
+  # If the call errors for any reason, the assertion is that the
+  # error didn't come from the factor gate.
+  err <- tryCatch(
+    svine(x, p = 1),
+    error = identity
+  )
+  if (inherits(err, "error")) {
+    expect_false(grepl("factor", conditionMessage(err)))
+  } else {
+    expect_true(TRUE)
+  }
+})
