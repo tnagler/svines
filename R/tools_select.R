@@ -54,9 +54,39 @@ select_dvine <- function(u) {
 }
 
 
+# univariateML_panel returns the family names whose ml<name> entries
+# in univariateML::univariateML_metadata carry a support interval over
+# Z (discrete) or R (continuous), per the var_type argument. The names
+# are returned without the "ml" prefix, matching univariateML_models'
+# convention and the family-set inputs that model_select expects.
+#' @noRd
+univariateML_panel <- function(var_type) {
+  meta <- univariateML::univariateML_metadata
+  marker <- if (var_type == "d") "Z" else "R"
+  fams <- names(meta)[vapply(
+    meta,
+    function(m) identical(attr(m[["support"]], "type"), marker),
+    logical(1)
+  )]
+  sub("^ml", "", fams)
+}
+
 #' @importFrom stats sd
-select_margin <- function(x, families, criterion) {
+select_margin <- function(x, families, criterion, var_type = "c", j = NA_integer_) {
+  var_type <- match.arg(var_type, c("c", "d"))
   type <- if (all(families == "empirical")) "empirical" else "univariateML"
+
+  prefix <- if (is.na(j)) "" else sprintf("column %d: ", j)
+
+  if (var_type == "d") {
+    if (type == "empirical") {
+      stop(sprintf("%sfamilies = \"empirical\" is not supported for var_type = \"d\".", prefix))
+    }
+    if (all(families == "std")) {
+      stop(sprintf("%sfamilies = \"std\" is not supported for var_type = \"d\".", prefix))
+    }
+  }
+
   out <- if (type == "empirical") {
     F_n <- stats::ecdf(x)
     n <- length(x)
@@ -82,6 +112,11 @@ select_margin <- function(x, families, criterion) {
     fit
   } else {
     families <- setdiff(families, "empirical")
+    families <- intersect(families, univariateML_panel(var_type))
+    if (length(families) == 0L) {
+      stop(sprintf("%sno univariateML families remain after filtering to var_type = \"%s\".",
+                   prefix, var_type))
+    }
     fit <- univariateML::model_select(x, families, criterion) |>
       suppressWarnings()
     fit

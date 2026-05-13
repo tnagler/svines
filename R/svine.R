@@ -4,8 +4,13 @@
 #'
 #' @param data a matrix or data.frame of data.
 #' @param p the Markov order.
-#' @param margin_families either a vector of [univariateML::univariateML_models] to select 
-#'   from (used for every margin) or a list with one entry for every variable. 
+#' @param var_types variable types, a length-`d` vector with entries `"c"`
+#'   (continuous) or `"d"` (discrete). For discrete columns the family
+#'   selection in [select_margin] is restricted to univariateML's discrete
+#'   model panel (`pois`, `nbinom`, `geom`, etc.). Defaults to
+#'   `rep("c", NCOL(data))` when missing.
+#' @param margin_families either a vector of [univariateML::univariateML_models] to select
+#'   from (used for every margin) or a list with one entry for every variable.
 #'   Can also be `"empirical"` for empirical cdfs.
 #' @param selcrit criterion for family selection, either `"loglik"`, `"aic"`,
 #'   `"bic"`, `"mbicv"`.
@@ -35,7 +40,8 @@
 #' logLik(fit)
 #' 
 #' pairs(svine_sim(500, rep = 1, fit))
-svine <- function(data, p, margin_families = univariateML::univariateML_models, 
+svine <- function(data, p, var_types,
+                  margin_families = univariateML::univariateML_models,
                   selcrit = "aic", ...) {
   if (is.list(data)) {
     if (any(sapply(data, is.factor)))
@@ -43,19 +49,27 @@ svine <- function(data, p, margin_families = univariateML::univariateML_models,
   }
   data <- as.matrix(data)
   d <- ncol(data)
+  if (missing(var_types))
+    var_types <- rep("c", d)
+  assert_that(
+    is.character(var_types),
+    length(var_types) == d,
+    all(var_types %in% c("c", "d"))
+  )
   if (!is.list(margin_families))
     margin_families <- lapply(seq_len(d), function(j) margin_families)
   assert_that(length(margin_families) == d)
-  
+
   margin_crit <- ifelse(selcrit == "mbicv", "bic", selcrit)
   margins <- lapply(
     seq_len(d),
-    function(j) select_margin(data[, j], margin_families[[j]], margin_crit)
+    function(j) select_margin(data[, j], margin_families[[j]], margin_crit,
+                              var_type = var_types[j], j = j)
   )
   names(margins) <- colnames(data)
-  
+
   u <- to_unif(data, margins)
-  copula <- svinecop(u, p = p, selcrit = selcrit, ...)
+  copula <- svinecop(u, p = p, var_types = var_types, selcrit = selcrit, ...)
   if (!all(unlist(margin_families) == "empirical")) {
     loglik <- sum(sapply(margins, logLik.svine_margin)) + stats::logLik(copula)
     npars <- sum(sapply(margins, length)) + copula$npars

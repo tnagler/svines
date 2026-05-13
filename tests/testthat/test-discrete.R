@@ -187,7 +187,7 @@ test_that("select_margin tags univariateML-discrete fits with attr(., 'type') ==
   # Discrete fit: the line 89 tag derives from univariateML's
   # `continuous` flag (FALSE -> "discrete"). This is the dispatch
   # key downstream code reads (to_unif, logLik.svine_margin).
-  m_d <- select_margin(rpois(200, 3), "pois", "aic")
+  m_d <- select_margin(rpois(200, 3), "pois", "aic", var_type = "d")
   expect_equal(attr(m_d, "type"), "discrete")
 
   # Continuous fit: falls through to the input-arm `type` variable,
@@ -228,4 +228,44 @@ test_that("svine does not reject an integer matrix at the factor gate", {
   } else {
     expect_true(TRUE)
   }
+})
+
+test_that("select_margin restricts to the discrete panel under var_type = 'd'", {
+  set.seed(17)
+  m <- select_margin(rpois(200, 3), c("pois", "norm"), "aic", var_type = "d")
+  expect_equal(attr(m, "model"), "Poisson")
+  expect_equal(attr(m, "type"), "discrete")
+})
+
+test_that("select_margin errors when families and var_type produce an empty intersection", {
+  set.seed(17)
+  expect_error(
+    select_margin(rpois(50, 3), "norm", "aic", var_type = "d"),
+    regexp = "var_type"
+  )
+})
+
+test_that("select_margin rejects families = 'empirical' under var_type = 'd'", {
+  set.seed(17)
+  expect_error(
+    select_margin(rpois(50, 3), "empirical", "aic", var_type = "d"),
+    regexp = "empirical"
+  )
+})
+
+test_that("svine accepts var_types = c('d', 'd') end-to-end on integer data", {
+  set.seed(17)
+  n <- 100
+  x <- matrix(rpois(n * 2, 3), n, 2)
+  fit <- svine(x, p = 1, var_types = c("d", "d"),
+               margin_families = "pois", family_set = "gaussian")
+  expect_s3_class(fit, "svine")
+  expect_equal(attr(fit$margins[[1]], "type"), "discrete")
+  expect_equal(attr(fit$margins[[2]], "type"), "discrete")
+})
+
+test_that("svine errors when var_types length does not match NCOL(data)", {
+  set.seed(17)
+  x <- matrix(rpois(100 * 2, 3), 100, 2)
+  expect_error(svine(x, p = 1, var_types = c("d", "d", "d")))
 })
