@@ -131,12 +131,28 @@ kern <- function(x) {
   K + 2 * (1 - abs(x))^3 * (abs(x) > 1 / 2) * (abs(x) <= 1)
 }
 
-bootstrap_pobs <- function(u, xi) {
+bootstrap_pobs <- function(u, xi, var_types = NULL) {
   u <- as.matrix(u)
-  for (j in seq_len(ncol(u))) {
+  d <- if (is.null(var_types)) ncol(u) else length(var_types)
+  for (j in seq_len(d)) {
     s <- sort(u[, j], index.return = TRUE)
-    u[, j] <- cumsum(xi[s$ix])[order(s$ix)]
-    u[, j] <- u[, j] / (max(u[, j]) + 1e-10)
+    w_cum <- cumsum(xi[s$ix])
+    norm  <- max(w_cum) + 1e-10
+    u[, j] <- w_cum[order(s$ix)] / norm
+    if (!is.null(var_types) && var_types[j] == "d") {
+      # Apply the same bootstrapped empirical CDF F_tilde_j to the F(x-)
+      # shadow column so the (real, shadow) pair stays consistent.
+      # ties = list("ordered", max): at a tied observed value v with
+      # cumulative weights w_cum[r..r+k-1], the right-continuous ECDF
+      # F_tilde(v) is w_cum[r+k-1]/norm (the value after all tied
+      # observations), not the mean. Discrete data has frequent ties.
+      # "ordered" skips a redundant sort: s$x is already sorted.
+      F_tilde <- stats::approxfun(s$x, w_cum / norm,
+                                  method = "constant",
+                                  yleft = 0, yright = 1,
+                                  ties = list("ordered", max))
+      u[, j + d] <- F_tilde(u[, j + d])
+    }
   }
   u
 }
@@ -156,7 +172,7 @@ svine_bootstrap_semipar <- function(n_models, model) {
   models <- replicate(n_models, model, simplify = FALSE)
   for (b in seq_along(models)) {
     xi <- sim_multipliers(n, ell)
-    u_tilde <- bootstrap_pobs(u, xi)
+    u_tilde <- bootstrap_pobs(u, xi, model$copula$var_types)
     phi_tilde <- c(xi[seq_len(np)]) * svinecop_scores(u_tilde, model$copula)
     models[[b]]$margins <- lapply(
       seq_along(model$margins),

@@ -406,3 +406,69 @@ test_that("svine_hessian mixed block matches external finite differences on disc
   # failing reliably on the pre-fix O(1e-2) bias.
   expect_lt(abs(hessian_entry - estimate), 5e-3)
 })
+
+test_that("bootstrap_pobs reproduces original behaviour on continuous-only input (no var_types)", {
+  set.seed(401)
+  n <- 50
+  d <- 2
+  u <- matrix(runif(n * d), n, d)
+  xi <- rexp(n)
+
+  # Manually replicate the pre-fix continuous-only algorithm: when
+  # var_types is NULL, the function must reduce to its prior behaviour.
+  expected <- u
+  for (j in seq_len(ncol(expected))) {
+    s <- sort(expected[, j], index.return = TRUE)
+    expected[, j] <- cumsum(xi[s$ix])[order(s$ix)]
+    expected[, j] <- expected[, j] / (max(expected[, j]) + 1e-10)
+  }
+
+  expect_identical(bootstrap_pobs(u, xi), expected)
+})
+
+test_that("bootstrap_pobs preserves F(x-) <= F(x) pairing under discrete input", {
+  set.seed(402)
+  n <- 100
+  lambda <- c(3, 5)
+  x <- cbind(rpois(n, lambda[1]), rpois(n, lambda[2]))
+  u <- cbind(
+    ppois(x[, 1], lambda[1]),
+    ppois(x[, 2], lambda[2]),
+    ppois(x[, 1] - 1, lambda[1]),
+    ppois(x[, 2] - 1, lambda[2])
+  )
+  xi <- rexp(n)
+
+  ub <- bootstrap_pobs(u, xi, var_types = c("d", "d"))
+
+  # F_tilde_j is non-decreasing as an empirical-CDF estimate, so applying
+  # it to both halves of the (real, shadow) pair preserves the
+  # inequality u[, j + d] <= u[, j] that holds by construction for
+  # F(x-) <= F(x) on integer-supported margins.
+  expect_true(all(ub[, 3] <= ub[, 1]))
+  expect_true(all(ub[, 4] <= ub[, 2]))
+  expect_true(all(ub >= 0 & ub <= 1))
+})
+
+test_that("bootstrap_pobs applies the same F_tilde_j to both halves of each discrete pair", {
+  set.seed(403)
+  n <- 50
+  # Construct u so that u[i_test, 3] (shadow margin 1) exactly equals
+  # u[i_other, 1] (real margin 1) at a different row. If the fix applies
+  # a single bootstrapped step function F_tilde_1 to both halves, then
+  # equal inputs must produce equal outputs across the halves.
+  u <- matrix(0, n, 4)
+  u[, 1] <- sort(runif(n, 0.01, 0.99))
+  u[, 2] <- runif(n, 0.01, 0.99)
+  u[, 3] <- runif(n, 0.005, u[, 1])
+  u[, 4] <- runif(n, 0.005, u[, 2])
+
+  i_other <- 10L
+  i_test  <- 30L
+  u[i_test, 3] <- u[i_other, 1]
+
+  xi <- rexp(n)
+  ub <- bootstrap_pobs(u, xi, var_types = c("d", "d"))
+
+  expect_equal(ub[i_test, 3], ub[i_other, 1])
+})
