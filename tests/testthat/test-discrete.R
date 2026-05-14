@@ -269,3 +269,53 @@ test_that("svine errors when var_types length does not match NCOL(data)", {
   x <- matrix(rpois(100 * 2, 3), 100, 2)
   expect_error(svine(x, p = 1, var_types = c("d", "d", "d")))
 })
+
+test_that("svinecop_scores and svinecop_hessian return well-shaped finite values on discrete data (p = 0)", {
+  set.seed(101)
+  n <- 200
+  d <- 2
+
+  margins <- list(make_poisson_margin(3), make_poisson_margin(5))
+  x <- cbind(rpois(n, 3), rpois(n, 5))
+  u <- to_unif(x, margins)
+  fit <- svinecop(u, p = 0, var_types = c("d", "d"), family_set = "gaussian")
+
+  S <- svinecop_scores(u, fit)
+  H <- svinecop_hessian(u, fit)
+  k_cop <- fit$npars
+
+  expect_equal(dim(S), c(n, k_cop))
+  expect_equal(dim(H), c(k_cop, k_cop))
+  expect_true(all(is.finite(S)))
+  expect_true(all(is.finite(H)))
+
+  # Score-at-MLE smoke probe: at the maximum-likelihood fit, the mean of
+  # each score column should be near zero by construction. Tolerance is
+  # loose (0.5) because n = 200 is finite and the fit is family-restricted
+  # to Gaussian; this is a sanity bound, not an asymptotic-optimality test.
+  expect_lt(mean(abs(colMeans(S))), 0.5)
+})
+
+test_that("svinecop_scores and svinecop_hessian return well-shaped finite values on discrete data (p = 1)", {
+  set.seed(102)
+  n <- 200
+  d <- 2
+
+  margins <- list(make_poisson_margin(3), make_poisson_margin(5))
+  x <- cbind(rpois(n, 3), rpois(n, 5))
+  u <- to_unif(x, margins)
+  fit <- svinecop(u, p = 1, var_types = c("d", "d"), family_set = "gaussian")
+
+  S <- svinecop_scores(u, fit)
+  H <- svinecop_hessian(u, fit)
+  k_cop <- fit$npars
+
+  # spread_lag drops one row per Markov lag in the C++ scores path, so the
+  # output row count is n - p (here 200 - 1 = 199).
+  expect_equal(dim(S), c(n - 1, k_cop))
+  expect_equal(dim(H), c(k_cop, k_cop))
+  expect_true(all(is.finite(S)))
+  expect_true(all(is.finite(H)))
+
+  expect_lt(mean(abs(colMeans(S))), 0.5)
+})
