@@ -319,3 +319,90 @@ test_that("svinecop_scores and svinecop_hessian return well-shaped finite values
 
   expect_lt(mean(abs(colMeans(S))), 0.5)
 })
+
+test_that("svine_scores returns well-shaped finite values on discrete data (p = 0)", {
+  set.seed(201)
+  n <- 200
+
+  x <- cbind(rpois(n, 3), rpois(n, 5))
+  fit <- svine(x, p = 0, var_types = c("d", "d"),
+               margin_families = "pois", family_set = "gaussian")
+  S <- svine_scores(x, fit)
+  k_total <- sum(sapply(fit$margins, length)) + fit$copula$npars
+
+  expect_equal(dim(S), c(n, k_total))
+  expect_true(all(is.finite(S)))
+
+  # Score-at-MLE smoke probe. Observed value is ~2.4e-4 on this seed; the
+  # 5e-3 bound leaves ample headroom (~20x) while still catching the O(0.01)
+  # bias a buggy mixed-block computation would produce on the copula-score
+  # column.
+  expect_lt(mean(abs(colMeans(S))), 5e-3)
+})
+
+test_that("svine_hessian returns well-shaped finite values on discrete data (p = 0)", {
+  set.seed(202)
+  n <- 200
+
+  x <- cbind(rpois(n, 3), rpois(n, 5))
+  fit <- svine(x, p = 0, var_types = c("d", "d"),
+               margin_families = "pois", family_set = "gaussian")
+  H <- svine_hessian(x, fit)
+  k_total <- sum(sapply(fit$margins, length)) + fit$copula$npars
+
+  # Structural-only: dim and finite. The Hessian assembled by svine_hessian
+  # places a zero matrix in the bottom-left block (only the top-right mixed
+  # block is computed via hessian_mxd), so the full H is asymmetric by
+  # construction and isSymmetric() is not a meaningful check here.
+  expect_equal(dim(H), c(k_total, k_total))
+  expect_true(all(is.finite(H)))
+})
+
+test_that("svine_hessian mixed block matches external finite differences on discrete data", {
+  # Seed chosen empirically: the magnitude of the shadow-column-omission
+  # bias is data-dependent (varies an order of magnitude across seeds),
+  # and seed 205 produces a ~1.2e-2 bias here — well above the tolerance
+  # below, giving the regression test a reliable signal.
+  set.seed(205)
+  n <- 200
+
+  x <- cbind(rpois(n, 3), rpois(n, 5))
+  fit <- svine(x, p = 0, var_types = c("d", "d"),
+               margin_families = "pois", family_set = "gaussian")
+  H <- svine_hessian(x, fit)
+  k_mrg <- sum(sapply(fit$margins, length))
+
+  # Reproduce hessian_mxd's perturbation externally for (margin 1 param 1,
+  # copula param 1). eps matches hessian_mxd's internal 1e-3 so the
+  # comparison sees the same parameter-space neighbourhood; mismatched eps
+  # introduces second-order disagreement that obscures the bug signal.
+  eps <- 1e-3
+  margin_1_plus  <- fit$margins[[1]]
+  margin_1_plus[1]  <- fit$margins[[1]][1] + eps
+  margin_1_minus <- fit$margins[[1]]
+  margin_1_minus[1] <- fit$margins[[1]][1] - eps
+  margins_plus  <- list(margin_1_plus,  fit$margins[[2]])
+  margins_minus <- list(margin_1_minus, fit$margins[[2]])
+  u_plus  <- to_unif(x, margins_plus)
+  u_minus <- to_unif(x, margins_minus)
+  score_plus  <- svinecop_scores(u_plus,  fit$copula)
+  score_minus <- svinecop_scores(u_minus, fit$copula)
+
+  # Column 1 of svinecop_scores corresponds to the first copula parameter
+  # (canonical order: outer loop over trees, inner loop over edges; here
+  # one tree with one edge under d=2, p=0).
+  estimate <- mean(score_plus[, 1] - score_minus[, 1]) / (2 * eps)
+
+  # Hessian layout from svine_hessian: rows/cols 1..k_mrg are marginal
+  # params, k_mrg+1..end are copula params. H[1, k_mrg + 1] is the
+  # (margin 1 param 1, copula param 1) mixed-block entry.
+  hessian_entry <- H[1, k_mrg + 1]
+
+  # Tolerance: 5e-3. After the shadow-column update is included in
+  # hessian_mxd, the internal perturbation matches the external one
+  # (both route through pml(x, .) for F(x) and pml(x-1, .) for F(x-)),
+  # so the agreement is at floating-point precision (~1e-12). The 5e-3
+  # bound leaves three orders of magnitude of headroom while still
+  # failing reliably on the pre-fix O(1e-2) bias.
+  expect_lt(abs(hessian_entry - estimate), 5e-3)
+})

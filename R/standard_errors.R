@@ -339,18 +339,28 @@ hessian_mxd <- function(x, model, cores = 1) {
   u <- to_unif(x, model$margins)
   npars_mrg <- sapply(model$margins, length)
   hessian <- matrix(NA, sum(npars_mrg), model$copula$npars)
+  # Under discrete margins, u is the doubled-column matrix from to_unif
+  # with F(x) in columns 1..d and F(x-) in columns d+1..2d. The
+  # parameter perturbation below must update both halves of each
+  # discrete column's pair; updating only column m leaves the F(x-)
+  # shadow at the unperturbed value, biasing the finite difference.
+  var_types <- model$copula$var_types
+  d <- length(model$margins)
   i_p <- 1
   for (m in seq_along(model$margins)) {
+    is_disc <- var_types[m] == "d"
     for (p in seq_along(model$margins[[m]])) {
       tmp_model <- model$margins[[m]]
       tmp_u <- u
 
       tmp_model[p] <- model$margins[[m]][p] - 1e-3
       tmp_u[, m] <- univariateML::pml(x[, m], tmp_model)
+      if (is_disc) tmp_u[, m + d] <- univariateML::pml(x[, m] - 1, tmp_model)
       s_lwr <- svinecop_scores(tmp_u, model$copula, cores = cores)
 
       tmp_model[p] <- model$margins[[m]][p] + 1e-3
       tmp_u[, m] <- univariateML::pml(x[, m], tmp_model)
+      if (is_disc) tmp_u[, m + d] <- univariateML::pml(x[, m] - 1, tmp_model)
       s_upr <- svinecop_scores(tmp_u, model$copula, cores = cores)
 
       hessian[i_p, ] <- colMeans(s_upr - s_lwr) / 2e-3
