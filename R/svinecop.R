@@ -5,12 +5,13 @@
 #' @param data a matrix or data.frame (copula data should have approximately
 #'   uniform margins).
 #' @param p the Markov order.
-#' @param var_types variable types, a length `d` vector with entries `"c"`
-#'   (continuous) or `"d"` (discrete). For discrete variables, `data` is
-#'   supplied as `n`-by-`(2d)` with `F(x)` in columns `1..d` and `F(x-)` in
-#'   columns `(d+1)..2d`. Callers passing discrete data without
-#'   `cs_structure` must specify `var_types` explicitly -- otherwise
-#'   `svinecop()` silently fits a continuous model.
+#' @param var_types variable types; a character vector with one entry per
+#'   variable: `"c"` for continuous, `"d"` for discrete. For discrete
+#'   variables, each column in `data` must be accompanied by a corresponding
+#'   column of left-limit values `F(x-)`, placed after all the regular columns.
+#'   If unsure, use [svine()] instead, which handles this automatically.
+#'   Omitting `var_types` when `cs_structure` is not provided will silently
+#'   fit a continuous model.
 #' @param out_vertices the out-vertex; if `NA`, the out-vertex is selected
 #'   automatically if no structure is provided, and is equivalent to 1 if a
 #'   structure is provided.
@@ -230,10 +231,11 @@ svinecop <- function(data, p, var_types,
 #' @param in_vertices the in-vertex; if `NA`, the in-vertex is selected
 #'   automatically if no structure is provided, and is equivalent to 1 if a
 #'    structure is provided.
-#' @param var_types variable types, a length `d` vector with entries `"c"`
-#'   (continuous) or `"d"` (discrete). For discrete variables, methods on
-#'   the returned object expect `data` in `n`-by-`(2d)` form, with `F(x)`
-#'   in columns `1..d` and `F(x-)` in columns `(d+1)..2d`.
+#' @param var_types variable types; a character vector with one entry per
+#'   variable: `"c"` for continuous, `"d"` for discrete. For discrete
+#'   variables, methods on the returned object expect each column in `data`
+#'   to be accompanied by a corresponding column of left-limit values `F(x-)`,
+#'   placed after all the regular columns.
 #'
 #' @return Returns the model as an object with classes
 #'   `svinecop_dist`. Also inherits from `vinecop_dist`

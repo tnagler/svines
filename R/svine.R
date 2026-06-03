@@ -254,11 +254,8 @@ to_unif <- function(x, margins) {
       function(j) pmargin_sub(x[, j], margins[[j]])
     )
     u <- cbind(u, u_sub)
-    # Shadow columns are positional, not named — drop colnames on
-    # the doubled output so downstream callers can't inadvertently
-    # key on the empty-string column names cbind would otherwise
-    # leave on the right half.
-    colnames(u) <- NULL
+    if (!is.null(var_names))
+      colnames(u) <- c(var_names, paste0(var_names, "_sub"))
   }
   u
 }
