@@ -245,12 +245,31 @@ test_that("select_margin errors when families and var_type produce an empty inte
   )
 })
 
-test_that("select_margin rejects families = 'empirical' under var_type = 'd'", {
+test_that("empirical margins are supported on discrete data end-to-end", {
   set.seed(17)
-  expect_error(
-    select_margin(rpois(50, 3), "empirical", "aic", var_type = "d"),
-    regexp = "empirical"
+  n <- 200
+  x <- rpois(n, 3)
+
+  m <- select_margin(x, "empirical", "aic", var_type = "d")
+  expect_equal(attr(m, "type"), "discrete")
+  expect_true(is.function(m$p_sub))
+
+  # F(x-) for an empirical discrete margin is the ecdf one integer lower,
+  # on the same (0, 1)-scaled convention pmargin uses.
+  F_n <- ecdf(x)
+  expect_equal(pmargin_sub(5L, m), F_n(4L) * n / (n + 1))
+
+  # full svine_dist (margins + copula) with two empirical discrete margins
+  m2 <- select_margin(rpois(n, 5), "empirical", "aic", var_type = "d")
+  cop <- svinecop_dist(
+    pair_copulas = list(list(bicop_dist("gaussian", parameters = 0.4))),
+    cs_structure = cvine_structure(1:2),
+    p            = 0,
+    out_vertices = 1:2,
+    in_vertices  = 1:2,
+    var_types    = c("d", "d")
   )
+  expect_no_error(svine_dist(margins = list(m, m2), copula = cop))
 })
 
 test_that("svine accepts var_types = c('d', 'd') end-to-end on integer data", {

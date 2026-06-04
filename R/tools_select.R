@@ -79,9 +79,6 @@ select_margin <- function(x, families, criterion, var_type = "c", j = NA_integer
   prefix <- if (is.na(j)) "" else sprintf("column %d: ", j)
 
   if (var_type == "d") {
-    if (type == "empirical") {
-      stop(sprintf("%sfamilies = \"empirical\" is not supported for var_type = \"d\".", prefix))
-    }
     if (all(families == "std")) {
       stop(sprintf("%sfamilies = \"std\" is not supported for var_type = \"d\".", prefix))
     }
@@ -91,10 +88,11 @@ select_margin <- function(x, families, criterion, var_type = "c", j = NA_integer
     F_n <- stats::ecdf(x)
     n <- length(x)
     fit <- list(
-      p = function(x) F_n(x) * n / (n + 1),
-      q = function(p) stats::quantile(F_n, probs = p)
+      p     = function(x) F_n(x) * n / (n + 1),
+      q     = function(p) stats::quantile(F_n, probs = p),
+      p_sub = if (var_type == "d") function(x) F_n(x - 1L) * n / (n + 1) else NULL
     )
-    attr(fit, "model") <- "empirical"
+    attr(fit, "model")  <- "empirical"
     attr(fit, "logLik") <- NA
     fit
   } else if (all(families == "std")) {
@@ -122,6 +120,8 @@ select_margin <- function(x, families, criterion, var_type = "c", j = NA_integer
     fit
   }
   out_type <- if (inherits(out, "univariateML") && isFALSE(attr(out, "continuous"))) {
+    "discrete"
+  } else if (type == "empirical" && var_type == "d") {
     "discrete"
   } else {
     type
