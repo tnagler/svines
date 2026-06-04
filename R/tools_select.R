@@ -88,11 +88,11 @@ select_margin <- function(x, families, criterion, var_type = "c", j = NA_integer
     F_n <- stats::ecdf(x)
     n <- length(x)
     fit <- list(
-      p     = function(x) F_n(x) * n / (n + 1),
-      q     = function(p) stats::quantile(F_n, probs = p),
+      p = function(x) F_n(x) * n / (n + 1),
+      q = function(p) stats::quantile(F_n, probs = p),
       p_sub = if (var_type == "d") function(x) F_n(x - 1L) * n / (n + 1) else NULL
     )
-    attr(fit, "model")  <- "empirical"
+    attr(fit, "model") <- "empirical"
     attr(fit, "logLik") <- NA
     fit
   } else if (all(families == "std")) {
@@ -153,17 +153,16 @@ pmargin <- function(x, model) {
   }
 }
 
-# pmargin_sub returns F(x-): the CDF at the largest support point
-# strictly less than x — for integer-valued discrete margins this is
-# F(x - 1). Companion to pmargin for the doubled-column input layout
-# that discrete-margin copula evaluation expects: an n x 2d matrix
-# with F(x) in columns 1..d and F(x-) in columns d+1..2d. Three arms:
-# univariateML-classed discrete margins (auto-fit path, or user-
-# constructed via mlpois/mlnbinom/mlgeom directly) use F(x - 1) via
-# pml on shifted inputs; list-form discrete margins (β contract)
-# supply $p_sub directly; everything else is continuous and falls
-# through to pmargin, emitting redundant shadow columns that the
-# copula collapses internally.
+# pmargin_sub returns F(x-): the left limit of the CDF at x.
+# For integer-valued discrete margins, F(x-) = F(x - 1).
+# Used alongside pmargin to build the doubled input matrix that
+# discrete copula evaluation requires: F(x) and F(x-) for each
+# variable, side by side. Three dispatch arms:
+# (1) univariateML discrete margins: F(x - 1) via pml on shifted inputs.
+# (2) List-form discrete margins (e.g. hand-built or empirical):
+#     delegates to $p_sub, which the margin object supplies directly.
+# (3) Continuous margins: returns F(x) unchanged — the shadow column
+#     is redundant but the copula collapses it correctly.
 #' @noRd
 pmargin_sub <- function(x, model) {
   if (inherits(model, "univariateML") && isFALSE(attr(model, "continuous"))) {
@@ -183,12 +182,10 @@ qmargin <- function(p, model) {
   }
 }
 
-# check_margin validates a margin object against the β contract.
-# univariateML objects pass on class (dispatch goes through
-# univariateML::pml / qml without touching $p / $q). All other margins
-# must be lists with $p and $q callables, plus $p_sub when
-# attr(., "type") is "discrete". j is the column index, included in
-# error messages so users can locate the offending margin.
+# Validates a margin object before use in svine_dist().
+# univariateML objects pass automatically. All other margins must be
+# lists with callable $p and $q; discrete margins additionally need $p_sub.
+# j is the column index, used in error messages.
 #' @noRd
 check_margin <- function(m, j) {
   if (inherits(m, "univariateML")) return(invisible(TRUE))
