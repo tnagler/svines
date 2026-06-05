@@ -178,7 +178,9 @@ svine_bootstrap_semipar <- function(n_models, model) {
       seq_along(model$margins),
       function(j) {
         x_tilde <- model$margins[[j]]$q(u_tilde[, j])
-        select_margin(x_tilde, "empirical", "")
+        select_margin(x_tilde, "empirical", "",
+                      var_type = if (attr(model$margins[[j]], "type") == "discrete") "d" else "c"
+        )
       }
     )
     par_b <- par - Hi %*% colMeans(phi_tilde)
@@ -355,11 +357,6 @@ hessian_mxd <- function(x, model, cores = 1) {
   u <- to_unif(x, model$margins)
   npars_mrg <- sapply(model$margins, length)
   hessian <- matrix(NA, sum(npars_mrg), model$copula$npars)
-  # Under discrete margins, u is the doubled-column matrix from to_unif
-  # with F(x) in columns 1..d and F(x-) in columns d+1..2d. The
-  # parameter perturbation below must update both halves of each
-  # discrete column's pair; updating only column m leaves the F(x-)
-  # shadow at the unperturbed value, biasing the finite difference.
   var_types <- model$copula$var_types
   d <- length(model$margins)
   i_p <- 1
@@ -371,6 +368,9 @@ hessian_mxd <- function(x, model, cores = 1) {
 
       tmp_model[p] <- model$margins[[m]][p] - 1e-3
       tmp_u[, m] <- univariateML::pml(x[, m], tmp_model)
+      # For discrete margins, to_unif produces a doubled matrix: F(x) columns
+      # first, then F(x-) shadow columns. Both halves of each discrete pair
+      # must be updated when perturbing a marginal parameter.
       if (is_disc) tmp_u[, m + d] <- univariateML::pml(x[, m] - 1, tmp_model)
       s_lwr <- svinecop_scores(tmp_u, model$copula, cores = cores)
 
