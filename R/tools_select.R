@@ -155,14 +155,15 @@ pmargin <- function(x, model) {
 
 # pmargin_sub returns F(x-): the left limit of the CDF at x.
 # For integer-valued discrete margins, F(x-) = F(x - 1).
-# Used alongside pmargin to build the doubled input matrix that
-# discrete copula evaluation requires: F(x) and F(x-) for each
-# variable, side by side. Three dispatch arms:
+# Used alongside pmargin to build the compact input matrix that
+# discrete copula evaluation requires: F(x) for all variables,
+# then F(x-) for discrete variables only. Three dispatch arms:
 # (1) univariateML discrete margins: F(x - 1) via pml on shifted inputs.
 # (2) List-form discrete margins (e.g. hand-built or empirical):
 #     delegates to $p_sub, which the margin object supplies directly.
-# (3) Continuous margins: returns F(x) unchanged — the shadow column
-#     is redundant but the copula collapses it correctly.
+# (3) Continuous margins: returns F(x) unchanged, retained for
+#     robustness but not reached on the normal to_unif() path,
+#     which calls pmargin_sub only on discrete columns.
 #' @noRd
 pmargin_sub <- function(x, model) {
   if (inherits(model, "univariateML") && isFALSE(attr(model, "continuous"))) {
