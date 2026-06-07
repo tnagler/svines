@@ -4,11 +4,9 @@
 #'
 #' @param data a matrix or data.frame of data.
 #' @param p the Markov order.
-#' @param var_types variable types, a length-`d` vector with entries `"c"`
-#'   (continuous) or `"d"` (discrete). For discrete columns the family
-#'   selection in [select_margin] is restricted to univariateML's discrete
-#'   model panel (`pois`, `nbinom`, `geom`, etc.). Defaults to
-#'   `rep("c", NCOL(data))` when missing.
+#' @param var_types variable types; a character vector with one entry per
+#'   variable: `"c"` for continuous, `"d"` for discrete. Defaults to
+#'   all-continuous when missing.
 #' @param margin_families either a vector of [univariateML::univariateML_models] to select
 #'   from (used for every margin) or a list with one entry for every variable.
 #'   Can also be `"empirical"` for empirical cdfs.
@@ -94,24 +92,13 @@ svine <- function(data, p, var_types,
 #' Custom S-vine distribution models
 #' 
 #'
-#' @param margins A list of length `d`. Each element is either a
-#'   `univariateML` object (the standard continuous path; dispatch
-#'   uses [univariateML::pml] / [univariateML::qml]) or a list
-#'   satisfying the following contract:
-#'   * `$p`, `$q` -- callables returning the marginal CDF F(x) and
-#'     quantile function F^{-1}(p).
-#'   * `$p_sub` -- required for discrete margins (a callable
-#'     returning F(x-), the CDF at the largest support point strictly
-#'     less than x; for integer-valued margins this is F(x - 1)).
-#'   * `attr(., "type")` -- must be `"discrete"` for discrete
-#'     list-form margins; this attribute is the dispatch key that
-#'     triggers the doubled-column input layout used by the
-#'     discrete-aware copula path.
-#'   * `attr(., "model")` -- printable name surfaced by [summary()].
-#'   * `attr(., "logLik")` -- model log-likelihood at fitted data, or
-#'     `NA` for hand-constructed margins.
-#'   * `attr(., "df")` -- parameter count.
-#'   * `class(.)` -- must include `"svine_margin"`.
+#' @param margins A list with one marginal distribution per variable.
+#'   Each element is either a `univariateML` object or a list with
+#'   callables `$p` (CDF), `$q` (quantile function), and for discrete
+#'   margins `$p_sub` (left-limit CDF, i.e. F(x-)). 
+#'   Discrete list-form margins must also carry
+#'   `attr(., "type") = "discrete"` and `class` including
+#'   `"svine_margin"`.
 #' @param copula the copula model; an object of class `svinecop_dist` with 
 #'   cross-sectional dimension `d`.
 #'
