@@ -14,7 +14,7 @@ namespace vinecopulib {
 //!
 //! @param data the data.
 //! @param cs_dim cross-sectional dimension.
-//! @param n_discrete cross-sectional count of "d" entries in var_types_.
+//! @param n_discrete cross-sectional count of "d" (discrete) entries in var_types_.
 inline Eigen::MatrixXd
 spread_lag(const Eigen::MatrixXd& data, size_t cs_dim, size_t n_discrete)
 {

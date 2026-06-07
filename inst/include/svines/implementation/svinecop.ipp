@@ -257,12 +257,21 @@ SVinecop::loglik(const Eigen::MatrixXd& u, const size_t num_threads)
   // the cross-sectional count, so slice to the first cs_dim_ entries
   size_t n_disc_cs = std::count(var_types_.begin(), var_types_.begin() + cs_dim_, "d");
 
+  // The sub-model computations below reduce d_; var_types_ must be resized to
+  // match, because the downstream Vinecop::check_data_dim / collapse_data read
+  // var_types_ and would otherwise count discretes over the full-length vector
+  // (inconsistent with the reduced d_). Save the full vector and the
+  // cross-sectional slice to replicate from, then restore before returning.
+  auto var_types_full = var_types_;
+  auto var_types_cs = tools_stl::span(var_types_, 0, cs_dim_);
+
   // first compute substraction component (otherwise some contributions
   // are counted twice)
   size_t p_tmp = std::min(n, p_) - 1;
   rvine_structure_ = SVineStructure(
     svine_struct_.get_cs_structure(), p_tmp, out_vertices_, in_vertices_);
   d_ = cs_dim_ * (1 + p_tmp);
+  var_types_ = tools_stl::rep(var_types_cs, 1 + p_tmp);
   auto u_spr = u;
   for (size_t lag = 0; lag < p_tmp; ++lag) {
     u_spr = spread_lag(u_spr, cs_dim_, n_disc_cs);
@@ -281,6 +290,7 @@ SVinecop::loglik(const Eigen::MatrixXd& u, const size_t num_threads)
   rvine_structure_ = SVineStructure(
     svine_struct_.get_cs_structure(), p_, out_vertices_, in_vertices_);
   d_ = cs_dim_ * (1 + p_);
+  var_types_ = var_types_full;
   ll += Vinecop::loglik(u_spr, num_threads);
 
   return ll;

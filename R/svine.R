@@ -239,23 +239,25 @@ to_unif <- function(x, margins) {
   if (!is.null(var_names))
     colnames(u) <- var_names
 
-  # When any margin is discrete, the copula evaluation requires a
-  # doubled-column n x 2d input layout: F(x) in columns 1..d and
-  # F(x-) in columns d+1..2d. Continuous-only margin sets fall
-  # through with the original n x d output unchanged.
-  has_discrete <- any(vapply(
+  # When any margin is discrete, the copula evaluation requires the
+  # compact n x (d + n_discrete) input layout: F(x) in columns 1..d,
+  # followed by one F(x-) left-limit column per discrete margin, in
+  # var_types order. Continuous-only margin sets fall through with the
+  # original n x d output unchanged.
+  is_disc <- vapply(
     margins,
     function(m) identical(attr(m, "type"), "discrete"),
     logical(1)
-  ))
-  if (has_discrete) {
+  )
+  if (any(is_disc)) {
+    disc_idx <- which(is_disc)
     u_sub <- sapply(
-      seq_len(ncol(x)),
+      disc_idx,
       function(j) pmargin_sub(x[, j], margins[[j]])
     )
     u <- cbind(u, u_sub)
     if (!is.null(var_names))
-      colnames(u) <- c(var_names, paste0(var_names, "_sub"))
+      colnames(u) <- c(var_names, paste0(var_names[disc_idx], "_sub"))
   }
   u
 }

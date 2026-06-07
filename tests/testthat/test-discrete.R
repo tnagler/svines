@@ -113,7 +113,8 @@ test_that("svine_dist builds end-to-end with hand-constructed Poisson margins", 
   n <- 50
   x <- cbind(rpois(n, 3), rpois(n, 5))
   u <- to_unif(x, m$margins)
-  expect_equal(ncol(u), 2 * d)
+  n_disc <- sum(vapply(m$margins, function(mm) identical(attr(mm, "type"), "discrete"), logical(1)))
+  expect_equal(ncol(u), d + n_disc)
 
   # logLik on a discrete margin dispatches through the discrete arm
   # of logLik.svine_margin and surfaces the df attribute (1 for
@@ -490,4 +491,34 @@ test_that("bootstrap_pobs applies the same F_tilde_j to both halves of each disc
   ub <- bootstrap_pobs(u, xi, var_types = c("d", "d"))
 
   expect_equal(ub[i_test, 3], ub[i_other, 1])
+})
+
+test_that("svine fits a mixed continuous/discrete model at p = 1", {
+  set.seed(42)
+  n <- 200
+  x <- cbind(rnorm(n), rpois(n, 3))
+  fit <- svine(x, p = 1, var_types = c("c", "d"),
+               margin_families = list(univariateML::univariateML_models, "pois"),
+               family_set = "gaussian")
+  expect_s3_class(fit, "svine")
+  expect_equal(ncol(to_unif(x, fit$margins)), 3L)
+})
+
+test_that("svine loglik and scores are numerically correct for mixed c/d model", {
+  set.seed(42)
+  n <- 200
+  x <- cbind(rnorm(n), rpois(n, 3))
+  fit <- svine(x, p = 1, var_types = c("c", "d"),
+               margin_families = list(univariateML::univariateML_models, "pois"),
+               family_set = "gaussian")
+
+  # log-likelihood should be finite
+  ll <- svine_loglik(x, fit)
+  expect_true(is.finite(ll))
+
+  # scores at the MLE should be near zero (mean score test)
+  sc <- svine_scores(x, fit)
+  expect_true(is.matrix(sc))
+  expect_true(all(is.finite(sc)))
+  expect_lt(max(abs(colMeans(sc))), 0.5)
 })

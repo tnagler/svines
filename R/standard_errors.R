@@ -134,6 +134,7 @@ kern <- function(x) {
 bootstrap_pobs <- function(u, xi, var_types = NULL) {
   u <- as.matrix(u)
   d <- if (is.null(var_types)) ncol(u) else length(var_types)
+  disc_rank <- if (is.null(var_types)) NULL else cumsum(var_types == "d")
   for (j in seq_len(d)) {
     s <- sort(u[, j], index.return = TRUE)
     w_cum <- cumsum(xi[s$ix])
@@ -141,7 +142,7 @@ bootstrap_pobs <- function(u, xi, var_types = NULL) {
     u[, j] <- w_cum[order(s$ix)] / norm
     if (!is.null(var_types) && var_types[j] == "d") {
       # Apply the same bootstrapped empirical CDF F_tilde_j to the F(x-)
-      # shadow column so the (real, shadow) pair stays consistent.
+      # column so the pair stays consistent.
       # ties = list("ordered", max): at a tied observed value v with
       # cumulative weights w_cum[r..r+k-1], the right-continuous ECDF
       # F_tilde(v) is w_cum[r+k-1]/norm (the value after all tied
@@ -151,7 +152,8 @@ bootstrap_pobs <- function(u, xi, var_types = NULL) {
                                   method = "constant",
                                   yleft = 0, yright = 1,
                                   ties = list("ordered", max))
-      u[, j + d] <- F_tilde(u[, j + d])
+      sj <- d + disc_rank[j]
+      u[, sj] <- F_tilde(u[, sj])
     }
   }
   u
@@ -359,6 +361,7 @@ hessian_mxd <- function(x, model, cores = 1) {
   hessian <- matrix(NA, sum(npars_mrg), model$copula$npars)
   var_types <- model$copula$var_types
   d <- length(model$margins)
+  disc_rank <- cumsum(var_types == "d")
   i_p <- 1
   for (m in seq_along(model$margins)) {
     is_disc <- var_types[m] == "d"
@@ -369,14 +372,14 @@ hessian_mxd <- function(x, model, cores = 1) {
       tmp_model[p] <- model$margins[[m]][p] - 1e-3
       tmp_u[, m] <- univariateML::pml(x[, m], tmp_model)
       # For discrete margins, to_unif produces a doubled matrix: F(x) columns
-      # first, then F(x-) shadow columns. Both halves of each discrete pair
+      # first, then F(x-) columns. Both halves of each discrete pair
       # must be updated when perturbing a marginal parameter.
-      if (is_disc) tmp_u[, m + d] <- univariateML::pml(x[, m] - 1, tmp_model)
+      if (is_disc) tmp_u[, d + disc_rank[m]] <- univariateML::pml(x[, m] - 1, tmp_model)
       s_lwr <- svinecop_scores(tmp_u, model$copula, cores = cores)
 
       tmp_model[p] <- model$margins[[m]][p] + 1e-3
       tmp_u[, m] <- univariateML::pml(x[, m], tmp_model)
-      if (is_disc) tmp_u[, m + d] <- univariateML::pml(x[, m] - 1, tmp_model)
+      if (is_disc) tmp_u[, d + disc_rank[m]] <- univariateML::pml(x[, m] - 1, tmp_model)
       s_upr <- svinecop_scores(tmp_u, model$copula, cores = cores)
 
       hessian[i_p, ] <- colMeans(s_upr - s_lwr) / 2e-3
