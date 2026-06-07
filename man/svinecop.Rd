@@ -29,18 +29,16 @@ svinecop(
 )
 }
 \arguments{
-\item{data}{a matrix or data.frame (copula data should have approximately
-uniform margins).}
+\item{data}{a matrix or data.frame of pseudo-observations (approximately
+uniform margins). For discrete variables declared in \code{var_types}, append
+one left-limit column \verb{F(x-)} per discrete variable after all regular
+columns. Use \code{\link[=svine]{svine()}} to handle this transformation automatically.}
 
 \item{p}{the Markov order.}
 
 \item{var_types}{variable types; a character vector with one entry per
-variable: \code{"c"} for continuous, \code{"d"} for discrete. For discrete
-variables, each column in \code{data} must be accompanied by a corresponding
-column of left-limit values \verb{F(x-)}, placed after all the regular columns.
-If unsure, use \code{\link[=svine]{svine()}} instead, which handles this automatically.
-Omitting \code{var_types} when \code{cs_structure} is not provided will silently
-fit a continuous model.}
+variable: \code{"c"} for continuous, \code{"d"} for discrete. Omitting \code{var_types}
+when \code{cs_structure} is not provided will silently fit a continuous model.}
 
 \item{family_set}{a character vector of families; see \code{\link[rvinecopulib:bicop]{rvinecopulib::bicop()}}
 for additional options.}

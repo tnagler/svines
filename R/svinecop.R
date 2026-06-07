@@ -2,16 +2,14 @@
 #'
 #' Automated fitting or creation of custom S-vine copula models
 #'
-#' @param data a matrix or data.frame (copula data should have approximately
-#'   uniform margins).
+#' @param data a matrix or data.frame of pseudo-observations (approximately
+#'   uniform margins). For discrete variables declared in `var_types`, append
+#'   one left-limit column `F(x-)` per discrete variable after all regular
+#'   columns. Use [svine()] to handle this transformation automatically.
 #' @param p the Markov order.
 #' @param var_types variable types; a character vector with one entry per
-#'   variable: `"c"` for continuous, `"d"` for discrete. For discrete
-#'   variables, each column in `data` must be accompanied by a corresponding
-#'   column of left-limit values `F(x-)`, placed after all the regular columns.
-#'   If unsure, use [svine()] instead, which handles this automatically.
-#'   Omitting `var_types` when `cs_structure` is not provided will silently
-#'   fit a continuous model.
+#'   variable: `"c"` for continuous, `"d"` for discrete. Omitting `var_types`
+#'   when `cs_structure` is not provided will silently fit a continuous model.
 #' @param out_vertices the out-vertex; if `NA`, the out-vertex is selected
 #'   automatically if no structure is provided, and is equivalent to 1 if a
 #'   structure is provided.
@@ -233,9 +231,9 @@ svinecop <- function(data, p, var_types,
 #'    structure is provided.
 #' @param var_types variable types; a character vector with one entry per
 #'   variable: `"c"` for continuous, `"d"` for discrete. For discrete
-#'   variables, methods on the returned object expect each column in `data`
-#'   to be accompanied by a corresponding column of left-limit values `F(x-)`,
-#'   placed after all the regular columns.
+#'   variables, methods on the returned object expect data in the compact
+#'   layout: all regular CDF `F(x)` columns first, then one left-limit 
+#'   column `F(x-)` per discrete variable.
 #'
 #' @return Returns the model as an object with classes
 #'   `svinecop_dist`. Also inherits from `vinecop_dist`

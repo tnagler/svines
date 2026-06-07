@@ -33,9 +33,9 @@ structure is provided.}
 
 \item{var_types}{variable types; a character vector with one entry per
 variable: \code{"c"} for continuous, \code{"d"} for discrete. For discrete
-variables, methods on the returned object expect each column in \code{data}
-to be accompanied by a corresponding column of left-limit values \verb{F(x-)},
-placed after all the regular columns.}
+variables, methods on the returned object expect data in the compact
+layout: all regular CDF \code{F(x)} columns first, then one left-limit
+column \verb{F(x-)} per discrete variable.}
 }
 \value{
 Returns the model as an object with classes
