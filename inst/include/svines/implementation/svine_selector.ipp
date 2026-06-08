@@ -36,24 +36,21 @@ spread_lag(const Eigen::MatrixXd& data, size_t cs_dim, size_t n_discrete)
 
   Eigen::MatrixXd newdata(n_out, (lag_blocks + 1) * period);
 
-  // (i) existing reals carried forward unchanged, top-aligned (drop last row)
+  // (i) carry existing F(x) columns forward, drop last row
   newdata.block(0, 0, n_out, k_real_old)
       = data.topRows(n_out).leftCols(k_real_old);
 
-  // (ii) new lag's reals: take the rightmost cs_dim columns of the input's
-  //      F(x) region (= the most recent existing lag's F-values) and shift
-  //      them down by one row, so output row t holds F at time t+1
+  // (ii) new lag: copy most recent F(x) columns shifted down one row,
+  //      row t receives F(x) from time t+1  
   newdata.block(0, k_real_old, n_out, cs_dim)
       = data.middleCols(k_real_old - cs_dim, cs_dim).bottomRows(n_out);
 
   if (n_discrete > 0) {
-    // (iii) existing shadows carried forward unchanged, top-aligned
+    // (iii) carry existing F(x-) columns forward, drop last row
     newdata.block(0, k_real_old + cs_dim, n_out, k_disc_old)
         = data.middleCols(k_real_old, k_disc_old).topRows(n_out);
 
-    // (iv) new lag's shadows: take the rightmost n_discrete columns of the
-    //      input's F(x-) region (= the most recent existing lag's shadows) and
-    //      shift them down by one row
+    // (iv) new lag: copy most recent F(x-) columns shifted down one row
     newdata.block(0, k_real_old + cs_dim + k_disc_old, n_out, n_discrete)
         = data.rightCols(n_discrete).bottomRows(n_out);
   }
@@ -216,14 +213,10 @@ SVineStructureSelector::add_lag()
   controls_.set_trunc_lvl(std::numeric_limits<size_t>::max());
   lag_++;
   d_ += cs_dim_;
-  // var_types_ has length cs_dim_ * (p+1) after lag-replication; we need
-  // the cross-sectional count, so slice to the first cs_dim_ entries
   size_t n_disc_cs = std::count(var_types_.begin(), var_types_.begin() + cs_dim_, "d");
   data_ = spread_lag(data_, cs_dim_, n_disc_cs);
   if (controls_.get_weights().size())
     controls_.set_weights(controls_.get_weights().head(data_.rows()));
-  // Right-append preserves the var_types_ layout invariant documented
-  // at the SVinecop class declaration in svinecop.hpp.
   auto vt0 = var_types_;
   vt0.resize(cs_dim_);
   var_types_ = tools_stl::cat(var_types_, vt0);
@@ -600,8 +593,6 @@ SVineFamilySelector::add_lag()
 {
   lag_++;
   d_ += cs_dim_;
-  // Right-append preserves the var_types_ layout invariant documented
-  // at the SVinecop class declaration in svinecop.hpp.
   auto vt0 = var_types_;
   vt0.resize(cs_dim_);
   var_types_ = tools_stl::cat(var_types_, vt0);
@@ -628,8 +619,6 @@ SVineFamilySelector::add_lag()
   trees_opt_ = trees_;
   trees_ = std::vector<VineTree>(1);
   vine_struct_ = SVineStructure(cs_struct_, lag_, out_vertices_, in_vertices_);
-  // var_types_ has length cs_dim_ * (p+1) after lag-replication; we need
-  // the cross-sectional count, so slice to the first cs_dim_ entries
   size_t n_disc_cs = std::count(var_types_.begin(), var_types_.begin() + cs_dim_, "d");
   data_ = spread_lag(data_, cs_dim_, n_disc_cs);
   if (controls_.get_weights().size())
