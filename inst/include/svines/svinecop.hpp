@@ -110,17 +110,6 @@ protected:
 
   Eigen::MatrixXd get_diff_pars(const Bicop& bicop) const;
 
-  // Inherited var_types_ has length cs_dim_ * (p_ + 1): the first
-  // cs_dim_ entries are the cross-sectional types and the remaining
-  // p_ * cs_dim_ entries are lag-replicated copies of those same
-  // cs_dim_ entries. Established by tools_stl::rep(var_types, p_ + 1)
-  // in the constructor (svinecop.ipp); preserved by selector add_lag,
-  // which right-appends a fresh cs_dim_-prefix copy via tools_stl::cat
-  // (svine_selector.ipp); reinforced at the R boundary by
-  // wrappers_svine.cpp resizing var_types to cs_dim_ before returning.
-  // Consumers needing the cross-sectional discrete count slice
-  // [var_types_.begin(), var_types_.begin() + cs_dim_).
-
   size_t cs_dim_;
   size_t p_;
   std::vector<size_t> out_vertices_;

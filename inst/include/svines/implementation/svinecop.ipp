@@ -228,6 +228,7 @@ SVinecop::pseudo_residuals(const Eigen::MatrixXd& data, size_t num_threads)
   // var_types_ has length cs_dim_ * (p+1) after lag-replication; we need
   // the cross-sectional count, so slice to the first cs_dim_ entries
   size_t n_disc_cs = std::count(var_types_.begin(), var_types_.begin() + cs_dim_, "d");
+  
   Eigen::MatrixXd data_spr = data;
   for (size_t lag = 0; lag < p_; ++lag) {
     data_spr = spread_lag(data_spr, cs_dim_, n_disc_cs);
