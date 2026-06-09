@@ -38,12 +38,3 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 docs
-
-# Personal working files (not for upstream)
-CLAUDE.md
-NOTES.md
-correspondence.md
-
-# Editor / IDE working directories
-.positai
-.claude/
