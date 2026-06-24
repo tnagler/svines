@@ -7,7 +7,7 @@
 namespace vinecopulib {
 
 Eigen::MatrixXd
-spread_lag(const Eigen::MatrixXd& data, size_t cs_dim);
+spread_lag(const Eigen::MatrixXd& data, size_t cs_dim, size_t n_discrete);
 
 namespace tools_select {
 

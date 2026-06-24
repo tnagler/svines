@@ -4,8 +4,11 @@
 #'
 #' @param data a matrix or data.frame of data.
 #' @param p the Markov order.
-#' @param margin_families either a vector of [univariateML::univariateML_models] to select 
-#'   from (used for every margin) or a list with one entry for every variable. 
+#' @param var_types variable types; a character vector with one entry per
+#'   variable: `"c"` for continuous, `"d"` for discrete. Defaults to
+#'   all-continuous when missing.
+#' @param margin_families either a vector of [univariateML::univariateML_models] to select
+#'   from (used for every margin) or a list with one entry for every variable.
 #'   Can also be `"empirical"` for empirical cdfs.
 #' @param selcrit criterion for family selection, either `"loglik"`, `"aic"`,
 #'   `"bic"`, `"mbicv"`.
@@ -35,27 +38,36 @@
 #' logLik(fit)
 #' 
 #' pairs(svine_sim(500, rep = 1, fit))
-svine <- function(data, p, margin_families = univariateML::univariateML_models, 
+svine <- function(data, p, var_types,
+                  margin_families = univariateML::univariateML_models,
                   selcrit = "aic", ...) {
   if (is.list(data)) {
     if (any(sapply(data, is.factor)))
-      stop("discrete data not yet yupported")
+      stop("factor columns are not supported; convert to integer counts before fitting.")
   }
   data <- as.matrix(data)
   d <- ncol(data)
+  if (missing(var_types))
+    var_types <- rep("c", d)
+  assert_that(
+    is.character(var_types),
+    length(var_types) == d,
+    all(var_types %in% c("c", "d"))
+  )
   if (!is.list(margin_families))
     margin_families <- lapply(seq_len(d), function(j) margin_families)
   assert_that(length(margin_families) == d)
-  
+
   margin_crit <- ifelse(selcrit == "mbicv", "bic", selcrit)
   margins <- lapply(
     seq_len(d),
-    function(j) select_margin(data[, j], margin_families[[j]], margin_crit)
+    function(j) select_margin(data[, j], margin_families[[j]], margin_crit,
+                              var_type = var_types[j], j = j)
   )
   names(margins) <- colnames(data)
-  
+
   u <- to_unif(data, margins)
-  copula <- svinecop(u, p = p, selcrit = selcrit, ...)
+  copula <- svinecop(u, p = p, var_types = var_types, selcrit = selcrit, ...)
   if (!all(unlist(margin_families) == "empirical")) {
     loglik <- sum(sapply(margins, logLik.svine_margin)) + stats::logLik(copula)
     npars <- sum(sapply(margins, length)) + copula$npars
@@ -80,7 +92,13 @@ svine <- function(data, p, margin_families = univariateML::univariateML_models,
 #' Custom S-vine distribution models
 #' 
 #'
-#' @param margins A list of length `d` containing `univariateML` objects.
+#' @param margins A list with one marginal distribution per variable.
+#'   Each element is either a `univariateML` object or a list with
+#'   callables `$p` (CDF), `$q` (quantile function), and for discrete
+#'   margins `$p_sub` (left-limit CDF, i.e. F(x-)). 
+#'   Discrete list-form margins must also carry
+#'   `attr(., "type") = "discrete"` and `class` including
+#'   `"svine_margin"`.
 #' @param copula the copula model; an object of class `svinecop_dist` with 
 #'   cross-sectional dimension `d`.
 #'
@@ -128,6 +146,7 @@ svine_dist <- function(margins, copula) {
     inherits(copula, "vinecop_dist"),
     length(margins) == dim(copula$cs_structure)["dim"]
   )
+  for (j in seq_along(margins)) check_margin(margins[[j]], j)
   structure(
     list(
       margins = margins, 
@@ -200,11 +219,32 @@ to_quantiles <- function(u, margins) {
 
 to_unif <- function(x, margins) {
   u <- sapply(
-    seq_len(ncol(x)), 
+    seq_len(ncol(x)),
     function(j) pmargin(x[, j], margins[[j]])
   )
   var_names <- names(margins)
   if (!is.null(var_names))
     colnames(u) <- var_names
+
+  # When any margin is discrete, the copula evaluation requires the
+  # compact n x (d + n_discrete) input layout: F(x) in columns 1..d,
+  # followed by one F(x-) left-limit column per discrete margin, in
+  # var_types order. Continuous-only margin sets fall through with the
+  # original n x d output unchanged.
+  is_disc <- vapply(
+    margins,
+    function(m) identical(attr(m, "type"), "discrete"),
+    logical(1)
+  )
+  if (any(is_disc)) {
+    disc_idx <- which(is_disc)
+    u_sub <- sapply(
+      disc_idx,
+      function(j) pmargin_sub(x[, j], margins[[j]])
+    )
+    u <- cbind(u, u_sub)
+    if (!is.null(var_names))
+      colnames(u) <- c(var_names, paste0(var_names[disc_idx], "_sub"))
+  }
   u
 }

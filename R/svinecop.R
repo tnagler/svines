@@ -2,10 +2,14 @@
 #'
 #' Automated fitting or creation of custom S-vine copula models
 #'
-#' @param data a matrix or data.frame (copula data should have approximately
-#'   uniform margins).
+#' @param data a matrix or data.frame of pseudo-observations (approximately
+#'   uniform margins). For discrete variables declared in `var_types`, append
+#'   one left-limit column `F(x-)` per discrete variable after all regular
+#'   columns. Use [svine()] to handle this transformation automatically.
 #' @param p the Markov order.
-#' @param var_types variable types; discrete variables not (yet) allowed.
+#' @param var_types variable types; a character vector with one entry per
+#'   variable: `"c"` for continuous, `"d"` for discrete. Omitting `var_types`
+#'   when `cs_structure` is not provided will silently fit a continuous model.
 #' @param out_vertices the out-vertex; if `NA`, the out-vertex is selected
 #'   automatically if no structure is provided, and is equivalent to 1 if a
 #'   structure is provided.
@@ -74,7 +78,7 @@
 #' logLik(fit)
 #' 
 #' pairs(svinecop_sim(500, rep = 1, fit))
-svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
+svinecop <- function(data, p, var_types,
                      family_set = "all", cs_structure = NA,
                      out_vertices = NA, in_vertices = NA,
                      type = "S",
@@ -83,6 +87,13 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
                      presel = TRUE, trunc_lvl = Inf, tree_crit = "tau",
                      threshold = 0, keep_data = FALSE, show_trace = FALSE,
                      cores = 1) {
+  if (missing(var_types)) {
+    if (is.scalar(cs_structure) && is.na(cs_structure)) {
+      var_types <- rep("c", NCOL(data))
+    } else {
+      var_types <- rep("c", dim(cs_structure)[1])
+    }
+  }
   assert_that(
     is.character(family_set),
     inherits(cs_structure, "matrix") ||
@@ -104,9 +115,6 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
     is.numeric(in_vertices) || all(is.na(in_vertices)),
     is.numeric(out_vertices) || all(is.na(out_vertices))
   )
-  
-  if (any(var_types != "c"))
-    stop("discrete variables not yet implemented.")
 
   if ((type != "S") & (NCOL(data) > 1)) {
     if (!is.na(cs_structure))
@@ -221,9 +229,13 @@ svinecop <- function(data, p, var_types = rep("c", NCOL(data)),
 #' @param in_vertices the in-vertex; if `NA`, the in-vertex is selected
 #'   automatically if no structure is provided, and is equivalent to 1 if a
 #'    structure is provided.
-#' @param var_types variable types; discrete variables not (yet) allowed.
-#' 
-#' @return Returns the model as an object with classes 
+#' @param var_types variable types; a character vector with one entry per
+#'   variable: `"c"` for continuous, `"d"` for discrete. For discrete
+#'   variables, methods on the returned object expect data in the compact
+#'   layout: all regular CDF `F(x)` columns first, then one left-limit 
+#'   column `F(x-)` per discrete variable.
+#'
+#' @return Returns the model as an object with classes
 #'   `svinecop_dist`. Also inherits from `vinecop_dist`
 #'   such that many functions from `rvinecopulib` can be called.
 #'   
@@ -263,9 +275,7 @@ svinecop_dist <- function(pair_copulas, cs_structure, p,
     all(in_vertices <= dim(cs_structure)[1]),
     all(out_vertices <= dim(cs_structure)[1])
   )
-  if (any(var_types != "c"))
-    stop("discrete variables not yet implemented.")
-  
+
   d0 <- dim(cs_structure)[1]
   d <- d0 * (p + 1)
   if (p > 0) {

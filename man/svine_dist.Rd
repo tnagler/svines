@@ -7,7 +7,13 @@
 svine_dist(margins, copula)
 }
 \arguments{
-\item{margins}{A list of length \code{d} containing \code{univariateML} objects.}
+\item{margins}{A list with one marginal distribution per variable.
+Each element is either a \code{univariateML} object or a list with
+callables \verb{$p} (CDF), \verb{$q} (quantile function), and for discrete
+margins \verb{$p_sub} (left-limit CDF, i.e. F(x-)).
+Discrete list-form margins must also carry
+\code{attr(., "type") = "discrete"} and \code{class} including
+\code{"svine_margin"}.}
 
 \item{copula}{the copula model; an object of class \code{svinecop_dist} with
 cross-sectional dimension \code{d}.}

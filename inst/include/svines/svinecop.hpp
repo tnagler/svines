@@ -4,8 +4,6 @@
 #include "svine_structure.hpp"
 #include <vinecopulib/vinecop/class.hpp>
 
-// TODO: weights, discrete ?
-
 namespace vinecopulib {
 
 class SVinecop : public Vinecop

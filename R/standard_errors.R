@@ -131,12 +131,30 @@ kern <- function(x) {
   K + 2 * (1 - abs(x))^3 * (abs(x) > 1 / 2) * (abs(x) <= 1)
 }
 
-bootstrap_pobs <- function(u, xi) {
+bootstrap_pobs <- function(u, xi, var_types = NULL) {
   u <- as.matrix(u)
-  for (j in seq_len(ncol(u))) {
+  d <- if (is.null(var_types)) ncol(u) else length(var_types)
+  disc_rank <- if (is.null(var_types)) NULL else cumsum(var_types == "d")
+  for (j in seq_len(d)) {
     s <- sort(u[, j], index.return = TRUE)
-    u[, j] <- cumsum(xi[s$ix])[order(s$ix)]
-    u[, j] <- u[, j] / (max(u[, j]) + 1e-10)
+    w_cum <- cumsum(xi[s$ix])
+    norm  <- max(w_cum) + 1e-10
+    u[, j] <- w_cum[order(s$ix)] / norm
+    if (!is.null(var_types) && var_types[j] == "d") {
+      # Apply the same bootstrapped empirical CDF F_tilde_j to the F(x-)
+      # column so the pair stays consistent.
+      # ties = list("ordered", max): at a tied observed value v with
+      # cumulative weights w_cum[r..r+k-1], the right-continuous ECDF
+      # F_tilde(v) is w_cum[r+k-1]/norm (the value after all tied
+      # observations), not the mean. Discrete data has frequent ties.
+      # "ordered" skips a redundant sort: s$x is already sorted.
+      F_tilde <- stats::approxfun(s$x, w_cum / norm,
+                                  method = "constant",
+                                  yleft = 0, yright = 1,
+                                  ties = list("ordered", max))
+      sj <- d + disc_rank[j]
+      u[, sj] <- F_tilde(u[, sj])
+    }
   }
   u
 }
@@ -156,13 +174,15 @@ svine_bootstrap_semipar <- function(n_models, model) {
   models <- replicate(n_models, model, simplify = FALSE)
   for (b in seq_along(models)) {
     xi <- sim_multipliers(n, ell)
-    u_tilde <- bootstrap_pobs(u, xi)
+    u_tilde <- bootstrap_pobs(u, xi, model$copula$var_types)
     phi_tilde <- c(xi[seq_len(np)]) * svinecop_scores(u_tilde, model$copula)
     models[[b]]$margins <- lapply(
       seq_along(model$margins),
       function(j) {
         x_tilde <- model$margins[[j]]$q(u_tilde[, j])
-        select_margin(x_tilde, "empirical", "")
+        select_margin(x_tilde, "empirical", "",
+                      var_type = if (attr(model$margins[[j]], "type") == "discrete") "d" else "c"
+        )
       }
     )
     par_b <- par - Hi %*% colMeans(phi_tilde)
@@ -339,18 +359,27 @@ hessian_mxd <- function(x, model, cores = 1) {
   u <- to_unif(x, model$margins)
   npars_mrg <- sapply(model$margins, length)
   hessian <- matrix(NA, sum(npars_mrg), model$copula$npars)
+  var_types <- model$copula$var_types
+  d <- length(model$margins)
+  disc_rank <- cumsum(var_types == "d")
   i_p <- 1
   for (m in seq_along(model$margins)) {
+    is_disc <- var_types[m] == "d"
     for (p in seq_along(model$margins[[m]])) {
       tmp_model <- model$margins[[m]]
       tmp_u <- u
 
       tmp_model[p] <- model$margins[[m]][p] - 1e-3
       tmp_u[, m] <- univariateML::pml(x[, m], tmp_model)
+      # For discrete margins, to_unif produces a doubled matrix: F(x) columns
+      # first, then F(x-) columns. Both halves of each discrete pair
+      # must be updated when perturbing a marginal parameter.
+      if (is_disc) tmp_u[, d + disc_rank[m]] <- univariateML::pml(x[, m] - 1, tmp_model)
       s_lwr <- svinecop_scores(tmp_u, model$copula, cores = cores)
 
       tmp_model[p] <- model$margins[[m]][p] + 1e-3
       tmp_u[, m] <- univariateML::pml(x[, m], tmp_model)
+      if (is_disc) tmp_u[, d + disc_rank[m]] <- univariateML::pml(x[, m] - 1, tmp_model)
       s_upr <- svinecop_scores(tmp_u, model$copula, cores = cores)
 
       hessian[i_p, ] <- colMeans(s_upr - s_lwr) / 2e-3

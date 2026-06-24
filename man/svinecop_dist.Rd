@@ -31,7 +31,11 @@ structure is provided.}
 automatically if no structure is provided, and is equivalent to 1 if a
 structure is provided.}
 
-\item{var_types}{variable types; discrete variables not (yet) allowed.}
+\item{var_types}{variable types; a character vector with one entry per
+variable: \code{"c"} for continuous, \code{"d"} for discrete. For discrete
+variables, methods on the returned object expect data in the compact
+layout: all regular CDF \code{F(x)} columns first, then one left-limit
+column \verb{F(x-)} per discrete variable.}
 }
 \value{
 Returns the model as an object with classes

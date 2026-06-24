@@ -5,8 +5,7 @@
 #include <vinecopulib/misc/tools_stats.hpp>
 #include <vinecopulib/misc/tools_stl.hpp>
 #include <vinecopulib/vinecop/class.hpp>
-
-// TODO: discrete ?
+#include <algorithm>
 
 namespace vinecopulib {
 
@@ -226,9 +225,13 @@ SVinecop::pseudo_residuals(const Eigen::MatrixXd& data, size_t num_threads)
   check_cond_data(data);
   check_data_dim(data);
 
+  // var_types_ has length cs_dim_ * (p+1) after lag-replication; we need
+  // the cross-sectional count, so slice to the first cs_dim_ entries
+  size_t n_disc_cs = std::count(var_types_.begin(), var_types_.begin() + cs_dim_, "d");
+  
   Eigen::MatrixXd data_spr = data;
   for (size_t lag = 0; lag < p_; ++lag) {
-    data_spr = spread_lag(data_spr, cs_dim_);
+    data_spr = spread_lag(data_spr, cs_dim_, n_disc_cs);
   }
   return rosenblatt(data_spr, num_threads).rightCols(cs_dim_);;
 }
@@ -251,15 +254,28 @@ SVinecop::loglik(const Eigen::MatrixXd& u, const size_t num_threads)
     return Vinecop::loglik(u, num_threads);
   }
 
+  // var_types_ has length cs_dim_ * (p+1) after lag-replication; we need
+  // the cross-sectional count, so slice to the first cs_dim_ entries
+  size_t n_disc_cs = std::count(var_types_.begin(), var_types_.begin() + cs_dim_, "d");
+
+  // The sub-model computations below reduce d_; var_types_ must be resized to
+  // match, because the downstream Vinecop::check_data_dim / collapse_data read
+  // var_types_ and would otherwise count discretes over the full-length vector
+  // (inconsistent with the reduced d_). Save the full vector and the
+  // cross-sectional slice to replicate from, then restore before returning.
+  auto var_types_full = var_types_;
+  auto var_types_cs = tools_stl::span(var_types_, 0, cs_dim_);
+
   // first compute substraction component (otherwise some contributions
   // are counted twice)
   size_t p_tmp = std::min(n, p_) - 1;
   rvine_structure_ = SVineStructure(
     svine_struct_.get_cs_structure(), p_tmp, out_vertices_, in_vertices_);
   d_ = cs_dim_ * (1 + p_tmp);
+  var_types_ = tools_stl::rep(var_types_cs, 1 + p_tmp);
   auto u_spr = u;
   for (size_t lag = 0; lag < p_tmp; ++lag) {
-    u_spr = spread_lag(u_spr, cs_dim_);
+    u_spr = spread_lag(u_spr, cs_dim_, n_disc_cs);
   }
 
   n = u_spr.rows();
@@ -271,10 +287,11 @@ SVinecop::loglik(const Eigen::MatrixXd& u, const size_t num_threads)
   }
 
   // add loglik *as if* it was iid with cs_dim * (1 + p) vars
-  u_spr = spread_lag(u_spr, cs_dim_);
+  u_spr = spread_lag(u_spr, cs_dim_, n_disc_cs);
   rvine_structure_ = SVineStructure(
     svine_struct_.get_cs_structure(), p_, out_vertices_, in_vertices_);
   d_ = cs_dim_ * (1 + p_);
+  var_types_ = var_types_full;
   ll += Vinecop::loglik(u_spr, num_threads);
 
   return ll;
@@ -287,8 +304,11 @@ SVinecop::scores(Eigen::MatrixXd u, bool step_wise, const size_t num_threads)
 
   // this is not efficient yet, same h-functions are computed multiple times
   check_data_dim(u);
+  // var_types_ has length cs_dim_ * (p+1) after lag-replication; we need
+  // the cross-sectional count, so slice to the first cs_dim_ entries
+  size_t n_disc_cs = std::count(var_types_.begin(), var_types_.begin() + cs_dim_, "d");
   for (size_t lag = 0; lag < p_; lag++) {
-    u = spread_lag(u, cs_dim_);
+    u = spread_lag(u, cs_dim_, n_disc_cs);
   }
 
   // info about the vine structure (reverse rows (!) for more natural indexing)
@@ -523,9 +543,12 @@ SVinecop::get_last_cpits(const Eigen::MatrixXd& data)
     // only most recent observations are used
     Eigen::MatrixXd cond_vals = data.bottomRows(p_);
 
+    // var_types_ has length cs_dim_ * (p+1) after lag-replication; we need
+    // the cross-sectional count, so slice to the first cs_dim_ entries
+    size_t n_disc_cs = std::count(var_types_.begin(), var_types_.begin() + cs_dim_, "d");
     // spread past observations into one row with d_ - cs_dim_ columns
     for (size_t lag = 1; lag < p_; lag++) {
-      cond_vals = spread_lag(cond_vals, cs_dim_);
+      cond_vals = spread_lag(cond_vals, cs_dim_, n_disc_cs);
     }
 
     // construct sub-model for last p_ lags

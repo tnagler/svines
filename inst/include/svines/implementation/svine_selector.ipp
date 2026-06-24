@@ -4,6 +4,8 @@
 #include <vinecopulib/misc/tools_stl.hpp>
 #include <vinecopulib/vinecop/tools_select.hpp>
 #include <wdm/eigen.hpp>
+#include <algorithm>
+#include <sstream>
 
 namespace vinecopulib {
 
@@ -12,18 +14,47 @@ namespace vinecopulib {
 //!
 //! @param data the data.
 //! @param cs_dim cross-sectional dimension.
+//! @param n_discrete cross-sectional count of "d" (discrete) entries in var_types_.
 inline Eigen::MatrixXd
-spread_lag(const Eigen::MatrixXd& data, size_t cs_dim)
+spread_lag(const Eigen::MatrixXd& data, size_t cs_dim, size_t n_discrete)
 {
   if (data.rows() < 2) {
     throw std::runtime_error("insufficient number of observations");
   }
-  if (data.cols() % cs_dim != 0) {
-    throw std::runtime_error("number of columns is not a multiple of cs_dim");
+  size_t period = cs_dim + n_discrete; // width of one lag block in compact form
+  if (period == 0 || data.cols() % period != 0) {
+    std::stringstream msg;
+    msg << "spread_lag: data.cols()=" << data.cols()
+        << " is not a positive multiple of (cs_dim + n_discrete)="
+        << period;
+    throw std::runtime_error(msg.str());
   }
-  size_t n = data.rows() - 1;
-  Eigen::MatrixXd newdata(n, data.cols() + cs_dim);
-  newdata << data.topRows(n), data.rightCols(cs_dim).bottomRows(n);
+  size_t lag_blocks  = data.cols() / period; // number of lag blocks already in input
+  size_t n_out       = data.rows() - 1;      // output row count (one row dropped)
+  size_t k_real_old  = lag_blocks * cs_dim;     // width of existing F(x) region in input
+  size_t k_disc_old  = lag_blocks * n_discrete; // width of existing F(x-) region in input
+
+  Eigen::MatrixXd newdata(n_out, (lag_blocks + 1) * period);
+
+  // (i) carry existing F(x) columns forward, drop last row
+  newdata.block(0, 0, n_out, k_real_old)
+      = data.topRows(n_out).leftCols(k_real_old);
+
+  // (ii) new lag: copy most recent F(x) columns shifted down one row,
+  //      row t receives F(x) from time t+1  
+  newdata.block(0, k_real_old, n_out, cs_dim)
+      = data.middleCols(k_real_old - cs_dim, cs_dim).bottomRows(n_out);
+
+  if (n_discrete > 0) {
+    // (iii) carry existing F(x-) columns forward, drop last row
+    newdata.block(0, k_real_old + cs_dim, n_out, k_disc_old)
+        = data.middleCols(k_real_old, k_disc_old).topRows(n_out);
+
+    // (iv) new lag: copy most recent F(x-) columns shifted down one row
+    newdata.block(0, k_real_old + cs_dim + k_disc_old, n_out, n_discrete)
+        = data.rightCols(n_discrete).bottomRows(n_out);
+  }
+
   return newdata;
 }
 
@@ -182,7 +213,8 @@ SVineStructureSelector::add_lag()
   controls_.set_trunc_lvl(std::numeric_limits<size_t>::max());
   lag_++;
   d_ += cs_dim_;
-  data_ = spread_lag(data_, cs_dim_);
+  size_t n_disc_cs = std::count(var_types_.begin(), var_types_.begin() + cs_dim_, "d");
+  data_ = spread_lag(data_, cs_dim_, n_disc_cs);
   if (controls_.get_weights().size())
     controls_.set_weights(controls_.get_weights().head(data_.rows()));
   auto vt0 = var_types_;
@@ -587,7 +619,8 @@ SVineFamilySelector::add_lag()
   trees_opt_ = trees_;
   trees_ = std::vector<VineTree>(1);
   vine_struct_ = SVineStructure(cs_struct_, lag_, out_vertices_, in_vertices_);
-  data_ = spread_lag(data_, cs_dim_);
+  size_t n_disc_cs = std::count(var_types_.begin(), var_types_.begin() + cs_dim_, "d");
+  data_ = spread_lag(data_, cs_dim_, n_disc_cs);
   if (controls_.get_weights().size())
     controls_.set_weights(controls_.get_weights().head(data_.rows()));
   controls_.set_trunc_lvl(std::numeric_limits<size_t>::max());

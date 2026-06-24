@@ -7,6 +7,7 @@
 svine(
   data,
   p,
+  var_types,
   margin_families = univariateML::univariateML_models,
   selcrit = "aic",
   ...
@@ -16,6 +17,10 @@ svine(
 \item{data}{a matrix or data.frame of data.}
 
 \item{p}{the Markov order.}
+
+\item{var_types}{variable types; a character vector with one entry per
+variable: \code{"c"} for continuous, \code{"d"} for discrete. Defaults to
+all-continuous when missing.}
 
 \item{margin_families}{either a vector of \link[univariateML:univariateML_models]{univariateML::univariateML_models} to select
 from (used for every margin) or a list with one entry for every variable.
