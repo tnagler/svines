@@ -1,3 +1,7 @@
+# svines 0.3.0
+
+* Support for modeling data with discrete vairables.
+
 # svines 0.2.7
 
 * Make unit tests safer for dependencies.
