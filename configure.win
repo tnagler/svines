@@ -24,4 +24,3 @@ fi
 
 sed "s|@SVINES_VINECOP_CPPFLAGS@|${SVINES_VINECOP_CPPFLAGS}|" \
   src/Makevars.win.in > src/Makevars.win
-

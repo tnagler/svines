@@ -13,3 +13,5 @@
 ^CRAN-RELEASE$
 ^CRAN-SUBMISSION$
 ^.*\.tar\.gz$
+^src/Makevars$
+^src/Makevars\.win$
