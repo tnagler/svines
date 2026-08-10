@@ -12,3 +12,4 @@
 ^pkgdown$
 ^CRAN-RELEASE$
 ^CRAN-SUBMISSION$
+^.*\.tar\.gz$

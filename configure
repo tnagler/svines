@@ -1,0 +1,24 @@
+#!/bin/sh
+
+set -e
+
+RSCRIPT="${R_HOME}/bin/Rscript"
+if test ! -x "$RSCRIPT"; then
+  RSCRIPT="Rscript"
+fi
+
+RVINECOPULIB_INCLUDE=$("$RSCRIPT" --vanilla -e 'cat(system.file("include", package = "rvinecopulib"))')
+VINECOP_CLASS="${RVINECOPULIB_INCLUDE}/vinecopulib/vinecop/class.hpp"
+SVINES_VINECOP_CPPFLAGS=""
+
+if test -f "$VINECOP_CLASS"; then
+  if grep -Eq 'n_discrete_[[:space:]]*(\{|=|;)' "$VINECOP_CLASS"; then
+    SVINES_VINECOP_CPPFLAGS="-DSVINES_VINECOP_N_DISCRETE_MEMBER=n_discrete_"
+  elif grep -Eq 'n_discrete[[:space:]]*(\{|=|;)' "$VINECOP_CLASS"; then
+    SVINES_VINECOP_CPPFLAGS="-DSVINES_VINECOP_N_DISCRETE_MEMBER=n_discrete"
+  fi
+fi
+
+sed "s|@SVINES_VINECOP_CPPFLAGS@|${SVINES_VINECOP_CPPFLAGS}|" \
+  src/Makevars.in > src/Makevars
+

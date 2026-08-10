@@ -3,7 +3,6 @@
 #include "svine_selector.hpp"
 #include "svine_structure.hpp"
 #include <vinecopulib/vinecop/class.hpp>
-// #include <vinecopulib/version.hpp>
 
 namespace vinecopulib {
 
@@ -108,10 +107,12 @@ protected:
   void check_cond_data(const Eigen::MatrixXd& data) const;
 
   void disallow_nonparametric() const;
-  
-  // #if VINECOPULIB_VERSION >= 800
-  // mutable int n_discrete_{ 0 };
-  // #endif
+
+#if !defined(SVINES_VINECOP_N_DISCRETE_MEMBER)
+  mutable int n_discrete_{ 0 };
+#endif
+
+  void set_n_discrete(size_t n) const;
   
   Eigen::MatrixXd get_diff_pars(const Bicop& bicop) const;
 
