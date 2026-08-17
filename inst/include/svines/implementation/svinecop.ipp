@@ -300,7 +300,7 @@ SVinecop::loglik(const Eigen::MatrixXd& u, const size_t num_threads)
 }
 
 inline void
-SVinecop::set_n_discrete(size_t n) const
+SVinecop::set_n_discrete(size_t n)
 {
 #if defined(SVINES_VINECOP_N_DISCRETE_MEMBER)
   SVINES_VINECOP_N_DISCRETE_MEMBER = static_cast<int>(n);

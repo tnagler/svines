@@ -112,7 +112,7 @@ protected:
   mutable int n_discrete_{ 0 };
 #endif
 
-  void set_n_discrete(size_t n) const;
+  void set_n_discrete(size_t n);
   
   Eigen::MatrixXd get_diff_pars(const Bicop& bicop) const;
 
