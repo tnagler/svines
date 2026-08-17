@@ -1,2 +1,1 @@
 PKG_CPPFLAGS = -I"../inst/include" -DSVINES_VINECOP_N_DISCRETE_MEMBER=n_discrete_
-PKG_CXXFLAGS = -Wa,-mbig-obj
