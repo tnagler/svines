@@ -10,15 +10,6 @@ fi
 RVINECOPULIB_INCLUDE=$("$RSCRIPT" --vanilla -e 'cat(system.file("include", package = "rvinecopulib"))')
 VINECOP_CLASS="${RVINECOPULIB_INCLUDE}/vinecopulib/vinecop/class.hpp"
 SVINES_VINECOP_CPPFLAGS=""
-SVINES_CXXFLAGS=""
-
-case "$(uname)" in
-  Darwin*)
-    if test "$GITHUB_ACTIONS" = "true"; then
-      SVINES_CXXFLAGS="-Wno-deprecated-declarations"
-    fi
-    ;;
-esac
 
 if test -f "$VINECOP_CLASS"; then
   if grep -Eq 'n_discrete_[[:space:]]*(\{|=|;)' "$VINECOP_CLASS"; then
@@ -30,5 +21,4 @@ fi
 
 sed \
   -e "s|@SVINES_VINECOP_CPPFLAGS@|${SVINES_VINECOP_CPPFLAGS}|" \
-  -e "s|@SVINES_CXXFLAGS@|${SVINES_CXXFLAGS}|" \
   src/Makevars.in > src/Makevars
