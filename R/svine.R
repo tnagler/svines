@@ -218,10 +218,13 @@ to_quantiles <- function(u, margins) {
 }
 
 to_unif <- function(x, margins) {
-  u <- sapply(
+  u <- vapply(
     seq_len(ncol(x)),
-    function(j) pmargin(x[, j], margins[[j]])
+    function(j) pmargin(x[, j], margins[[j]]),
+    FUN.VALUE = numeric(nrow(x))
   )
+  if (!is.matrix(u))
+    u <- matrix(u, nrow = nrow(x))
   var_names <- names(margins)
   if (!is.null(var_names))
     colnames(u) <- var_names
@@ -238,10 +241,13 @@ to_unif <- function(x, margins) {
   )
   if (any(is_disc)) {
     disc_idx <- which(is_disc)
-    u_sub <- sapply(
+    u_sub <- vapply(
       disc_idx,
-      function(j) pmargin_sub(x[, j], margins[[j]])
+      function(j) pmargin_sub(x[, j], margins[[j]]),
+      FUN.VALUE = numeric(nrow(x))
     )
+    if (!is.matrix(u_sub))
+      u_sub <- matrix(u_sub, nrow = nrow(x))
     u <- cbind(u, u_sub)
     if (!is.null(var_names))
       colnames(u) <- c(var_names, paste0(var_names[disc_idx], "_sub"))
