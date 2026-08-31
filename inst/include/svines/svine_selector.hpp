@@ -59,6 +59,8 @@ public:
 
   std::vector<std::string> get_var_types() const;
 
+  void min_spanning_tree(VineTree& tree);
+    
   void select_all_trees(const Eigen::MatrixXd& data);
 
   void add_lag();

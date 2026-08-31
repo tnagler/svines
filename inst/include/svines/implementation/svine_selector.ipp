@@ -207,6 +207,11 @@ SVineStructureSelector::select_all_trees(const Eigen::MatrixXd& data)
   trees_ = trees_opt_;
 }
 
+void SVineStructureSelector::min_spanning_tree(VineTree& tree)
+{
+  select_edges(tree);
+}
+
 void
 SVineStructureSelector::add_lag()
 {

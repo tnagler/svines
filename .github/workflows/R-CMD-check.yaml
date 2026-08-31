@@ -18,10 +18,10 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: macos-latest,   r: 'release'}
-          - {os: windows-latest, r: 'release'}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
-          - {os: ubuntu-latest,   r: 'release'}
+          - {os: macos-latest,   r: 'release', error-on: '"error"'}
+          - {os: windows-latest, r: 'release', error-on: '"warning"'}
+          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release', error-on: '"warning"'}
+          - {os: ubuntu-latest,   r: 'release', error-on: '"warning"'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -46,6 +46,7 @@ jobs:
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
+          error-on: ${{ matrix.config.error-on }}
 
       - name: Test coverage
         if: matrix.config.os == 'macOS-latest' && matrix.config.r == 'release'

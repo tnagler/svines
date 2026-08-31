@@ -1,2 +1,4 @@
-PKG_CPPFLAGS = -I../inst/include -pthread
+CXX_STD = CXX17
+
+PKG_CPPFLAGS = -I../inst/include -pthread -DSVINES_VINECOP_N_DISCRETE_MEMBER=n_discrete_
 PKG_LIBS     = `"$(R_HOME)/bin/Rscript" -e "RcppThread::LdFlags()"`

@@ -273,6 +273,7 @@ SVinecop::loglik(const Eigen::MatrixXd& u, const size_t num_threads)
     svine_struct_.get_cs_structure(), p_tmp, out_vertices_, in_vertices_);
   d_ = cs_dim_ * (1 + p_tmp);
   var_types_ = tools_stl::rep(var_types_cs, 1 + p_tmp);
+  set_n_discrete(n_disc_cs * (1 + p_tmp));
   auto u_spr = u;
   for (size_t lag = 0; lag < p_tmp; ++lag) {
     u_spr = spread_lag(u_spr, cs_dim_, n_disc_cs);
@@ -292,9 +293,20 @@ SVinecop::loglik(const Eigen::MatrixXd& u, const size_t num_threads)
     svine_struct_.get_cs_structure(), p_, out_vertices_, in_vertices_);
   d_ = cs_dim_ * (1 + p_);
   var_types_ = var_types_full;
+  set_n_discrete(n_disc_cs * (1 + p_));
   ll += Vinecop::loglik(u_spr, num_threads);
 
   return ll;
+}
+
+inline void
+SVinecop::set_n_discrete(size_t n)
+{
+#if defined(SVINES_VINECOP_N_DISCRETE_MEMBER)
+  SVINES_VINECOP_N_DISCRETE_MEMBER = static_cast<int>(n);
+#else
+  n_discrete_ = static_cast<int>(n);
+#endif
 }
 
 inline Eigen::MatrixXd
