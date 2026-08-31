@@ -7,9 +7,11 @@
 #' @param var_types variable types; a character vector with one entry per
 #'   variable: `"c"` for continuous, `"d"` for discrete. Defaults to
 #'   all-continuous when missing.
-#' @param margin_families either a vector of [univariateML::univariateML_models] to select
-#'   from (used for every margin) or a list with one entry for every variable.
-#'   Can also be `"empirical"` for empirical cdfs.
+#' @param margin_families either a character vector of
+#'   [univariateML::univariateML_models] to select from for every margin, or a
+#'   list with one entry for every variable. For a discrete variable, the
+#'   corresponding entry must contain only suitable discrete families. Use
+#'   `"empirical"` for empirical CDFs.
 #' @param selcrit criterion for family selection, either `"loglik"`, `"aic"`,
 #'   `"bic"`, `"mbicv"`.
 #' @param ... arguments passed to `svinecop()`.
@@ -20,6 +22,9 @@
 #'   - `$copula`: an object of `svinecop_dist`.
 #'   
 #' @seealso [svine_dist], [svine_loglik], [svine_sim], [svine_bootstrap_models]
+#' @references Nagler, T., Krüger, D., and Min, A. (2022). Stationary vine
+#'   copula models for multivariate time series. *Journal of Econometrics*,
+#'   227(2), 305--324. \doi{10.1016/j.jeconom.2021.11.015}.
 #'
 #' @importFrom assertthat assert_that is.scalar is.string is.number is.flag
 #' @importFrom rvinecopulib as_rvine_structure

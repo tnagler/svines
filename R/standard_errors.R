@@ -90,6 +90,10 @@ svine_hessian <- function(x, model, cores = 1) {
 #' @return A list of length `n_models`, with each entry representing one 
 #'   bootstrapped model as object of class [svine].
 #'
+#' @references Nagler, T., Krüger, D., and Min, A. (2022). Stationary vine
+#'   copula models for multivariate time series. *Journal of Econometrics*,
+#'   227(2), 305--324. \doi{10.1016/j.jeconom.2021.11.015}.
+#'
 #' @export
 #'
 #' @examples

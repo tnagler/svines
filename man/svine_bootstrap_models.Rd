@@ -38,3 +38,8 @@ mu_boot <- sapply(
   }
 ) 
 }
+\references{
+Nagler, T., Krüger, D., and Min, A. (2022). Stationary vine
+copula models for multivariate time series. \emph{Journal of Econometrics},
+227(2), 305--324. \doi{10.1016/j.jeconom.2021.11.015}.
+}

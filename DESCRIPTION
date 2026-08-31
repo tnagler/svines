@@ -12,7 +12,7 @@ Description: Provides functionality to fit and simulate from stationary vine
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-URL: https://github.com/tnagler/svines
+URL: https://tnagler.github.io/svines/, https://github.com/tnagler/svines
 BugReports: https://github.com/tnagler/svines/issues
 SystemRequirements: C++17
 Depends:
@@ -34,6 +34,10 @@ LinkingTo:
 Suggests:
     testthat,
     ggraph,
-    covr
+    covr,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
 Config/roxygen2/version: 8.0.0
+Config/Needs/website: pkgdown

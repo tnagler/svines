@@ -11,8 +11,11 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%"
+  out.width = "100%",
+  message = FALSE,
+  warning = FALSE
 )
+set.seed(2026)
 ```
 
 <!-- badges: start -->
@@ -24,13 +27,19 @@ knitr::opts_chunk$set(
 An R package that provides functionality to fit and simulate from [stationary vine copula models 
 for time series](https://arxiv.org/abs/2008.05990).
 
-The package is build on top of [rvinecopulib](https://github.com/vinecopulib/rvinecopulib)
+The package is built on top of [rvinecopulib](https://github.com/vinecopulib/rvinecopulib)
 and [univariateML](https://github.com/JonasMoss/univariateML).
 
 
 ## Installation
 
-Install the development version from Github.
+Install the released version from CRAN.
+
+``` r
+install.packages("svines")
+```
+
+Install the development version from GitHub with `remotes`.
 
 ``` r
 # install.packages("remotes")
@@ -39,7 +48,12 @@ remotes::install_github("tnagler/svines")
 
 ## Usage
 
-For detailed documentation and examples, see the [API documentation](https://tnagler.github.io/svines/).
+For detailed documentation and examples, see the
+[package website](https://tnagler.github.io/svines/).
+
+Use `svine()` for observed data: it estimates the marginal distributions and
+the S-vine copula. Use `svinecop()` when the margins have already been
+transformed to approximately uniform pseudo-observations.
 
 ``` {r}
 library(svines)
@@ -69,7 +83,7 @@ pairs(sim)
 pairs(returns)
 ```
 
-#### Sample conditionally on the past given the past
+#### Sample conditionally on the observed past
 
 ```{r}
 sim <- svine_sim(n = 1, rep = 100, model = fit, past = returns)
@@ -79,14 +93,40 @@ pairs(t(sim[1, , ]))
 
 ### Standard errors
 
-To generate new bootstrapped models from the asymptotic distribution, use
+To generate bootstrap replicates with the one-step block multiplier bootstrap,
+use
 ```{r}
+set.seed(2026)
 models <- svine_bootstrap_models(2, fit)
-summary(models[[1]])
 summary(models[[1]])
 ```
 
+### Discrete variables
+
+Declare discrete variables through `var_types` and restrict their marginal
+families to suitable discrete distributions. The following model uses Poisson
+margins and a Gaussian pair-copula family.
+
+```{r}
+counts <- cbind(
+  claims = rpois(250, lambda = 2),
+  events = rpois(250, lambda = 4)
+)
+fit_discrete <- svine(
+  counts,
+  p = 1,
+  var_types = c("d", "d"),
+  margin_families = "pois",
+  family_set = "gaussian"
+)
+fit_discrete
+svine_sim(5, rep = 1, model = fit_discrete)
+```
+
+`svine()` constructs the required CDF and left-limit CDF values automatically.
+Users calling `svinecop()` directly must supply all regular `F(x)` columns,
+followed by one `F(x-)` column for each discrete variable.
 
 ## References
 
-Nagler, T., Krüger, D., Min, A. (2022). Stationary vine copula models for multivariate time series. *Journal of Econometrics, 227(2), pp. 305-324* [[pdf]](https://arxiv.org/abs/2008.05990) [[doi]](https://doi.org/10.1016/j.jeconom.2021.11.015)
+Nagler, T., Krüger, D., and Min, A. (2022). Stationary vine copula models for multivariate time series. *Journal of Econometrics, 227(2), pp. 305-324* [[pdf]](https://arxiv.org/abs/2008.05990) [[doi]](https://doi.org/10.1016/j.jeconom.2021.11.015)

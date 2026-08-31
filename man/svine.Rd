@@ -22,9 +22,11 @@ svine(
 variable: \code{"c"} for continuous, \code{"d"} for discrete. Defaults to
 all-continuous when missing.}
 
-\item{margin_families}{either a vector of \link[univariateML:univariateML_models]{univariateML::univariateML_models} to select
-from (used for every margin) or a list with one entry for every variable.
-Can also be \code{"empirical"} for empirical cdfs.}
+\item{margin_families}{either a character vector of
+\link[univariateML:univariateML_models]{univariateML::univariateML_models} to select from for every margin, or a
+list with one entry for every variable. For a discrete variable, the
+corresponding entry must contain only suitable discrete families. Use
+\code{"empirical"} for empirical CDFs.}
 
 \item{selcrit}{criterion for family selection, either \code{"loglik"}, \code{"aic"},
 \code{"bic"}, \code{"mbicv"}.}
@@ -55,6 +57,11 @@ contour(fit$copula)
 logLik(fit)
 
 pairs(svine_sim(500, rep = 1, fit))
+}
+\references{
+Nagler, T., Krüger, D., and Min, A. (2022). Stationary vine
+copula models for multivariate time series. \emph{Journal of Econometrics},
+227(2), 305--324. \doi{10.1016/j.jeconom.2021.11.015}.
 }
 \seealso{
 \link{svine_dist}, \link{svine_loglik}, \link{svine_sim}, \link{svine_bootstrap_models}
