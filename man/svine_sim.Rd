@@ -22,7 +22,7 @@ Generalized Halton sequence up to dimension 300 and the Generalized Sobol
 sequence in higher dimensions (default \code{qrng = FALSE}).}
 
 \item{cores}{number of cores to use; if larger than one, computations are
-done parallel over replications.}
+performed in parallel over replications.}
 }
 \value{
 An \code{n}-by-\code{d}-by\code{rep} array, where \code{d} is the cross-sectional

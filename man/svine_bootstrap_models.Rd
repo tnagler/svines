@@ -17,7 +17,7 @@ bootstrapped model as object of class \link{svine}.
 }
 \description{
 Computes bootstrap replicates of a given model using the one-step block
-multiplier bootstrap of Nagler et. al (2022).
+multiplier bootstrap of Nagler et al. (2022).
 }
 \examples{
 data(returns)

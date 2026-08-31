@@ -119,7 +119,7 @@ svine <- function(data, p, var_types,
 #' univ1[] <- c(5, 10)
 #' univ2[] <- c(0, 2)
 #' 
-#' ## copula óbject
+#' ## copula object
 #' cs_struct <- cvine_structure(1:2)
 #' pcs <- list(
 #'   list(  # first tree

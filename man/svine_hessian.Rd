@@ -2,7 +2,7 @@
 % Please edit documentation in R/standard_errors.R
 \name{svine_hessian}
 \alias{svine_hessian}
-\title{Expected hessian of a parametric S-vine models}
+\title{Expected Hessian of a parametric S-vine model}
 \usage{
 svine_hessian(x, model, cores = 1)
 }
@@ -14,14 +14,14 @@ svine_hessian(x, model, cores = 1)
 \item{cores}{number of cores to use.}
 }
 \value{
-A returns a \code{k}-by-\code{k} matrix, where \code{k} is the
-total number of parameters in the
-model. Parameters are ordered as follows:
+A \code{k}-by-\code{k} estimate of the expected Hessian, where \code{k} is the
+total number of model parameters. The estimate averages the
+per-observation Hessian contributions. Parameters are ordered as follows:
 marginal parameters, copula parameters of first tree, copula parameters of
 second tree, etc. Duplicated parameters in the copula model are omitted.
 }
 \description{
-Expected hessian of a parametric S-vine models
+Expected Hessian of a parametric S-vine model
 }
 \examples{
 data(returns)
@@ -34,5 +34,6 @@ model <- svine(dat, p = 1, family_set = "parametric")
 I <- cov(svine_scores(dat, model))
 H <- svine_hessian(dat, model)
 Hi <- solve(H)
-Hi \%*\% I \%*\% t(Hi) / nrow(dat)
+n_eff <- nrow(dat) - model$copula$p
+Hi \%*\% I \%*\% t(Hi) / n_eff
 }

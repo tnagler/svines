@@ -10,22 +10,22 @@
 #' @param var_types variable types; a character vector with one entry per
 #'   variable: `"c"` for continuous, `"d"` for discrete. Omitting `var_types`
 #'   when `cs_structure` is not provided will silently fit a continuous model.
-#' @param out_vertices the out-vertex; if `NA`, the out-vertex is selected
-#'   automatically if no structure is provided, and is equivalent to 1 if a
-#'   structure is provided.
-#' @param in_vertices the in-vertex; if `NA`, the in-vertex is selected
-#'   automatically if no structure is provided, and is equivalent to 1 if a
-#'   structure is provided.
+#' @param out_vertices a permutation of `1, ..., d` specifying the out-vertices.
+#'   It is selected automatically when no structure is provided. A fixed
+#'   `cs_structure` requires explicit `out_vertices` and `in_vertices`.
+#' @param in_vertices a permutation of `1, ..., d` specifying the in-vertices.
+#'   It is selected automatically when no structure is provided. A fixed
+#'   `cs_structure` requires explicit `out_vertices` and `in_vertices`.
 #' @param type type of stationary vine; `"S"` (default) for general S-vines,
 #'  `"D"` for Smith's long D-vine, `"M"` for Beare and Seo's M-vine.
 #' @param family_set a character vector of families; see [rvinecopulib::bicop()]
 #'   for additional options.
 #' @param cs_structure the cross-sectional vine structure (see
-#'   [rvinecopulib::rvine_structure()]; `cs_structure = NA` performs automatic
+#'   [rvinecopulib::rvine_structure()]); `cs_structure = NA` performs automatic
 #'   structure selection.
 #' @param par_method the estimation method for parametric models, either `"mle"`
 #'   for sequential maximum likelihood, `"itau"` for inversion of Kendall's tau
-#'   (only available for one-parameter families and `"t"`.
+#'   (only available for one-parameter families and `"t"`).
 #' @param nonpar_method the estimation method for nonparametric models, either
 #'   `"constant"` for the standard transformation estimator, or
 #'   `"linear"`/`"quadratic"` for the local-likelihood approximations of order
@@ -34,8 +34,7 @@
 #'   families. Values larger than 1 make the estimate more smooth, values less
 #'   than 1 less smooth.
 #' @param selcrit criterion for family selection, either `"loglik"`, `"aic"`,
-#'   `"bic"`, `"mbic"`. For `vinecop()` there is the additional option
-#'   `"mbicv"`.
+#'   `"bic"`, `"mbic"`, or `"mbicv"`.
 #' @param weights optional vector of weights for each observation.
 #' @param psi0 prior probability of a non-independence copula (only used for
 #'   `selcrit = "mbic"` and `selcrit = "mbicv"`).
@@ -43,7 +42,8 @@
 #'   symmetry characteristics of the data.
 #' @param keep_data whether the data should be stored (necessary for using
 #'   [fitted()]).
-#' @param trunc_lvl currently unsupported.
+#' @param trunc_lvl the truncation level. Only `Inf`, corresponding to no
+#'   truncation, is currently supported.
 #' @param tree_crit the criterion for tree selection, one of `"tau"`, `"rho"`,
 #'   `"hoeffd"`, or `"mcor"` for Kendall's \eqn{\tau}, Spearman's \eqn{\rho},
 #'   Hoeffding's \eqn{D}, and maximum correlation, respectively.
@@ -141,7 +141,7 @@ svinecop <- function(data, p, var_types,
   if (is_structure_provided) {
     cs_structure <- as_rvine_structure(cs_structure)
     if (any(is.na(c(in_vertices, out_vertices)))) {
-      stop("must specifiy in-/out-vertices if cs_structure is given.")
+      stop("must specify in-/out-vertices if cs_structure is given.")
     }
   } else {
     in_vertices <- out_vertices <- 0
@@ -223,12 +223,8 @@ svinecop <- function(data, p, var_types,
 #' @param cs_structure The cross-sectional structure. Either a matrix, or an
 #'    `rvine_structure` object; see `rvinecopulib::rvine_structure()`
 #' @param p the Markov order.
-#' @param out_vertices the out-vertex; if `NA`, the out-vertex is selected
-#'   automatically if no structure is provided, and is equivalent to 1 if a
-#'    structure is provided.
-#' @param in_vertices the in-vertex; if `NA`, the in-vertex is selected
-#'   automatically if no structure is provided, and is equivalent to 1 if a
-#'    structure is provided.
+#' @param out_vertices a permutation of `1, ..., d` specifying the out-vertices.
+#' @param in_vertices a permutation of `1, ..., d` specifying the in-vertices.
 #' @param var_types variable types; a character vector with one entry per
 #'   variable: `"c"` for continuous, `"d"` for discrete. For discrete
 #'   variables, methods on the returned object expect data in the compact

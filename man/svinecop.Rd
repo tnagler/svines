@@ -44,23 +44,23 @@ when \code{cs_structure} is not provided will silently fit a continuous model.}
 for additional options.}
 
 \item{cs_structure}{the cross-sectional vine structure (see
-\code{\link[rvinecopulib:rvine_structure]{rvinecopulib::rvine_structure()}}; \code{cs_structure = NA} performs automatic
+\code{\link[rvinecopulib:rvine_structure]{rvinecopulib::rvine_structure()}}); \code{cs_structure = NA} performs automatic
 structure selection.}
 
-\item{out_vertices}{the out-vertex; if \code{NA}, the out-vertex is selected
-automatically if no structure is provided, and is equivalent to 1 if a
-structure is provided.}
+\item{out_vertices}{a permutation of \verb{1, ..., d} specifying the out-vertices.
+It is selected automatically when no structure is provided. A fixed
+\code{cs_structure} requires explicit \code{out_vertices} and \code{in_vertices}.}
 
-\item{in_vertices}{the in-vertex; if \code{NA}, the in-vertex is selected
-automatically if no structure is provided, and is equivalent to 1 if a
-structure is provided.}
+\item{in_vertices}{a permutation of \verb{1, ..., d} specifying the in-vertices.
+It is selected automatically when no structure is provided. A fixed
+\code{cs_structure} requires explicit \code{out_vertices} and \code{in_vertices}.}
 
 \item{type}{type of stationary vine; \code{"S"} (default) for general S-vines,
 \code{"D"} for Smith's long D-vine, \code{"M"} for Beare and Seo's M-vine.}
 
 \item{par_method}{the estimation method for parametric models, either \code{"mle"}
 for sequential maximum likelihood, \code{"itau"} for inversion of Kendall's tau
-(only available for one-parameter families and \code{"t"}.}
+(only available for one-parameter families and \code{"t"}).}
 
 \item{nonpar_method}{the estimation method for nonparametric models, either
 \code{"constant"} for the standard transformation estimator, or
@@ -72,8 +72,7 @@ families. Values larger than 1 make the estimate more smooth, values less
 than 1 less smooth.}
 
 \item{selcrit}{criterion for family selection, either \code{"loglik"}, \code{"aic"},
-\code{"bic"}, \code{"mbic"}. For \code{vinecop()} there is the additional option
-\code{"mbicv"}.}
+\code{"bic"}, \code{"mbic"}, or \code{"mbicv"}.}
 
 \item{weights}{optional vector of weights for each observation.}
 
@@ -83,7 +82,8 @@ than 1 less smooth.}
 \item{presel}{whether the family set should be thinned out according to
 symmetry characteristics of the data.}
 
-\item{trunc_lvl}{currently unsupported.}
+\item{trunc_lvl}{the truncation level. Only \code{Inf}, corresponding to no
+truncation, is currently supported.}
 
 \item{tree_crit}{the criterion for tree selection, one of \code{"tau"}, \code{"rho"},
 \code{"hoeffd"}, or \code{"mcor"} for Kendall's \eqn{\tau}, Spearman's \eqn{\rho},

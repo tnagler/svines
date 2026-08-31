@@ -11,7 +11,7 @@
 #' Generalized Halton sequence up to dimension 300 and the Generalized Sobol
 #' sequence in higher dimensions (default `qrng = FALSE`).
 #' @param cores number of cores to use; if larger than one, computations are
-#'   done parallel over replications.
+#'   performed in parallel over replications.
 #'   
 #' @return An `n`-by-`d`-by`rep` array, where `d` is the cross-sectional 
 #'   dimension of the model. This reduces to an `n`-by-`d` matrix if `rep == 1`. 
@@ -54,8 +54,8 @@ svine_sim <- function(n, rep, model, past = NULL, qrng = FALSE, cores = 1) {
 #' @param x the data.
 #' @param model model inheriting from class [svine_dist].
 #' @param cores number of cores to use; if larger than one, computations are
-#'   done in parallel on `cores` batches .
-#' @return Returns the log-likelihood of the data for the model.  
+#'   performed in parallel on `cores` batches.
+#' @return The log-likelihood of the data under the model.
 #'  
 #' @export
 #' @examples 
@@ -109,22 +109,22 @@ logLik.svine <- function(object, ...) {
 #' @param x the data.
 #' @param model model inheriting from class [svine_dist].
 #' @param cores number of cores to use; if larger than one, computations are
-#'   done in parallel on `cores` batches .
-#' @return Returns a multivariate time series of pseudo-residuals  
+#'   performed in parallel on `cores` batches.
+#' @return An `n`-by-`d` matrix of pseudo-residuals, where
+#'   `n = NROW(x) - model$copula$p` and `d` is the cross-sectional dimension.
 #' 
 #' @examples 
 #' # load data set
 #' data(returns)  
 #'
-#' # convert to pseudo observations with empirical cdf for marginal distributions
-#' u <- pseudo_obs(returns[1:100, 1:3]) 
+#' dat <- returns[1:100, 1:3]
 #'
-#' # fit parametric S-vine copula model with Markov order 1
-#' fit <- svinecop(u, p = 1, family_set = "parametric")
+#' # fit parametric S-vine model with Markov order 1
+#' fit <- svine(dat, p = 1, family_set = "parametric")
 #' 
 #' # compute pseudo-residuals
 #' # (should be independent uniform across variables and time)
-#' v <- svinecop_pseudo_residuals(u, fit)
+#' v <- svine_pseudo_residuals(dat, fit)
 #' pairs(cbind(v[-1, ], v[-nrow(v), ]))
 #'
 #' @export
