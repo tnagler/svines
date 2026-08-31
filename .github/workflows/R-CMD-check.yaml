@@ -8,6 +8,8 @@ on:
 
 name: R-CMD-check
 
+permissions: read-all
+
 jobs:
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
@@ -22,13 +24,14 @@ jobs:
           - {os: windows-latest, r: 'release', error-on: '"warning"'}
           - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release', error-on: '"warning"'}
           - {os: ubuntu-latest,   r: 'release', error-on: '"warning"'}
+          - {os: ubuntu-latest,   r: '4.3', error-on: '"warning"'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -45,12 +48,4 @@ jobs:
 
       - uses: r-lib/actions/check-r-package@v2
         with:
-          upload-snapshots: true
           error-on: ${{ matrix.config.error-on }}
-
-      - name: Test coverage
-        if: matrix.config.os == 'macOS-latest' && matrix.config.r == 'release'
-        run: |
-          Rscript -e 'install.packages("remotes")'
-          Rscript -e 'remotes::install_github("r-lib/covr@gh-actions")'
-          Rscript -e 'covr::codecov(line_exclusion = list.files(recursive = TRUE)[grep("^(?!.*wrappers).*\\\.(hpp|h|cpp|c|ipp)$", list.files(recursive = TRUE), perl = TRUE)], token = "${{secrets.CODECOV_TOKEN}}")'
