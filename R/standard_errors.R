@@ -4,9 +4,10 @@
 #' @param model S-vine model (inheriting from [svine_dist]).
 #' @param cores number of cores to use.
 #'
-#' @return A returns a `n`-by-`k` matrix, where `n = NROW(x)` and `k` is the
-#'   total number of parameters in the
-#'   model. Parameters are ordered as follows:
+#' @return An `n`-by-`k` matrix, where `n = NROW(x) - model$copula$p` and `k`
+#'   is the total number of model parameters. The rows correspond to the
+#'   effective time points after the first `p` observations. Parameters are
+#'   ordered as follows:
 #'   marginal parameters, copula parameters of first tree, copula parameters of
 #'   second tree, etc. Duplicated parameters in the copula model are omitted.
 #'
@@ -21,7 +22,8 @@
 #' I <- cov(svine_scores(dat, model))
 #' H <- svine_hessian(dat, model)
 #' Hi <- solve(H)
-#' Hi %*% I %*% t(Hi) / nrow(dat)
+#' n_eff <- nrow(dat) - model$copula$p
+#' Hi %*% I %*% t(Hi) / n_eff
 #' @export
 svine_scores <- function(x, model, cores = 1) {
   assert_that(inherits(model, "svine_dist"))
@@ -36,15 +38,15 @@ svine_scores <- function(x, model, cores = 1) {
   cbind(S_mrg, S_cop)
 }
 
-#' Expected hessian of a parametric S-vine models
+#' Expected Hessian of a parametric S-vine model
 #'
 #' @param x the data.
 #' @param model S-vine model (inheriting from [svine_dist]).
 #' @param cores number of cores to use.
 #'
-#' @return A returns a `k`-by-`k` matrix, where `k` is the
-#'   total number of parameters in the
-#'   model. Parameters are ordered as follows:
+#' @return A `k`-by-`k` estimate of the expected Hessian, where `k` is the
+#'   total number of model parameters. The estimate averages the
+#'   per-observation Hessian contributions. Parameters are ordered as follows:
 #'   marginal parameters, copula parameters of first tree, copula parameters of
 #'   second tree, etc. Duplicated parameters in the copula model are omitted.
 #'
@@ -59,7 +61,8 @@ svine_scores <- function(x, model, cores = 1) {
 #' I <- cov(svine_scores(dat, model))
 #' H <- svine_hessian(dat, model)
 #' Hi <- solve(H)
-#' Hi %*% I %*% t(Hi) / nrow(dat)
+#' n_eff <- nrow(dat) - model$copula$p
+#' Hi %*% I %*% t(Hi) / n_eff
 #' @export
 svine_hessian <- function(x, model, cores = 1) {
   assert_that(inherits(model, "svine_dist"))
@@ -79,13 +82,17 @@ svine_hessian <- function(x, model, cores = 1) {
 #' Bootstrap S-vine models
 #' 
 #' Computes bootstrap replicates of a given model using the one-step block 
-#' multiplier bootstrap of Nagler et. al (2022).
+#' multiplier bootstrap of Nagler et al. (2022).
 #'
 #' @param n_models number of bootstrap replicates.
 #' @param model the initial fitted model
 #' 
 #' @return A list of length `n_models`, with each entry representing one 
 #'   bootstrapped model as object of class [svine].
+#'
+#' @references Nagler, T., Krüger, D., and Min, A. (2022). Stationary vine
+#'   copula models for multivariate time series. *Journal of Econometrics*,
+#'   227(2), 305--324. \doi{10.1016/j.jeconom.2021.11.015}.
 #'
 #' @export
 #'

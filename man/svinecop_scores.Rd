@@ -7,17 +7,18 @@
 svinecop_scores(u, model, cores = 1)
 }
 \arguments{
-\item{u}{the data; should have approximately uniform margins..}
+\item{u}{the data; should have approximately uniform margins.}
 
 \item{model}{model inheriting from class \link{svinecop_dist}.}
 
 \item{cores}{number of cores to use; if larger than one, computations are
-done in parallel on \code{cores} batches .}
+performed in parallel on \code{cores} batches.}
 }
 \value{
-A matrix containing the score vectors in its rows, where each
-row corresponds to one observation (row in \code{u}). The columns correspond
-to model parameters in the order:
+An \code{n}-by-\code{k} matrix containing the score vectors in its rows,
+where \code{n = NROW(u) - model$p} and \code{k = model$npars}. The rows correspond
+to the effective time points after the first \code{p} observations. The
+columns correspond to model parameters in the order:
 copula parameters of first tree, copula parameters of
 second tree, etc. Duplicated parameters in the copula model are omitted.
 }

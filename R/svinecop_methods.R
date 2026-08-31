@@ -11,7 +11,7 @@
 #' Generalized Halton sequence up to dimension 300 and the Generalized Sobol
 #' sequence in higher dimensions (default `qrng = FALSE`).
 #' @param cores number of cores to use; if larger than one, computations are
-#'   done parallel over replications.
+#'   performed in parallel over replications.
 #'   
 #' @return An `n`-by-`d`-by-`rep` array, where `d` is the cross-sectional 
 #'   dimension of the model. This reduces to an `n`-by-`d` matrix if `rep == 1`. 
@@ -71,8 +71,8 @@ simplify_names <- function(model) {
 #' @param u the data; should have approximately uniform margins.
 #' @param model model inheriting from class [svinecop_dist].
 #' @param cores number of cores to use; if larger than one, computations are
-#'   done in parallel on `cores` batches .
-#' @return Returns the log-likelihood of the data for the model.  
+#'   performed in parallel on `cores` batches.
+#' @return The log-likelihood of the data under the model.
 #'   
 #' @export
 #' @examples 
@@ -96,14 +96,15 @@ svinecop_loglik <- function(u, model, cores = 1) {
 
 #' Log-likelihood scores for S-vine copula models
 #' 
-#' @param u the data; should have approximately uniform margins..
+#' @param u the data; should have approximately uniform margins.
 #' @param model model inheriting from class [svinecop_dist].
 #' @param cores number of cores to use; if larger than one, computations are
-#'   done in parallel on `cores` batches .
+#'   performed in parallel on `cores` batches.
 #'   
-#' @returns A matrix containing the score vectors in its rows, where each 
-#'   row corresponds to one observation (row in `u`). The columns correspond 
-#'   to model parameters in the order: 
+#' @returns An `n`-by-`k` matrix containing the score vectors in its rows,
+#'   where `n = NROW(u) - model$p` and `k = model$npars`. The rows correspond
+#'   to the effective time points after the first `p` observations. The
+#'   columns correspond to model parameters in the order:
 #'   copula parameters of first tree, copula parameters of
 #'   second tree, etc. Duplicated parameters in the copula model are omitted.
 #'   
@@ -129,16 +130,17 @@ svinecop_scores <- function(u, model, cores = 1) {
   svinecop_scores_cpp(u, model, cores)
 }
 
-#' Expected hessian for S-vine copula models
+#' Expected Hessian for S-vine copula models
 #'
-#' @param u the data; should have approximately uniform margins..
+#' @param u the data; should have approximately uniform margins.
 #' @param model model inheriting from class [svinecop_dist].
 #' @param cores number of cores to use; if larger than one, computations are
-#'   done in parallel on `cores` batches .
-#' @return Returns the observed Hessian matrix. Rows/columns correspond to to
-#'   model parameters in the order: copula parameters of first tree, copula
-#'   parameters of second tree, etc. Duplicated parameters in the copula model
-#'   are omitted.
+#'   performed in parallel on `cores` batches.
+#' @return A `model$npars`-by-`model$npars` estimate of the expected Hessian,
+#'   obtained by averaging the per-observation Hessian contributions. Rows and
+#'   columns correspond to model parameters in the order: copula parameters of
+#'   the first tree, copula parameters of the second tree, etc. Duplicated
+#'   parameters in the copula model are omitted.
 #'
 #' @seealso [svinecop_scores]
 #'
@@ -181,8 +183,9 @@ svinecop_hessian <- function(u, model, cores = 1) {
 #' @param u the data; should have approximately uniform margins.
 #' @param model model inheriting from class [svinecop_dist].
 #' @param cores number of cores to use; if larger than one, computations are
-#'   done in parallel on `cores` batches .
-#' @return Returns a multivariate time series of pseudo-residuals  
+#'   performed in parallel on `cores` batches.
+#' @return An `n`-by-`d` matrix of pseudo-residuals, where
+#'   `n = NROW(u) - model$p` and `d` is the cross-sectional dimension.
 #' 
 #' @examples 
 #' # load data set

@@ -14,9 +14,10 @@ svine_scores(x, model, cores = 1)
 \item{cores}{number of cores to use.}
 }
 \value{
-A returns a \code{n}-by-\code{k} matrix, where \code{n = NROW(x)} and \code{k} is the
-total number of parameters in the
-model. Parameters are ordered as follows:
+An \code{n}-by-\code{k} matrix, where \code{n = NROW(x) - model$copula$p} and \code{k}
+is the total number of model parameters. The rows correspond to the
+effective time points after the first \code{p} observations. Parameters are
+ordered as follows:
 marginal parameters, copula parameters of first tree, copula parameters of
 second tree, etc. Duplicated parameters in the copula model are omitted.
 }
@@ -34,5 +35,6 @@ model <- svine(dat, p = 1, family_set = "parametric")
 I <- cov(svine_scores(dat, model))
 H <- svine_hessian(dat, model)
 Hi <- solve(H)
-Hi \%*\% I \%*\% t(Hi) / nrow(dat)
+n_eff <- nrow(dat) - model$copula$p
+Hi \%*\% I \%*\% t(Hi) / n_eff
 }

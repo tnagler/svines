@@ -1,0 +1,17 @@
+citHeader("To cite svines in publications, use:")
+
+bibentry(
+  bibtype = "Article",
+  title = "Stationary vine copula models for multivariate time series",
+  author = c(
+    person("Thomas", "Nagler"),
+    person("Daniel", "Krüger"),
+    person("Aleksey", "Min")
+  ),
+  journal = "Journal of Econometrics",
+  year = "2022",
+  volume = "227",
+  number = "2",
+  pages = "305--324",
+  doi = "10.1016/j.jeconom.2021.11.015"
+)

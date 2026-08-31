@@ -17,7 +17,7 @@ bootstrapped model as object of class \link{svine}.
 }
 \description{
 Computes bootstrap replicates of a given model using the one-step block
-multiplier bootstrap of Nagler et. al (2022).
+multiplier bootstrap of Nagler et al. (2022).
 }
 \examples{
 data(returns)
@@ -37,4 +37,9 @@ mu_boot <- sapply(
     quantile(xx, 0.9)
   }
 ) 
+}
+\references{
+Nagler, T., Krüger, D., and Min, A. (2022). Stationary vine
+copula models for multivariate time series. \emph{Journal of Econometrics},
+227(2), 305--324. \doi{10.1016/j.jeconom.2021.11.015}.
 }

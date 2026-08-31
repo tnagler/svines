@@ -12,10 +12,11 @@ svinecop_pseudo_residuals(u, model, cores = 1)
 \item{model}{model inheriting from class \link{svinecop_dist}.}
 
 \item{cores}{number of cores to use; if larger than one, computations are
-done in parallel on \code{cores} batches .}
+performed in parallel on \code{cores} batches.}
 }
 \value{
-Returns a multivariate time series of pseudo-residuals
+An \code{n}-by-\code{d} matrix of pseudo-residuals, where
+\code{n = NROW(u) - model$p} and \code{d} is the cross-sectional dimension.
 }
 \description{
 Pseudo-residuals are defined as the Rosenblatt transform of the data,

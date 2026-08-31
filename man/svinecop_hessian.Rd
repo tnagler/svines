@@ -2,26 +2,27 @@
 % Please edit documentation in R/svinecop_methods.R
 \name{svinecop_hessian}
 \alias{svinecop_hessian}
-\title{Expected hessian for S-vine copula models}
+\title{Expected Hessian for S-vine copula models}
 \usage{
 svinecop_hessian(u, model, cores = 1)
 }
 \arguments{
-\item{u}{the data; should have approximately uniform margins..}
+\item{u}{the data; should have approximately uniform margins.}
 
 \item{model}{model inheriting from class \link{svinecop_dist}.}
 
 \item{cores}{number of cores to use; if larger than one, computations are
-done in parallel on \code{cores} batches .}
+performed in parallel on \code{cores} batches.}
 }
 \value{
-Returns the observed Hessian matrix. Rows/columns correspond to to
-model parameters in the order: copula parameters of first tree, copula
-parameters of second tree, etc. Duplicated parameters in the copula model
-are omitted.
+A \code{model$npars}-by-\code{model$npars} estimate of the expected Hessian,
+obtained by averaging the per-observation Hessian contributions. Rows and
+columns correspond to model parameters in the order: copula parameters of
+the first tree, copula parameters of the second tree, etc. Duplicated
+parameters in the copula model are omitted.
 }
 \description{
-Expected hessian for S-vine copula models
+Expected Hessian for S-vine copula models
 }
 \examples{
 # load data set

@@ -12,10 +12,11 @@ svine_pseudo_residuals(x, model, cores = 1)
 \item{model}{model inheriting from class \link{svine_dist}.}
 
 \item{cores}{number of cores to use; if larger than one, computations are
-done in parallel on \code{cores} batches .}
+performed in parallel on \code{cores} batches.}
 }
 \value{
-Returns a multivariate time series of pseudo-residuals
+An \code{n}-by-\code{d} matrix of pseudo-residuals, where
+\code{n = NROW(x) - model$copula$p} and \code{d} is the cross-sectional dimension.
 }
 \description{
 Pseudo-residuals are defined as the Rosenblatt transform of the data,
@@ -26,15 +27,14 @@ approximately \emph{iid} uniform on \eqn{[0, 1]^d}.
 # load data set
 data(returns)  
 
-# convert to pseudo observations with empirical cdf for marginal distributions
-u <- pseudo_obs(returns[1:100, 1:3]) 
+dat <- returns[1:100, 1:3]
 
-# fit parametric S-vine copula model with Markov order 1
-fit <- svinecop(u, p = 1, family_set = "parametric")
+# fit parametric S-vine model with Markov order 1
+fit <- svine(dat, p = 1, family_set = "parametric")
 
 # compute pseudo-residuals
 # (should be independent uniform across variables and time)
-v <- svinecop_pseudo_residuals(u, fit)
+v <- svine_pseudo_residuals(dat, fit)
 pairs(cbind(v[-1, ], v[-nrow(v), ]))
 
 }

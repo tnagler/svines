@@ -23,13 +23,9 @@ svinecop_dist(
 
 \item{p}{the Markov order.}
 
-\item{out_vertices}{the out-vertex; if \code{NA}, the out-vertex is selected
-automatically if no structure is provided, and is equivalent to 1 if a
-structure is provided.}
+\item{out_vertices}{a permutation of \verb{1, ..., d} specifying the out-vertices.}
 
-\item{in_vertices}{the in-vertex; if \code{NA}, the in-vertex is selected
-automatically if no structure is provided, and is equivalent to 1 if a
-structure is provided.}
+\item{in_vertices}{a permutation of \verb{1, ..., d} specifying the in-vertices.}
 
 \item{var_types}{variable types; a character vector with one entry per
 variable: \code{"c"} for continuous, \code{"d"} for discrete. For discrete

@@ -1,3 +1,29 @@
 template:
   bootstrap: 5
-url: https://github.com/tnagler/svines
+url: https://tnagler.github.io/svines/
+
+reference:
+  - title: Model fitting and construction
+    contents:
+      - svine
+      - svine_dist
+      - svinecop
+      - svinecop_dist
+  - title: Simulation and evaluation
+    contents:
+      - svine_sim
+      - svine_loglik
+      - svinecop_sim
+      - svinecop_loglik
+  - title: Diagnostics and inference
+    contents:
+      - svine_pseudo_residuals
+      - svine_scores
+      - svine_hessian
+      - svine_bootstrap_models
+      - svinecop_pseudo_residuals
+      - svinecop_scores
+      - svinecop_hessian
+  - title: Data
+    contents:
+      - returns

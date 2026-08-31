@@ -11,6 +11,7 @@ Provides functionality to fit and simulate from stationary vine copula models fo
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://tnagler.github.io/svines/}
   \item \url{https://github.com/tnagler/svines}
   \item Report bugs at \url{https://github.com/tnagler/svines/issues}
 }
@@ -18,6 +19,11 @@ Useful links:
 }
 \author{
 \strong{Maintainer}: Thomas Nagler \email{mail@tnagler.com}
+
+Authors:
+\itemize{
+  \item Thomas Nagler \email{mail@tnagler.com}
+}
 
 }
 \keyword{internal}

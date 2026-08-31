@@ -1,0 +1,131 @@
+---
+title: "Getting started with svines"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with svines}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE
+)
+set.seed(2026)
+```
+
+```{r setup}
+library(svines)
+```
+
+## Model layers
+
+An S-vine model combines marginal distributions with a stationary vine copula.
+The package exposes these two layers separately:
+
+- `svine()` fits a complete distribution model to observed data. It estimates
+  the marginal distributions, transforms the observations to the unit
+  hypercube, and fits the copula.
+- `svinecop()` fits only the copula and therefore expects approximately uniform
+  pseudo-observations.
+- `svine_dist()` and `svinecop_dist()` construct models from specified margins,
+  pair copulas, and an S-vine structure.
+
+The argument `p` is the Markov order. An order-one model relates the current
+observation to the previous observation, while larger values include additional
+lags.
+
+## Fitting a continuous model
+
+The `returns` data contain daily log returns of 20 companies. We use two series
+and restrict the candidate families to keep this example short.
+
+```{r continuous-fit}
+data(returns)
+x <- returns[1:200, 1:2]
+
+fit <- svine(
+  x,
+  p = 1,
+  margin_families = c("norm", "std"),
+  family_set = c("gaussian", "t")
+)
+fit
+summary(fit)
+```
+
+The fitted object contains the marginal models in `fit$margins` and the copula
+model in `fit$copula`. Standard `rvinecopulib` methods can be applied to the
+copula component.
+
+## Simulation and diagnostics
+
+Without a conditioning history, `svine_sim()` generates a new stationary time
+series. Supplying `past` instead generates paths conditional on the observed
+history.
+
+```{r simulation}
+sim <- svine_sim(n = 100, rep = 1, model = fit)
+dim(sim)
+
+next_obs <- svine_sim(n = 1, rep = 100, model = fit, past = x)
+dim(next_obs)
+```
+
+Pseudo-residuals are conditional Rosenblatt transforms. For a fitted model of
+order `p`, the result has `NROW(x) - p` rows.
+
+```{r diagnostics}
+residuals <- svine_pseudo_residuals(x, fit)
+dim(residuals)
+```
+
+## Discrete variables
+
+For discrete variables, specify `var_types = "d"` and restrict
+`margin_families` to suitable discrete families. The following model uses two
+Poisson margins.
+
+```{r discrete-fit}
+counts <- cbind(
+  claims = rpois(250, lambda = 2),
+  events = rpois(250, lambda = 4)
+)
+
+fit_discrete <- svine(
+  counts,
+  p = 1,
+  var_types = c("d", "d"),
+  margin_families = "pois",
+  family_set = "gaussian"
+)
+fit_discrete
+svine_sim(5, rep = 1, model = fit_discrete)
+```
+
+`svine()` evaluates both the CDF, `F(x)`, and its left limit, `F(x-)`, and
+constructs the copula data automatically. When calling `svinecop()` directly,
+supply the regular CDF columns first, followed by one left-limit column for each
+discrete variable.
+
+## Copula-only models
+
+When the marginal transformation is handled separately, fit the copula layer
+directly.
+
+```{r copula-only}
+u <- pseudo_obs(x)
+copula_fit <- svinecop(
+  u,
+  p = 1,
+  family_set = c("gaussian", "t")
+)
+copula_fit
+```
+
+Use `svinecop_loglik()`, `svinecop_scores()`, and `svinecop_hessian()` for
+copula-level inference. The corresponding `svine_*` functions include the
+marginal parameters.
