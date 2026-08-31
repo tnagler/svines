@@ -7,7 +7,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/tnagler/svines/blob/main/inst/CITATION)
+[`inst/CITATION`](https://github.com/tnagler/svines/blob/v0.3.0/inst/CITATION)
 
 Nagler T, Krüger D, Min A (2022). “Stationary vine copula models for
 multivariate time series.” *Journal of Econometrics*, **227**(2),
