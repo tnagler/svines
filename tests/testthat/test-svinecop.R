@@ -13,6 +13,11 @@ test_that("creating custom models (1d)", {
     in_vertices = 1
   )
   expect_equal(unname(dim(sv)), c(1, 0))
+  expect_equal(unname(dim(svinecop_sim(10, 1, sv))), c(10, 1))
+  expect_equal(
+    unname(dim(svinecop_sim(10, 1, sv, matrix(runif(10), ncol = 1)))),
+    c(10, 1)
+  )
 
   sv <- svinecop_dist(
     list(list(bc)),
