@@ -1,0 +1,188 @@
+# svines
+
+An R package that provides functionality to fit and simulate from
+[stationary vine copula models for time
+series](https://arxiv.org/abs/2008.05990).
+
+The package is built on top of
+[rvinecopulib](https://github.com/vinecopulib/rvinecopulib) and
+[univariateML](https://github.com/JonasMoss/univariateML).
+
+## Installation
+
+Install the released version from CRAN.
+
+``` r
+
+install.packages("svines")
+```
+
+Install the development version from GitHub with `remotes`.
+
+``` r
+
+# install.packages("remotes")
+remotes::install_github("tnagler/svines")
+```
+
+## Usage
+
+For detailed documentation and examples, see the [package
+website](https://tnagler.github.io/svines/).
+
+Use [`svine()`](https://tnagler.github.io/svines/reference/svine.md) for
+observed data: it estimates the marginal distributions and the S-vine
+copula. Use
+[`svinecop()`](https://tnagler.github.io/svines/reference/svinecop.md)
+when the margins have already been transformed to approximately uniform
+pseudo-observations.
+
+``` r
+
+library(svines)
+data(returns)  # data set of stock returns
+returns <- returns[1:500, 1:2]
+```
+
+### Fitting models
+
+``` r
+
+fit <- svine(returns, p = 1)  # Markov order 1
+summary(fit)
+#> $margins
+#> # A data.frame: 2 x 5 
+#>  margin    name          model                         parameters loglik
+#>       1 Allianz Skew Student-t 0.00039, 0.01589, 5.45534, 0.91785   1382
+#>       2     AXA Skew Student-t 0.00052, 0.02089, 4.35198, 0.90611   1260
+#> 
+#> $copula
+#> # A data.frame: 5 x 10 
+#>  tree edge conditioned conditioning var_types family rotation   parameters df
+#>     1    1        3, 2                    c,c      t        0 0.037, 4.893  2
+#>     1    2        2, 1                    c,c      t        0   0.86, 3.48  2
+#>     2    1        4, 2            3       c,c    joe       90          1.1  1
+#>     2    2        3, 1            2       c,c  indep        0               0
+#>     3    1        4, 1         2, 3       c,c      t        0 0.079, 8.994  2
+#>     tau
+#>   0.023
+#>   0.662
+#>  -0.033
+#>   0.000
+#>   0.051
+```
+
+``` r
+
+contour(fit$copula)
+```
+
+![](reference/figures/README-unnamed-chunk-4-1.png)
+
+### Simulation
+
+[`svine_sim()`](https://tnagler.github.io/svines/reference/svine_sim.md)
+can be used in two different ways:
+
+#### Generate a new time series of length 500
+
+``` r
+
+sim <- svine_sim(n = 500, rep = 1, model = fit)
+pairs(sim)
+```
+
+![](reference/figures/README-unnamed-chunk-5-1.png)
+
+``` r
+
+pairs(returns)
+```
+
+![](reference/figures/README-unnamed-chunk-5-2.png)
+
+#### Sample conditionally on the observed past
+
+``` r
+
+sim <- svine_sim(n = 1, rep = 100, model = fit, past = returns)
+pairs(t(sim[1, , ]))
+```
+
+![](reference/figures/README-unnamed-chunk-6-1.png)
+
+### Standard errors
+
+To generate bootstrap replicates with the one-step block multiplier
+bootstrap, use
+
+``` r
+
+set.seed(2026)
+models <- svine_bootstrap_models(2, fit)
+summary(models[[1]])
+#> $margins
+#> # A data.frame: 2 x 5 
+#>  margin    name          model                         parameters loglik
+#>       1 Allianz Skew Student-t 0.00057, 0.01437, 7.22824, 0.97850     NA
+#>       2     AXA Skew Student-t 0.00065, 0.01842, 5.29395, 0.98127     NA
+#> 
+#> $copula
+#> # A data.frame: 5 x 10 
+#>  tree edge conditioned conditioning var_types family rotation    parameters df
+#>     1    1        3, 2                    c,c      t        0 -0.022, 5.380  2
+#>     1    2        2, 1                    c,c      t        0    0.84, 2.99  2
+#>     2    1        4, 2            3       c,c    joe       90             1  1
+#>     2    2        3, 1            2       c,c  indep        0                0
+#>     3    1        4, 1         2, 3       c,c      t        0    0.11, 6.83  2
+#>     tau
+#>  -0.014
+#>   0.634
+#>  -0.008
+#>   0.000
+#>   0.068
+```
+
+### Discrete variables
+
+Declare discrete variables through `var_types` and restrict their
+marginal families to suitable discrete distributions. The following
+model uses Poisson margins and a Gaussian pair-copula family.
+
+``` r
+
+counts <- cbind(
+  claims = rpois(250, lambda = 2),
+  events = rpois(250, lambda = 4)
+)
+fit_discrete <- svine(
+  counts,
+  p = 1,
+  var_types = c("d", "d"),
+  margin_families = "pois",
+  family_set = "gaussian"
+)
+fit_discrete
+#> 2-dimensional S-vine distribution model of order p = 1 ('svine_dist')
+svine_sim(5, rep = 1, model = fit_discrete)
+#>      claims events
+#> [1,]      3      4
+#> [2,]      0      5
+#> [3,]      0      1
+#> [4,]      3      5
+#> [5,]      1      1
+```
+
+[`svine()`](https://tnagler.github.io/svines/reference/svine.md)
+constructs the required CDF and left-limit CDF values automatically.
+Users calling
+[`svinecop()`](https://tnagler.github.io/svines/reference/svinecop.md)
+directly must supply all regular `F(x)` columns, followed by one `F(x-)`
+column for each discrete variable.
+
+## References
+
+Nagler, T., Krüger, D., and Min, A. (2022). Stationary vine copula
+models for multivariate time series. *Journal of Econometrics, 227(2),
+pp. 305-324* [\[pdf\]](https://arxiv.org/abs/2008.05990)
+[\[doi\]](https://doi.org/10.1016/j.jeconom.2021.11.015)
