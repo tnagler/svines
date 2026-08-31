@@ -167,7 +167,9 @@ SVinecop::simulate(size_t n,
 
   // simulate conditional on previous observations
   for (size_t i = p_ + 1; i < n; i++) {
-    Ui.leftCols(d_ - cs_dim_) = get_last_cpits(sim.topRows(i));
+    if (p_ > 0) {
+      Ui.leftCols(d_ - cs_dim_) = get_last_cpits(sim.topRows(i));
+    }
     Ui.rightCols(cs_dim_) = U.row(i);
     sim.row(i) = inverse_rosenblatt(Ui).rightCols(cs_dim_);
   }
@@ -211,7 +213,9 @@ SVinecop::simulate_ahead(size_t n_ahead,
   Eigen::MatrixXd sim(n_ahead + p_, cs_dim_);
   sim.topRows(p_) = data.bottomRows(p_);
   for (size_t i = p_; i < p_ + n_ahead; i++) {
-    Ui.leftCols(d_ - cs_dim_) = get_last_cpits(sim.topRows(i));
+    if (p_ > 0) {
+      Ui.leftCols(d_ - cs_dim_) = get_last_cpits(sim.topRows(i));
+    }
     Ui.rightCols(cs_dim_) = U.row(i);
     sim.row(i) = inverse_rosenblatt(Ui).rightCols(cs_dim_);
   }
